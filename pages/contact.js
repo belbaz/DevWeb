@@ -1,5 +1,3 @@
-import '../styles/home.css';
-
 export default function contact() {
     return (
         <div>
