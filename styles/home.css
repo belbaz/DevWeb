@@ -1,0 +1,68 @@
+/* styles/Home.css */
+
+/* Style général de la page */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e0f7fa, #80deea);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh; /* Pour s'assurer que la page prend toute la hauteur */
+    color: #333;
+    overflow-x: hidden;
+}
+
+/* Conteneur principal */
+main {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    margin: 30px auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Effet de survol sur le conteneur */
+main:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Titre principal */
+h1 {
+    font-size: 2.5rem;
+    color: #00796b;
+    margin: 0;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Animation d’apparition */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mise à jour du padding du footer pour que ce soit cohérent avec la page */
+footer {
+    padding: 20px;
+    text-align: center;
+    background-color: #004d40;
+    color: white;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+footer p {
+    margin: 0;
+}
