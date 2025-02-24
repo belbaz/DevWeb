@@ -6,18 +6,26 @@ export default function home() {
     const [message, setMessage] = useState('. . .');
     const [messageSupabase, setMessageSupabase] = useState('. . .');
 
-    useEffect(() => {
+    useEffect(async () => {
         // Appel de l'API pour obtenir le message
         fetch('/api/hello')
             .then(response => response.json())
             .then(data => setMessage(data.message));
 
         // Appel de l'API Supabase
-        fetch('/api/supabase')
-            .then((response) => response.json())
-            .then((data) => {
-                setMessageSupabase(data);
-            });
+        try {
+            const response = await fetch('/api/supabase');
+            if (response.ok) {
+                setMessageSupabase(await response.json());
+            } else if (response.status === 500) {
+                console.log(response.json());
+                setMessageSupabase('Erreur de connexion : BD Supabase pas disponible !');
+            } else {
+                setMessageSupabase("Erreur lors de la connexion a la BD");
+            }
+        } catch (error) {
+            setMessageSupabase("Erreur lors de la connexion a la BD");
+        }
     }, []);
 
     return (
