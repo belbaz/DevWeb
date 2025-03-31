@@ -1,7 +1,6 @@
 import Header from '../components/header';
 import Footer from '../components/footer';
 import {useEffect, useState} from "react";
-import "../styles/style.css"
 import Cookies from "js-cookie";
 import {useRouter} from "next/router";
 import Rolling from "../components/rolling";
