@@ -54,7 +54,7 @@ const login = async (req, res) => {
 
                 res.setHeader('Set-Cookie', [
                     serialize('TOKEN', token, {
-                        httpOnly: process.env.NODE_ENV !== 'development',
+                        httpOnly: false,
                         secure: process.env.NODE_ENV !== 'development',
                         sameSite: 'strict',
                         maxAge: 3600,
