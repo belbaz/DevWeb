@@ -6,6 +6,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 // Client Supabase
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+//creation de la fonction asyncrone
 export default async function handler(req, res) {
     try {
         // Vérifiez si la méthode HTTP est correcte (par exemple, GET)

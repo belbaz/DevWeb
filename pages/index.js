@@ -32,7 +32,7 @@ export default function home() {
         <div>
             <Header/>
             <main>
-                <h1>Bienvenue sur dev web !</h1>
+                <h1>Welcome to the musehome</h1>
                 <p>{message}</p>
                 <p>{messageSupabase}</p>
             </main>
