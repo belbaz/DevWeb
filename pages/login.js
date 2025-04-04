@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 export default function login() {
     const [isLoading, setIsLoading] = useState(false);
     const [loadingCookies, setloadingCookies] = useState(false);
+    const [msgError, setMsgError] = useState(null);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -22,6 +23,8 @@ export default function login() {
             body: JSON.stringify({idf, mdp}),
         });
 
+        const data = await response.json();
+
         if (response.status === 200) {
             // Ajoutez un délai avant la redirection
             setTimeout(() => {
@@ -29,7 +32,11 @@ export default function login() {
             }, 100);
         } else if (response.status === 401) {
             setIsLoading(false);
-            document.getElementById("error").innerText = "identifiant ou mot de passe incorrect";
+            setMsgError("identifiant ou mot de passe incorrect");
+        } else if (response.status === 500) {
+            setIsLoading(false);
+            console.log(data.message);
+            setMsgError(data.message);
         }
     };
 
@@ -49,12 +56,17 @@ export default function login() {
             try {
                 const response = await fetch('/api/checkToken', {
                     method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` },
+                    headers: {'Authorization': `Bearer ${token}`},
                     credentials: 'include', // Important pour envoyer les cookies
                 });
 
                 if (response.ok) {
                     await router.replace('/dashboard');
+                } else {
+                    console.log("Erreur lors de la connexion sur la page");
+
+
+                    document.getElementById("error").innerText = "identifiant ou mot de passe incorrect";
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du token :", error);
@@ -63,10 +75,6 @@ export default function login() {
         };
         checkAuth();
     }, []);
-
-    const clearErrorMessage = () => {
-        document.getElementById("error").innerText = "";
-    }
 
     return (
         <div>
@@ -96,20 +104,20 @@ export default function login() {
                                                                maxLength="19"
                                                                required
                                                                autoComplete="username"
-                                                               onClick={clearErrorMessage}>
+                                                               onClick={() => setMsgError(null)}>
                                                         </input>
                                                         <input className="inputs" type="password" id="mdp"
                                                                name="mdp"
                                                                maxLength="19"
                                                                required
                                                                autoComplete="current-password"
-                                                               onClick={clearErrorMessage}>
+                                                               onClick={() => setMsgError(null)}>
                                                         </input>
                                                     </div>
                                                 </div>
                                                 <button className="button" type='submit' disabled={isLoading}
                                                         style={{padding: isLoading ? "7px" : "20px"}}
-                                                        onClick={clearErrorMessage}>
+                                                        onClick={() => setMsgError(null)}>
                                                     {isLoading ? (
                                                         <div>
                                                             {Rolling(50, 50, "#000000")}
@@ -125,7 +133,7 @@ export default function login() {
                                                         <p></p>
                                                     </div>
                                                 )}
-                                                <p id="error" className="error"></p>
+                                                <p className="error">{msgError}</p>
                                             </div>
                                         )
                                     }
