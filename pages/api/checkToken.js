@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
+import {wait} from "next/dist/lib/wait";
 
-export default function checkToken(req, res) {
+export default async function checkToken(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({error: 'Méthode non autorisée'});
     }

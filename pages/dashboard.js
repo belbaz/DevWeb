@@ -58,11 +58,15 @@ export default function dashboard() {
 
     if (!pseudo) {
         return (
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-                <p style={{fontSize: '26px', marginBottom: '5px'}}>Loading...</p>
-                <div>
-                    {Rolling(50, 50, "#000000")}
+            <div>
+                <Header/>
+                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                    <p style={{fontSize: '30px', marginBottom: '5px'}}>Loading...</p>
+                    <div>
+                        {Rolling(50, 50, "#000000")}
+                    </div>
                 </div>
+                <Footer/>
             </div>
         ); // Éviter de montrer le dashboard avant validation
     } else {
@@ -71,7 +75,7 @@ export default function dashboard() {
                 <Header/>
                 <main>
                     <h1>Welcome to the dashboard</h1>
-                    <p>You are connected <b>{pseudo}</b></p>
+                    <p>You are connected as <b>{pseudo}</b></p>
                     <button className="popButton" onClick={handleLogout}>Logout</button>
                 </main>
                 <Footer/>

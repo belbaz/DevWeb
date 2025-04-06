@@ -37,7 +37,7 @@ const login = async (req, res) => {
                     .eq('pseudo', idf)
                     .single();
 
-                //console.log(user);
+                // console.log(user);
                 if (error) {
                     console.error('Erreur Supabase :', error);
                     return res.status().json({error: 'Erreur serveur, veuillez réessayer plus tard.'});
@@ -46,7 +46,7 @@ const login = async (req, res) => {
                     return res.status(401).json({error: 'Identifiant ou mot de passe incorrect'});
                 }
 
-
+                //vérification du mot de passer en comparant le hash avec le mdp hashé dans la BD
                 if (bcrypt.compareSync(mdp, user.password)) {
                     if (!process.env.JWT_SECRET) {
                         throw new Error("JWT_SECRET non défini dans le fichier .env !");
@@ -58,13 +58,17 @@ const login = async (req, res) => {
                     // Définir l'utilisateur actuel dans Supabase
                     await supabase.rpc('set_current_user', {pseudo: user.pseudo});
 
-                    // Mise à jour de la date de connexion
-                    await supabase
-                        .from('connexion')
-                        .update({
-                            dateOnline: moment().tz('Europe/Paris').format(),
-                        })
-                        .eq('pseudo', idf);
+                    // Mise à jour de la date d'User
+                    try {
+                        await supabase
+                            .from('User')
+                            .update({
+                                dateOnline: moment().tz('Europe/Paris').format(),
+                            })
+                            .eq('pseudo', idf);
+                    } catch (error) {
+                        console.error("Erreur lors de l'update de dateOnline : ", error);
+                    }
 
                     res.setHeader('Set-Cookie', [
                         serialize('TOKEN', token, {

@@ -3,6 +3,7 @@ import Header from '../components/header';
 import Rolling from "../components/rolling";
 import {router} from "next/client";
 import Cookies from "js-cookie";
+import {wait} from "next/dist/lib/wait";
 
 export default function login() {
     const [isLoading, setIsLoading] = useState(false);
@@ -26,10 +27,7 @@ export default function login() {
         const data = await response.json();
 
         if (response.status === 200) {
-            // Ajoutez un délai avant la redirection
-            setTimeout(() => {
-                router.push("/dashboard");
-            }, 100);
+            router.push("/dashboard");
         } else if (response.status === 401) {
             setIsLoading(false);
             setMsgError("identifiant ou mot de passe incorrect");
@@ -61,12 +59,11 @@ export default function login() {
                 });
 
                 if (response.ok) {
+                    // attendre 800 ms pour qu'on vois le reconnexion
+                    await wait(800);
                     await router.replace('/dashboard');
                 } else {
-                    console.log("Erreur lors de la connexion sur la page");
-
-
-                    document.getElementById("error").innerText = "identifiant ou mot de passe incorrect";
+                    setMsgError("Connexion expirée")
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du token :", error);
@@ -84,7 +81,7 @@ export default function login() {
                     <div className="loginPage">
                         <div className="box">
                             <p className="title">Login</p>
-                            <form action="/api/login" method="post" onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit}>
                                 <div>
                                     {loadingCookies ?
                                         (
