@@ -16,10 +16,30 @@ function MyApp({Component, pageProps}) {
 
     return (<>
         <Head>
-            <title>MuseHome</title> {/* 👈 Titre global */}
-            <meta name="description" content=""/>
-            <meta charSet="UTF-8"/>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <title>MuseHome</title>
+            <meta name="description" content="Une super appli web !" />
+            <meta charSet="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+            {/* Favicon de base */}
+            <link rel="icon" href="/favicon/favicon.ico" />
+
+            {/* PNG favicons */}
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+
+            {/* Apple Touch Icon */}
+            <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+
+            {/* Android Chrome Icons */}
+            <link rel="icon" type="image/png" sizes="192x192" href="/favicon/android-chrome-192x192.png" />
+            <link rel="icon" type="image/png" sizes="512x512" href="/favicon/android-chrome-512x512.png" />
+
+            {/* Web App Manifest */}
+            <link rel="manifest" href="/favicon/site.webmanifest" />
+
+            {/* Couleur de thème */}
+            <meta name="theme-color" content="#ffffff" />
         </Head>
         <Component {...pageProps} />);
 
