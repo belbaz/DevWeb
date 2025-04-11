@@ -1,0 +1,90 @@
+/* ActivationPage.css */
+
+.activation-container {
+    height: 100vh;
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.activation-content {
+    text-align: center;
+    justify-content: center;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    width: 90%;
+    max-width: 600px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.activation-greeting {
+    color: white;
+    font-family: 'Arial', sans-serif;
+    font-size: 32px;
+    margin-bottom: 2.5rem;
+    line-height: 1.3;
+}
+
+.activate-button {
+    background: linear-gradient(45deg, #FF512F 0%, #DD2476 100%);
+    color: white;
+    border: none;
+    padding: 18px 36px;
+    font-size: 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 1rem;
+}
+
+.activate-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.activate-button:active {
+    transform: translateY(1px);
+}
+
+/* Ajout de styles responsives */
+@media (max-width: 768px) {
+    .activation-content {
+        padding: 2rem;
+        width: 95%;
+    }
+
+    .activation-greeting {
+        font-size: 28px;
+    }
+
+    .activate-button {
+        padding: 15px 30px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .activation-content {
+        padding: 1.5rem;
+    }
+
+    .activation-greeting {
+        font-size: 24px;
+    }
+
+    .activate-button {
+        padding: 12px 24px;
+        font-size: 16px;
+    }
+}

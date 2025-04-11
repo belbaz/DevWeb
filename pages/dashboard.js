@@ -9,6 +9,7 @@ export default function dashboard() {
 
     const [pseudo, setPseudo] = useState('');
     const router = useRouter();
+    const [active, setActive] = useState(false);
 
     useEffect(() => {
         if (!router.isReady) return;
@@ -32,6 +33,7 @@ export default function dashboard() {
 
                 if (response.ok) {
                     setPseudo(data.pseudo);
+                    setActive(data.isActive);
                 } else {
                     Cookies.remove('TOKEN');
                     await router.replace('/login');
@@ -41,6 +43,7 @@ export default function dashboard() {
                 await router.replace('/login');
             }
         };
+
         checkAuth();
     }, [router.isReady]); // Ajoute router.isReady comme dépendance
 
@@ -73,11 +76,24 @@ export default function dashboard() {
         return (
             <div>
                 <Header/>
-                <main>
-                    <h1>Welcome to the dashboard</h1>
-                    <p>You are connected as <b>{pseudo}</b></p>
-                    <button className="popButton" onClick={handleLogout}>Logout</button>
-                </main>
+                {
+                    active ? (
+                        <main>
+                            <h1>Welcome to the dashboard</h1>
+                            <p>You are connected as <b>{pseudo}</b></p>
+                            <p>Your account is activate 🎉</p>
+                            <button className="popButton" onClick={handleLogout}>Logout</button>
+                        </main>
+                    ) : (
+                        <main>
+                            <h1>Compte non activé</h1>
+                            <p>Veuillez activer votre compte pour accéder au tableau de bord.</p>
+                            <p>Un e-mail d'activation vous a été envoyé.</p><p>Veuillez vérifier votre boîte de
+                            réception (et vos spams).</p>
+                            <button className="popButton" onClick={handleLogout}>Logout</button>
+                        </main>
+                    )
+                }
                 <Footer/>
             </div>
         );

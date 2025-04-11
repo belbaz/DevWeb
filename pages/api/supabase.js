@@ -1,10 +1,7 @@
 // pages/api/supabase.js
-import { createClient } from '@supabase/supabase-js';
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
 
-// Client Supabase
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Import du client Supabase qui lui se connecte
+import supabase from '/lib/supabaseClient'
 
 //creation de la fonction asyncrone
 export default async function handler(req, res) {

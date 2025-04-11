@@ -36,7 +36,7 @@ function MyApp({Component, pageProps}) {
             <link rel="icon" type="image/png" sizes="512x512" href="/favicon/android-chrome-512x512.png" />
 
             {/* Web App Manifest */}
-            <link rel="manifest" href="/favicon/site.webmanifest" />
+            <link rel="manifest" href="/manifest.json" />
 
             {/* Couleur de thème */}
             <meta name="theme-color" content="#ffffff" />

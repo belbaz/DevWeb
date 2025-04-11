@@ -3,13 +3,9 @@ import jwt from 'jsonwebtoken';
 import {serialize} from 'cookie';
 import bcrypt from 'bcrypt';
 import moment from 'moment-timezone';
-import {createClient} from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
 
 // Client Supabase
-const supabase = createClient(supabaseUrl, supabaseKey);
+import supabase from '/lib/supabaseClient'
 
 
 const login = async (req, res) => {

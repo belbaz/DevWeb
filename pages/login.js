@@ -33,7 +33,7 @@ export default function login() {
             setMsgError("identifiant ou mot de passe incorrect");
         } else if (response.status === 500) {
             setIsLoading(false);
-            console.log(data.message);
+            //console.log(data.message);
             setMsgError(data.message);
         }
     };

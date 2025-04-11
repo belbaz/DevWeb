@@ -9,6 +9,7 @@ export default function Header() {
                 <a href="/dashboard">Dashboard</a>
                 <a href="/contact">Contact</a>
                 <a href="/login">Login</a>
+                <a href="/signup">Signup</a>
             </nav>
         </header>
     );
