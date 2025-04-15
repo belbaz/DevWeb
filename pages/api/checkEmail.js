@@ -9,7 +9,7 @@ export default async function checkPseudo(req, res) {
             // Vérifiez si le pseudo existe déjà
             const {data: user} = await supabase
                 .from('User')
-                .select('email')
+                .select('email, isActive')
                 .ilike('email', email)
                 .single();
 

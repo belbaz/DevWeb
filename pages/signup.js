@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Footer from "../components/footer";
 import Header from "../components/header";
 import Rolling from "../components/rolling";
-import {error} from "next/dist/build/output/log";
 
 const edit = "/images/edit.png"
 
@@ -67,14 +66,14 @@ const Signup = () => {
         const lastName = document.getElementById("LastName").value;
         const pseudo = document.getElementById("Pseudo").value;
         const email = document.getElementById("Email").value;
-        const newPassword = document.getElementById("NewPassword").value;
+        const password = document.getElementById("Password").value;
 
         const response = await fetch("/api/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({name, lastName, pseudo, email, newPassword}),
+            body: JSON.stringify({name, lastName, pseudo, email, password}),
         });
 
         if (response.status === 200) {
@@ -85,7 +84,7 @@ const Signup = () => {
                 // Introduire un délai de 2 secondes avant de tenter de se connecter
                 setTimeout(async () => {
                     await router.push("/dashboard");
-                }, 5000); // 2000 millisecondes = 2 secondes
+                }, 6000);
             }
 
         } else if (response.status === 401) {
@@ -200,7 +199,7 @@ const Signup = () => {
                                 <div>
                                     <p style={{color: "red", fontSize: "15px", margin: "0"}}>{emailError}</p>
                                 </div>
-                                <input className="inputsSignup" type="password" id="NewPassword" maxLength="19" required
+                                <input className="inputsSignup" type="password" id="Password" maxLength="19" required
                                        autoComplete="current-password"/>
                             </div>
                         </div>

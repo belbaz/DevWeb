@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
-export default function home() {
+export default function Home() {
     const [message, setMessage] = useState('. . .');
     const [messageSupabase, setMessageSupabase] = useState('. . .');
 
@@ -18,7 +18,7 @@ export default function home() {
             if (response.ok) {
                 setMessageSupabase(await response.json());
             } else if (response.status === 500) {
-                console.log(response.json());
+                // console.log(response.json());
                 setMessageSupabase('Erreur de connexion : BD Supabase pas disponible !');
             } else {
                 setMessageSupabase("Erreur lors de la connexion a la BD");

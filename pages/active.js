@@ -16,7 +16,7 @@ export default function active() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({pseudo: urlParams.get('token')}),
+            body: JSON.stringify({token: urlParams.get('token')}),
         });
         const data = await response.json();
         if (response.status === 200) {

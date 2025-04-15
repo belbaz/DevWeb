@@ -30,11 +30,11 @@ export default function login() {
             router.push("/dashboard");
         } else if (response.status === 401) {
             setIsLoading(false);
-            setMsgError("identifiant ou mot de passe incorrect");
+            setMsgError(data.error);
         } else if (response.status === 500) {
             setIsLoading(false);
             //console.log(data.message);
-            setMsgError(data.message);
+            setMsgError(data.error);
         }
     };
 
@@ -111,6 +111,15 @@ export default function login() {
                                                                onClick={() => setMsgError(null)}>
                                                         </input>
                                                     </div>
+                                                </div>
+                                                <div style={{paddingBottom: '0.5rem'}}>
+                                                    <a style={{
+                                                        fontSize: "15px",
+                                                        cursor: "pointer",
+                                                        textDecoration: "underline"
+                                                    }}
+                                                       onClick={() => router.replace('/reset')}>Forgotten password
+                                                    </a>
                                                 </div>
                                                 <button className="button" type='submit' disabled={isLoading}
                                                         style={{padding: isLoading ? "7px" : "20px"}}
