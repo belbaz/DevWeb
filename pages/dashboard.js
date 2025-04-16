@@ -6,17 +6,16 @@ import {useRouter} from "next/router";
 import Rolling from "../components/rolling";
 
 export default function dashboard() {
-
+    const token = Cookies.get('TOKEN');
     const [pseudo, setPseudo] = useState('');
     const router = useRouter();
     const [active, setActive] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState("");
 
     useEffect(() => {
         if (!router.isReady) return;
 
         const checkAuth = async () => {
-            const token = Cookies.get('TOKEN');
-
             if (!token) {
                 await router.replace('/login');
                 return;
@@ -34,6 +33,9 @@ export default function dashboard() {
                 if (response.ok) {
                     setPseudo(data.pseudo);
                     setActive(data.isActive);
+                    const res = await fetch(`/api/getAvatarUrl?token=${token}`);
+                    const json = await res.json();
+                    if (json.url) setAvatarUrl(json.url);
                 } else {
                     Cookies.remove('TOKEN');
                     await router.replace('/login');
@@ -73,27 +75,54 @@ export default function dashboard() {
             </div>
         ); // Éviter de montrer le dashboard avant validation
     } else {
+
+        const renderAvatar = avatarUrl ? (
+            <img
+                src={avatarUrl}
+                alt="avatar"
+                title={pseudo}
+                style={{ maxWidth: '50px', maxHeight: '50px', width: 'auto', height: 'auto' }}
+            />
+        ) : (
+            <div style={{margin: '5px'}}>
+                {Rolling(40, 40, "#000000")}
+            </div>
+        );
+
+        const commonContent = (
+                <div style={{paddingTop: '15px'}}>
+                    {renderAvatar}
+                </div>
+        );
+
+        const logoutButton = (
+            <button className="popButton" onClick={handleLogout}>Logout</button>
+        );
+
         return (
             <div>
                 <Header/>
-                {
-                    active ? (
-                        <main>
-                            <h1>Welcome to the dashboard</h1>
+                <main>
+                    <h1>{active ? 'Welcome to the dashboard' : 'Compte non activé'}</h1>
+                    {active ? (
+                        <div>
+                            {commonContent}
                             <p>You are connected as <b>{pseudo}</b></p>
                             <p>Your account is activate 🎉</p>
-                            <button className="popButton" onClick={handleLogout}>Logout</button>
-                        </main>
+                            {logoutButton}
+                        </div>
                     ) : (
-                        <main>
-                            <h1>Compte non activé</h1>
-                            <p>Veuillez activer votre compte pour accéder au tableau de bord.</p>
-                            <p>Un e-mail d'activation vous a été envoyé.</p><p>Veuillez vérifier votre boîte de
-                            réception (et vos spams).</p>
-                            <button className="popButton" onClick={handleLogout}>Logout</button>
-                        </main>
-                    )
-                }
+                        <div>
+                            {commonContent}
+                            <p>Votre compte n'est pas encore activé.</p>
+                            <p>Si vous souhaitez recevoir un nouveau lien d'activation, recréez votre compte avec le
+                                même e-mail.</p>
+                            <p>Le lien d'activation est valable pendant 1 heure.</p>
+                            <p>Vérifiez votre boîte de réception (et vos spams) pour le lien.</p>
+                            {logoutButton}
+                        </div>
+                    )}
+                </main>
                 <Footer/>
             </div>
         );

@@ -1,5 +1,7 @@
 // pages/api/checkEmail.js
-import supabase from '/lib/supabaseClient'
+import supabase from 'lib/supabaseClient';
+
+
 
 export default async function checkPseudo(req, res) {
     if (req.method === 'POST') {

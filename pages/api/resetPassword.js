@@ -1,6 +1,6 @@
 // pages/api/forgetPassword.js
-import supabase from '/lib/supabaseClient';
-import CryptoJS from "crypto-js";
+
+import supabase from 'lib/supabaseClient';
 import bcrypt from 'bcrypt';
 
 export default async function resetPassword(req, res) {

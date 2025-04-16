@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
-import supabase from "../../lib/supabaseClient";
+import supabase from 'lib/supabaseClient';
+
 
 export default async function checkToken(req, res) {
     if (req.method !== 'GET') {
@@ -17,7 +18,7 @@ export default async function checkToken(req, res) {
         const cookies = cookie.parse(req.headers.cookie || '');
         token = cookies.TOKEN;
     }
-    //console.log(token)
+
     if (!token) {
         return res.status(401).json({error: 'Non autorisé'});
     }
@@ -26,24 +27,20 @@ export default async function checkToken(req, res) {
         const secret = process.env.JWT_SECRET || 'fallback_secret';
         const decoded = jwt.verify(token, secret);
 
-        // Vérifiez si le compte est actif
-        try {
-            const {data: user} = await supabase
-                .from('User')
-                .select('isActive')
-                .ilike('pseudo', decoded.pseudo)
-                .single();
+        const {data: user} = await supabase
+            .from('User')
+            .select('isActive, pseudo')
+            .ilike('pseudo', decoded.pseudo)
+            .single();
 
-            if (user.isActive === false) {
-                res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: false});
-            } else {
-                res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: true});
-            }
+        if (!user) {
+            return res.status(404).json({error: 'Utilisateur non trouvé'});
+        }
 
-        } catch (error) {
-            // Gestion des erreurs lors de la connexion à la base de données
-            console.error(error);
-            res.status(500).json({error: "Une erreur s'est produite lors de la connexion à la base de données"});
+        if (user.isActive === false) {
+            return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: false});
+        } else {
+            return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: true});
         }
     } catch (error) {
         res.status(401).json({error: 'Token invalide'});

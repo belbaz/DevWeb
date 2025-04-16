@@ -1,7 +1,7 @@
 // pages/api/supabase.js
 
 // Import du client Supabase qui lui se connecte
-import supabase from '/lib/supabaseClient'
+import supabase from 'lib/supabaseClient';
 
 //creation de la fonction asyncrone
 export default async function handler(req, res) {

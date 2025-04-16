@@ -1,6 +1,7 @@
 // pages/api/uploadAvatar.js
-import supabase from '/lib/supabaseClient';
+
 import fetch from 'node-fetch';
+import supabase from 'lib/supabaseClient';
 
 export default async function uploadAvatar(req, res) {
     if (req.method !== 'POST') {

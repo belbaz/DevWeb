@@ -1,6 +1,6 @@
 // pages/api/signup.js
 import bcrypt from 'bcrypt';
-import supabase from '/lib/supabaseClient'
+import supabase from 'lib/supabaseClient';
 import {sendMail} from "../../lib/sendMail";
 import {authenticate} from "../../lib/authenticate";
 
