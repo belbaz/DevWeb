@@ -35,6 +35,7 @@ export default function dashboard() {
                     setActive(data.isActive);
                     const res = await fetch(`/api/getAvatarUrl?token=${token}`);
                     const json = await res.json();
+                    console.log("Avatar URL : " + json.url);
                     if (json.url) setAvatarUrl(json.url);
                 } else {
                     Cookies.remove('TOKEN');
@@ -47,7 +48,7 @@ export default function dashboard() {
         };
 
         checkAuth();
-    }, [router.isReady]); // Ajoute router.isReady comme dépendance
+    }, [router.isReady, token]); // Ajoute router.isReady comme dépendance
 
     const handleLogout = async () => {
         try {
@@ -81,7 +82,7 @@ export default function dashboard() {
                 src={avatarUrl}
                 alt="avatar"
                 title={pseudo}
-                style={{ maxWidth: '50px', maxHeight: '50px', width: 'auto', height: 'auto' }}
+                style={{maxWidth: '50px', maxHeight: '50px', width: 'auto', height: 'auto'}}
             />
         ) : (
             <div style={{margin: '5px'}}>
@@ -90,9 +91,9 @@ export default function dashboard() {
         );
 
         const commonContent = (
-                <div style={{paddingTop: '15px'}}>
-                    {renderAvatar}
-                </div>
+            <div style={{paddingTop: '15px'}}>
+                {renderAvatar}
+            </div>
         );
 
         const logoutButton = (
