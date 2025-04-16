@@ -12,6 +12,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build the project with Turbopack
+        run: npm run build -- --turbopack  # Si tu veux forcer l'utilisation de Turbopack dans ton build
+
       - name: Install Vercel CLI
         run: npm install -g vercel
 
