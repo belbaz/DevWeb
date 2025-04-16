@@ -42,9 +42,22 @@ export default async function resetPassword(req, res) {
                 .eq('pseudo', pseudo)
                 .select();
 
-            if (error || !data || data.length === 0) {
-                return res.status(400).json({message: "Token invalide."});
+            if (error) {
+                return res.status(500).json({error: "Erreur lors de la modification du mot de passe."});
             }
+
+            // Marquer le token comme utilisé
+            await supabase
+                .from('Token')
+                .update({used: true})
+                .eq('token', token);
+
+            //supprimer la ligne du token
+            await supabase
+                .from('Token')
+                .delete()
+                .eq('token', token)
+
             //réussi
             return res.status(200).json({message: 'Mot de passe réinitialisé avec succès.'});
         } catch (error) {

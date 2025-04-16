@@ -43,7 +43,7 @@ export default async function activeAccount(req, res) {
                 .eq('token', token);
 
             //supprimer la ligne du token
-            const { error } = await supabase
+            await supabase
                 .from('Token')
                 .delete()
                 .eq('token', token)
