@@ -204,7 +204,8 @@ const Signup = () => {
                             </div>
                         </div>
                         <br/>
-                        <button className="button" id="validInscription" type='submit' disabled={isLoading}>
+                        <button className="button" id="validInscription" type='submit' disabled={isLoading}
+                                onClick={() => document.getElementById("error").innerText = ""}>
                             {isFinish ?
                                 (
                                     <div>

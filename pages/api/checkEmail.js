@@ -11,6 +11,7 @@ export default async function checkPseudo(req, res) {
                 .from('User')
                 .select('email, isActive')
                 .ilike('email', email)
+                .eq('isActive', true)
                 .single();
 
             if (user) {

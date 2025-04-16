@@ -5,11 +5,11 @@ import {toast, ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import styles from '/styles/home.module.css';
 
-export default function active() {
+export default function activation() {
     const router = useRouter();
     const notify = (text) => toast(text);
 
-    const active = async () => {
+    const activation = async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const response = await fetch("/api/activeAccount", {
             method: "POST",
@@ -27,7 +27,7 @@ export default function active() {
             }, 2000);
         } else {
             console.log("Erreur lors de l'activation");
-            notify(data.error);
+            toast.error(data.error);
         }
     }
 
@@ -39,7 +39,7 @@ export default function active() {
             </Head>
             <div className={styles['activation-content']}>
                 <p className={styles['activation-greeting']}>Bonjour,</p>
-                <button className={styles['activate-button']} onClick={active}>Activer mon compte</button>
+                <button className={styles['activate-button']} onClick={activation}>Activer mon compte</button>
                 <p id="activation"></p>
             </div>
             <ToastContainer/>

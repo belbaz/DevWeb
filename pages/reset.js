@@ -37,10 +37,10 @@ export default function Reset() {
             const data = await res.json();
 
             if (res.status === 200) {
-                toast.success(`${data.message}`);
+                toast.success(data.message);
                 setLoading(true);
             } else {
-                toast.success(`${data.error}`);
+                toast.error(data.error);
             }
         } catch (error) {
             toast.error("Une erreur est survenue.");

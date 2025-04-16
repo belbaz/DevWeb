@@ -11,20 +11,26 @@ export default async function resetPassword(req, res) {
             return res.status(400).json({error: "Token ou mot de passe manquant."});
         }
 
-        // Décryptage du token
-        let decryptedPseudo = null;
-        try {
-            const bytesPseudo = CryptoJS.AES.decrypt(token, process.env.JWT_SECRET_KEY);
-            decryptedPseudo = bytesPseudo.toString(CryptoJS.enc.Utf8);
+        // Récupérer le token depuis la table Token
+        const {data: tokenData, error: tokenError} = await supabase
+            .from('Token')
+            .select('pseudo, used, expires_at')
+            .eq('token', token)
+            .eq('type', 'reset')
+            .single();
 
-            // Vérifie que le résultat est non vide
-            if (!decryptedPseudo) {
-                throw new Error("Décryptage échoué");
-            }
-        } catch (err) {
-            return res.status(400).json({error : "Token invalide."});
+        if (tokenError || !tokenData) {
+            return res.status(400).json({error: 'Token invalide'});
         }
 
+        const {pseudo, used, expires_at} = tokenData;
+        // console.log("Expire à (UTC) :", new Date(expires_at).toISOString(), " | Date actuelle (UTC) :", new Date().toISOString());
+        // Vérifier si expiré ou déjà utilisé
+        if (used || new Date(expires_at) < new Date()) {
+            return res.status(400).json({error: 'Token expiré ou déjà utilisé'});
+        }
+
+        //tout est bon du coup on peut mettre a jour le mdp dans la BD
         try {
             // Hashage du mot de passe
             const hash = await bcrypt.hash(password, 10);
@@ -33,17 +39,18 @@ export default async function resetPassword(req, res) {
             const {data, error} = await supabase
                 .from('User')
                 .update({password: hash})
-                .eq('pseudo', decryptedPseudo)
+                .eq('pseudo', pseudo)
                 .select();
 
             if (error || !data || data.length === 0) {
-                return res.status(400).json({message : "Token invalide."});
+                return res.status(400).json({message: "Token invalide."});
             }
             //réussi
             return res.status(200).json({message: 'Mot de passe réinitialisé avec succès.'});
         } catch (error) {
             return res.status(500).json({error: "Erreur serveur."});
         }
+
     } else {
         return res.status(405).json({error: "Méthode non autorisée."});
     }

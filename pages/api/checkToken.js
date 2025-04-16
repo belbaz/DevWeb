@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
-import {wait} from "next/dist/lib/wait";
 import supabase from "../../lib/supabaseClient";
 
 export default async function checkToken(req, res) {

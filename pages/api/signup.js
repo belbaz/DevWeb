@@ -12,8 +12,9 @@ export default async function signup(req, res) {
             // Vérifier si le pseudo existe déjà
             const {data: existingUser} = await supabase
                 .from('User')
-                .select('pseudo')
+                .select('pseudo, isActive')
                 .ilike('pseudo', pseudo)
+                .eq('isActive', true)
                 .single();
 
             if (existingUser) {
@@ -23,8 +24,9 @@ export default async function signup(req, res) {
             // Vérifier si le pseudo existe déjà
             const {data: existingEmail} = await supabase
                 .from('User')
-                .select('email')
+                .select('email, isActive')
                 .ilike('email', email)
+                .eq('isActive', true)
                 .single();
 
             if (existingEmail) {
@@ -36,9 +38,11 @@ export default async function signup(req, res) {
             //console.log(name, lastName, pseudo, email, password, hash);
 
             // Insérer le nouvel utilisateur
+            //utilisation de UPSERT car il permet de créer si il existe pas et de mettre a jour
+            //dans le cas ou y'a un compte pas actif mais qui existe deja dans la bd on update les champs et renvoie le mail pour activer le compte
             const {data: newUser, error} = await supabase
                 .from('User')
-                .insert({
+                .upsert({
                     name: name,
                     lastName: lastName,
                     pseudo: pseudo,
@@ -47,6 +51,8 @@ export default async function signup(req, res) {
                     isActive: false,
                     level: 'debutant',
                     role: 'visiteur'
+                }, {
+                    onConflict: ['email', 'pseudo']   //en cas de conflit avec un pseudo ou un mail deja existant !
                 })
                 .single();
 
@@ -56,7 +62,7 @@ export default async function signup(req, res) {
             }
 
             try {
-                //envoie du mail avec la template d'activation
+                //envoie du mail d'activation
                 await sendMail(pseudo, email, true);
 
                 //console.log(user)
