@@ -11,6 +11,7 @@ export default function dashboard() {
     const router = useRouter();
     const [active, setActive] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState("");
+    const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
 
     useEffect(() => {
         if (!router.isReady) return;
@@ -24,7 +25,6 @@ export default function dashboard() {
             try {
                 const response = await fetch('/api/checkToken', {
                     method: 'GET',
-                    headers: {'Authorization': `Bearer ${token}`},
                     credentials: 'include', // Important pour envoyer les cookies
                 });
 
@@ -33,10 +33,28 @@ export default function dashboard() {
                 if (response.ok) {
                     setPseudo(data.pseudo);
                     setActive(data.isActive);
-                    const res = await fetch(`/api/getAvatarUrl?token=${token}`);
+                    // Récupérer l'avatar
+                    const res = await fetch("/api/getAvatarUrl", {
+                        method: "GET",
+                        credentials: "include",
+                    });
                     const json = await res.json();
+                    if (json.url) {
+                        const img = new Image();
+                        img.src = json.url;
+                        img.onload = () => {
+                            setAvatarUrl(json.url);
+                            setIsAvatarLoaded(true);
+                        };
+                        img.onerror = () => {
+                            console.log("erreur");
+                            setAvatarUrl('/images/avatar.svg');
+                            setIsAvatarLoaded(true); // En cas d'erreur, on passe aussi au rendu (optionnel : tu peux définir une URL par défaut ici)
+                        };
+                    } else {
+                        setIsAvatarLoaded(true); // Si pas d'URL, on passe directement au rendu
+                    }
                     console.log("Avatar URL : " + json.url);
-                    if (json.url) setAvatarUrl(json.url);
                 } else {
                     Cookies.remove('TOKEN');
                     await router.replace('/login');
@@ -77,7 +95,7 @@ export default function dashboard() {
         ); // Éviter de montrer le dashboard avant validation
     } else {
 
-        const renderAvatar = avatarUrl ? (
+        const renderAvatar = isAvatarLoaded && avatarUrl ? (
             <img
                 src={avatarUrl}
                 alt="avatar"

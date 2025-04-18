@@ -44,7 +44,7 @@ export default function login() {
             const token = Cookies.get('TOKEN');
 
             if (!token) {
-                console.log("Aucun token trouvé, redirection vers la page de connexion");
+                console.log("Aucun token trouvé");
                 setloadingCookies(false);
                 return;
             }
@@ -54,7 +54,6 @@ export default function login() {
             try {
                 const response = await fetch('/api/checkToken', {
                     method: 'GET',
-                    headers: {'Authorization': `Bearer ${token}`},
                     credentials: 'include', // Important pour envoyer les cookies
                 });
 
