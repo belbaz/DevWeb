@@ -10,19 +10,20 @@ export default async function checkToken(req, res) {
 
     let token = null;
 
-    // Vérifie si le token est présent dans l'en-tête Authorization
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
-        token = req.headers.authorization.split(" ")[1];
-    } else {
-        if (req.headers.cookie) {
+    try {
+        if (req.headers.authorization?.startsWith("Bearer ")) {
+            token = req.headers.authorization.split(" ")[1];
+        } else if (req.headers.cookie) {
             const cookies = cookie.parse(req.headers.cookie);
             token = cookies.TOKEN;
         }
+    } catch (error) {
+        console.error('Erreur lors du parsing des cookies:', error);
     }
 
     if (!token) {
-        console.log('Aucun token trouvé dans Authorization ou cookies');
-        return res.status(401).json({error: 'Aucun token fourni', noToken: true}); // Ajout de noToken: true
+        console.log('Aucun token trouvé');
+        return res.status(401).json({error: 'Aucun token fourni', noToken: true});
     }
 
     try {
@@ -45,8 +46,7 @@ export default async function checkToken(req, res) {
             return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: true});
         }
     } catch (error) {
-        console.log('Erreur de vérification du token:', error.message);
-        // Supprime le cookie en cas de token invalide ou mal formé
+        console.error('Erreur de vérification du token:', error.message);
         res.setHeader('Set-Cookie', serialize('TOKEN', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV !== 'development',
