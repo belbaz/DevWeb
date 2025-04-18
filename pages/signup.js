@@ -10,7 +10,6 @@ import Rolling from "../components/rolling";
 const edit = "/images/edit.png"
 
 const Signup = () => {
-    const [modalIsOpenStatus, setModalIsOpenStatus] = useState(false);
     const [pseudoError, setPseudoError] = useState("");
     const [emailError, setEmailError] = useState("");
     const [isLoading, setIsLoading] = useState(false);

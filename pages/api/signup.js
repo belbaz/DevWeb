@@ -37,28 +37,43 @@ export default async function signup(req, res) {
             const hash = await bcrypt.hash(password, 10);
             //console.log(name, lastName, pseudo, email, password, hash);
 
-            // Insérer le nouvel utilisateur
-            //utilisation de UPSERT car il permet de créer si il existe pas et de mettre a jour
-            //dans le cas ou y'a un compte pas actif mais qui existe deja dans la bd on update les champs et renvoie le mail pour activer le compte
-            const {data: newUser, error} = await supabase
+            // Supprimer toutes les entrées existantes avec le même pseudo ou email (même inactives)
+            // Si le compte existe déjà avec le mail ou même pseudo et qu'il est actif, il ne rentrera JAMAIS ici !
+            // On appelle la fonction deleteAccountByPseudo ou deleteAccountByEmail car il peut y avoir un token dans la table qui est lié et du coup ça marchera pas !
+            // On ignore les erreurs car elles ne sont pas critiques (ex : si l'utilisateur n'existe pas, on ne fait rien)
+            const { data: results1, error: deleteError1 } = await supabase
+                .rpc('deleteaccountbypseudo', { pseudo_input: pseudo });
+
+            if (deleteError1) {
+                console.log('Erreur lors de la suppression par pseudo (pas grave si déjà supprimé):', deleteError1);
+            }
+
+            const { data: results2, error: deleteError2 } = await supabase
+                .rpc('deleteaccountbyemail', { email_input: email });
+
+            if (deleteError2) {
+                console.log('Erreur lors de la suppression par email (pas grave si déjà supprimé):', deleteError2);
+            }
+
+            // Ensuite, INSERT normal
+            const {data: newUser, error: insertError} = await supabase
                 .from('User')
-                .upsert({
-                    name: name,
-                    lastName: lastName,
-                    pseudo: pseudo,
-                    email: email,
+                .insert({
+                    name,
+                    lastName,
+                    pseudo,
+                    email,
                     password: hash,
                     isActive: false,
                     level: 'debutant',
                     role: 'visiteur'
-                }, {
-                    onConflict: ['email', 'pseudo']   //en cas de conflit avec un pseudo ou un mail deja existant !
                 })
+                .select()
                 .single();
 
-            if (error) {
-                console.error('Erreur lors de la création du compte:', error);
-                return res.status(500).json({error: 'Une erreur s\'est produite lors de la création du compte.'});
+            if (insertError) {
+                console.error('Erreur lors de la création du compte:', insertError);
+                return res.status(500).json({error: 'Erreur lors de la création du compte.'});
             }
 
             try {

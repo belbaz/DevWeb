@@ -1,14 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import Header from '../components/header';
 import Rolling from "../components/rolling";
-import {router} from "next/client";
-import Cookies from "js-cookie";
-import {wait} from "next/dist/lib/wait";
+import {useRouter} from "next/router";
 
-export default function login() {
+export default function Login({ initialMsgError = null }) {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [loadingCookies, setloadingCookies] = useState(false);
-    const [msgError, setMsgError] = useState(null);
+    const [msgError, setMsgError] = useState(initialMsgError); // Initialise avec initialMsgError
+
+    // Gérer les paramètres de requête (msgError dans l'URL)
+    useEffect(() => {
+        if (router.isReady && router.query.msgError) {
+            setMsgError(decodeURIComponent(router.query.msgError)); // Décoder pour gérer les espaces, etc.
+            setTimeout(() => setMsgError(null), 5000); // Effacer après 5 secondes (optionnel)
+        }
+    }, [router.isReady, router.query.msgError]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -27,7 +34,7 @@ export default function login() {
         const data = await response.json();
 
         if (response.status === 200) {
-            router.push("/dashboard");
+            await router.push("/dashboard");
         } else if (response.status === 401) {
             setIsLoading(false);
             setMsgError(data.error);
@@ -39,38 +46,46 @@ export default function login() {
     };
 
     useEffect(() => {
-        const checkAuth = async () => {
-            // Vérifie si le cookie 'TOKEN' existe avant de définir loadingCookies
-            const token = Cookies.get('TOKEN');
+            const checkAuth = async () => {
+                try {
+                    const response = await fetch('/api/checkToken', {
+                        method: 'GET',
+                        credentials: 'include', // Envoie automatiquement le cookie
+                    });
 
-            if (!token) {
-                console.log("Aucun token trouvé");
-                setloadingCookies(false);
-                return;
-            }
-
-            setloadingCookies(true); // Affiche le loading si le token est présent
-
-            try {
-                const response = await fetch('/api/checkToken', {
-                    method: 'GET',
-                    credentials: 'include', // Important pour envoyer les cookies
-                });
-
-                if (response.ok) {
-                    // attendre 800 ms pour qu'on vois le reconnexion
-                    await wait(800);
-                    await router.replace('/dashboard');
-                } else {
-                    setMsgError("Connexion expirée")
+                    if (response.ok) {
+                        setloadingCookies(true);
+                        // Token valide, attendre 800 ms pour montrer la reconnexion
+                        setTimeout(async () => {
+                            await router.push("/dashboard");
+                        }, 800);
+                    } else {
+                        // Token invalide ou absent
+                        const data = await response.json();
+                        if (data.invalidToken) {
+                            setMsgError("Token expired");
+                            console.log('Token invalide:', data.error);
+                        } else if (data.noToken) {
+                            console.log('Aucun token');
+                        } else {
+                            setMsgError(data.error || "Erreur inconnue");
+                            console.log('Erreur API:', data.error);
+                        }
+                    }
+                } catch
+                    (error) {
+                    // Erreur réseau ou autre
+                    console.error("Erreur lors de la vérification du token :", error);
+                    setMsgError("Erreur de connexion, veuillez réessayer");
                 }
-            } catch (error) {
-                console.error("Erreur lors de la vérification du token :", error);
-            }
-            setloadingCookies(false); // On cache le loading après la réponse du serveur
-        };
-        checkAuth();
-    }, []);
+            };
+
+            checkAuth();
+        }
+        ,
+        [router]
+    )
+    ; // Ajoute router comme dépendance
 
     return (
         <div>

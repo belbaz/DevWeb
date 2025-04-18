@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import supabase from 'lib/supabaseClient';
-
+import { serialize } from 'cookie';
 
 export default async function checkToken(req, res) {
     if (req.method !== 'GET') {
@@ -14,13 +14,15 @@ export default async function checkToken(req, res) {
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
         token = req.headers.authorization.split(" ")[1];
     } else {
-        // Vérifie si le token est dans les cookies
-        const cookies = cookie.parse(req.headers.cookie || '');
-        token = cookies.TOKEN;
+        if (req.headers.cookie) {
+            const cookies = cookie.parse(req.headers.cookie);
+            token = cookies.TOKEN;
+        }
     }
 
     if (!token) {
-        return res.status(401).json({error: 'Non autorisé'});
+        console.log('Aucun token trouvé dans Authorization ou cookies');
+        return res.status(401).json({error: 'Aucun token fourni', noToken: true}); // Ajout de noToken: true
     }
 
     try {
@@ -43,6 +45,15 @@ export default async function checkToken(req, res) {
             return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: true});
         }
     } catch (error) {
-        res.status(401).json({error: 'Token invalide'});
+        console.log('Erreur de vérification du token:', error.message);
+        // Supprime le cookie en cas de token invalide ou mal formé
+        res.setHeader('Set-Cookie', serialize('TOKEN', '', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV !== 'development',
+            sameSite: 'strict',
+            maxAge: 0,
+            path: '/',
+        }));
+        return res.status(401).json({error: 'Token invalide', invalidToken: true});
     }
 }

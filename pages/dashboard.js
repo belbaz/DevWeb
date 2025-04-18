@@ -1,12 +1,10 @@
 import Header from '../components/header';
 import Footer from '../components/footer';
 import {useEffect, useState} from "react";
-import Cookies from "js-cookie";
 import {useRouter} from "next/router";
 import Rolling from "../components/rolling";
 
 export default function dashboard() {
-    const token = Cookies.get('TOKEN');
     const [pseudo, setPseudo] = useState('');
     const router = useRouter();
     const [active, setActive] = useState(false);
@@ -17,11 +15,6 @@ export default function dashboard() {
         if (!router.isReady) return;
 
         const checkAuth = async () => {
-            if (!token) {
-                await router.replace('/login');
-                return;
-            }
-
             try {
                 const response = await fetch('/api/checkToken', {
                     method: 'GET',
@@ -56,24 +49,27 @@ export default function dashboard() {
                     }
                     console.log("Avatar URL : " + json.url);
                 } else {
-                    Cookies.remove('TOKEN');
-                    await router.replace('/login');
+                    console.error("Erreur lors de la vérification du token");
+                    if (data.invalidToken) {
+                        await router.push('/login?msgError=Session+expired');
+                    } else {
+                        await router.push('/login');
+                    }
                 }
             } catch (error) {
                 console.error("Erreur lors de la vérification du token :", error);
-                await router.replace('/login');
+                await router.push('/login');
             }
         };
 
         checkAuth();
-    }, [router.isReady, token]); // Ajoute router.isReady comme dépendance
+    }, [router.isReady]); // Ajoute router.isReady comme dépendance
 
     const handleLogout = async () => {
         try {
             const response = await fetch('/api/logout', {method: 'POST'});
             if (response.ok) {
-                Cookies.remove('TOKEN'); // Supprime aussi le cookie côté client
-                router.replace('/login'); // Redirige vers la page de connexion
+                await router.replace('/login'); // Redirige vers la page de connexion
             }
         } catch (error) {
             console.error("Erreur lors de la déconnexion :", error);
