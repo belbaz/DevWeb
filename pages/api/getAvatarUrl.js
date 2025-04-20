@@ -1,12 +1,12 @@
-// pages/api/avatar.js
-import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import checkToken from "./checkToken";
-import Cookies from "js-cookie";
+// pages/api/getAvatarUrl.js
+
+import { parse } from 'cookie';
+import { S3Client, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3 = new S3Client({
-    region: "us-east-1",
-    endpoint: "https://hnikkirrqjburrfrlhss.supabase.co/storage/v1/s3",
+    region: 'us-east-1',
+    endpoint: 'https://hnikkirrqjburrfrlhss.supabase.co/storage/v1/s3',
     forcePathStyle: true,
     credentials: {
         accessKeyId: process.env.SUPABASE_ACCESS_KEY_ID,
@@ -15,49 +15,55 @@ const s3 = new S3Client({
 });
 
 export default async function handler(req, res) {
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.TOKEN;
-
-    if (!token) {
-        return res.status(401).json({ error: 'Token manquant' });
-    }
-
-    // Appel à checkToken pour récupérer le pseudo
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkToken`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`,  // Envoie le token dans l'en-tête Authorization
-        },
-    });
-
-    const tokenData = await response.json();
-
-    if (tokenData.error) {
-        return res.status(401).json({ error: tokenData.error }); // Renvoie l'erreur si le token est invalide
-    }
-
-    const { pseudo } = tokenData;
-
-    // Essayer chaque extension pour l'avatar personnalisé
-    for (const ext of ["png", "svg", "jpeg"]) {
-        try {
-            const fileName = `${pseudo}_avatar.${ext}`;
-            await s3.send(new HeadObjectCommand({ Bucket: "avatars", Key: fileName }));
-            const url = await getSignedUrl(s3, new GetObjectCommand({
-                Bucket: "avatars", Key: fileName
-            }), { expiresIn: 86400 });
-            return res.status(200).json({ url });
-        } catch (e) {
-            // Essayer la prochaine extension
-        }
-    }
-
-    // Avatar par défaut
     try {
-        const url = await getSignedUrl(s3, new GetObjectCommand({
-            Bucket: "avatars", Key: "avatar.svg"
-        }), { expiresIn: 86400 });
-        return res.status(200).json({ url });
-    } catch (e) {
-        return res.status(500).json({ error: "Avatar par défaut inaccessible" });
+        // 1. Récupérer le token soit dans l'Authorization, soit dans les cookies
+        const cookies = parse(req.headers.cookie || '');
+        const token = req.headers.authorization?.split(' ')[1] || cookies.TOKEN;
+        if (!token) {
+            return res.status(401).json({ error: 'Token manquant' });
+        }
+
+        // 2. Appel interne à checkToken pour valider le token et récupérer le pseudo
+        const host = req.headers.host; // ex: "musehome.vercel.app"
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const baseURL = `${protocol}://${host}`;
+
+        const checkRes = await fetch(`${baseURL}/api/checkToken`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const tokenData = await checkRes.json();
+        if (!checkRes.ok) {
+            return res.status(401).json({ error: tokenData.error || 'Token invalide' });
+        }
+        const { pseudo } = tokenData;
+
+        // 3. Recherche du fichier avatar sur Supabase S3
+        for (const ext of ['png', 'svg', 'jpeg']) {
+            try {
+                const key = `${pseudo}_avatar.${ext}`;
+                await s3.send(new HeadObjectCommand({ Bucket: 'avatars', Key: key }));
+                const url = await getSignedUrl(
+                    s3,
+                    new GetObjectCommand({ Bucket: 'avatars', Key: key }),
+                    { expiresIn: 86400 }
+                );
+                return res.status(200).json({ url });
+            } catch {
+                // si le HeadObject échoue, on passe à l'extension suivante
+            }
+        }
+
+        // 4. Avatar par défaut si rien trouvé
+        const defaultUrl = await getSignedUrl(
+            s3,
+            new GetObjectCommand({ Bucket: 'avatars', Key: 'avatar.svg' }),
+            { expiresIn: 86400 }
+        );
+        return res.status(200).json({ url: defaultUrl });
+
+    } catch (err) {
+        console.error('🔥 Erreur getAvatarUrl:', err);
+        return res.status(500).json({ error: err.message || 'Erreur interne' });
     }
 }

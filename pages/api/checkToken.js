@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
+import { parse, serialize } from 'cookie';
 import supabase from 'lib/supabaseClient';
-import { serialize } from 'cookie';
 
 export default async function checkToken(req, res) {
     if (req.method !== 'GET') {
@@ -14,7 +13,7 @@ export default async function checkToken(req, res) {
         if (req.headers.authorization?.startsWith("Bearer ")) {
             token = req.headers.authorization.split(" ")[1];
         } else if (req.headers.cookie) {
-            const cookies = cookie.parse(req.headers.cookie);
+            const cookies = parse(req.headers.cookie);
             token = cookies.TOKEN;
         }
     } catch (error) {
@@ -27,7 +26,11 @@ export default async function checkToken(req, res) {
     }
 
     try {
-        const secret = process.env.JWT_SECRET || 'fallback_secret';
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error("JWT_SECRET n'est pas défini !");
+            return res.status(500).json({ error: "JWT secret manquant côté serveur" });
+        }
         const decoded = jwt.verify(token, secret);
 
         const {data: user} = await supabase

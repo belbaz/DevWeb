@@ -181,7 +181,7 @@ option {
     background: white;
 }
 
-.popButton {
+.popButton, .popButtonDelete {
     text-decoration: none;
     padding: 10px;
     background-color: rgb(56 182 255 / 90%);
@@ -189,6 +189,12 @@ option {
     color: white;
     border: 2px solid white;
     cursor: pointer;
+}
+
+
+.popButtonDelete:hover {
+    background: rgb(222, 14, 14) !important;
+    transition: all .3s;
 }
 
 .popButton:hover {

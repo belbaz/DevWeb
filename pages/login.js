@@ -29,6 +29,7 @@ export default function Login({ initialMsgError = null }) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({idf, mdp}),
+            credentials: "include",
         });
 
         const data = await response.json();
@@ -84,8 +85,7 @@ export default function Login({ initialMsgError = null }) {
         }
         ,
         [router]
-    )
-    ; // Ajoute router comme dépendance
+    );
 
     return (
         <div>

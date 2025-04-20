@@ -15,8 +15,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build the project (using Webpack)
-        run: npm run build  # Utilise la commande build classique de Next.js avec Webpack
+#      - name: Build the project (using Webpack)
+#        run: npm run build  # Utilise la commande build classique de Next.js avec Webpack
 
       - name: Install Vercel CLI
         run: npm install -g vercel

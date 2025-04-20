@@ -46,7 +46,7 @@ export default async function login(req, res) {
             if (!authResult.success) {
                 return res.status(401).json({error: 'Identifiant ou mot de passe incorrect'});
             }
-            res.setHeader("Set-Cookie", authResult.cookie);
+            res.setHeader("Set-Cookie", authResult.cookie); // utilise authResult.cookie directement
             return res.status(200).json({success: true, pseudo: authResult.pseudo});
 
         } catch (error) {

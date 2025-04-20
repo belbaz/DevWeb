@@ -3,6 +3,7 @@ import Footer from '../components/footer';
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
 import Rolling from "../components/rolling";
+import {ToastContainer} from "react-toastify";
 
 export default function dashboard() {
     const [pseudo, setPseudo] = useState('');
@@ -76,6 +77,20 @@ export default function dashboard() {
         }
     };
 
+    const deleteAccount = async () => {
+        try {
+            const response = await fetch("/api/deleteAccount", {method: "DELETE"});
+            if (response.ok) {
+                toast.info("Compte supprimé !");
+                setTimeout(async () => {
+                    await router.replace("/login");
+                }, 6000);
+            }
+        } catch (error) {
+            console.error("Erreur :", error);
+        }
+    };
+
     if (!pseudo) {
         return (
             <div>
@@ -114,6 +129,12 @@ export default function dashboard() {
             <button className="popButton" onClick={handleLogout}>Logout</button>
         );
 
+        const deleteButton = (
+            <button className="popButtonDelete" onClick={deleteAccount}>
+                Delete Account
+            </button>
+        );
+
         return (
             <div>
                 <Header/>
@@ -124,7 +145,10 @@ export default function dashboard() {
                             {commonContent}
                             <p>You are connected as <b>{pseudo}</b></p>
                             <p>Your account is activate 🎉</p>
-                            {logoutButton}
+                            <div>
+                                {logoutButton}
+                                {deleteButton}
+                            </div>
                         </div>
                     ) : (
                         <div>
@@ -134,10 +158,14 @@ export default function dashboard() {
                                 même e-mail.</p>
                             <p>Le lien d'activation est valable pendant 1 heure.</p>
                             <p>Vérifiez votre boîte de réception (et vos spams) pour le lien.</p>
-                            {logoutButton}
+                            <div>
+                                {logoutButton}
+                                {deleteButton}
+                            </div>
                         </div>
                     )}
                 </main>
+                <ToastContainer/>
                 <Footer/>
             </div>
         );
