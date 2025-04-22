@@ -30,7 +30,7 @@ const Signup = () => {
     });
 
     if (response.status === 409) {
-      setPseudoError("Ce pseudo existe déjà");
+      setPseudoError("This username has already been used.");
     } else {
       document.getElementById("validInscription").disabled = false;
       setPseudoError("");
@@ -50,7 +50,7 @@ const Signup = () => {
     });
 
     if (response.status === 409) {
-      setEmailError("Cette email existe déjà");
+      setEmailError("This email is already used.");
     } else {
       if (document.getElementById("validInscription")) {
         document.getElementById("validInscription").disabled = false;
@@ -78,18 +78,16 @@ const Signup = () => {
     });
 
     if (response.status === 200) {
-      // console.log("Compte créer avec succès");
       toast.success(
         "compte créé avec succès ! Un e-mail d'activation vous a été envoyé."
       );
       setIsfinish(true);
-      // Introduire un délai de 2 secondes avant de tenter de se connecter
       setTimeout(async () => {
         router.push("/dashboard");
-      }, 6000);
+      }, 4000);
     } else if (response.status === 401) {
       setIsLoading(false);
-      document.getElementById("error").innerText = "erreur";
+      document.getElementById("error").innerText = "error";
     } else if (response.status === 409) {
       setIsLoading(false);
       const data = await response.json();
@@ -121,7 +119,7 @@ const Signup = () => {
 
     if (!fileToUpload) {
       console.log(
-        "Aucun avatar sélectionné, chargement de l'avatar par défaut"
+        "No avatar selected, using default avatar instead."
       );
 
       const res = await fetch("/api/uploadAvatar", {
@@ -163,7 +161,7 @@ const Signup = () => {
         style={{ height: "calc(100vh - 150px)", padding: "100px 50px" }}
       >
         <div className="box">
-          <p className="title">Signup</p>
+          <p className="title">Sign Up</p>
           <form action="/api/login" method="post" onSubmit={submitSignup}>
             <div
               className="avatarContainer"
@@ -217,7 +215,7 @@ const Signup = () => {
                   Name
                 </label>
                 <label className="labelsSignup" form="lastName">
-                  LastName
+                  Last Name
                 </label>
                 <label className="labelsSignup" form="pseudo">
                   Pseudo

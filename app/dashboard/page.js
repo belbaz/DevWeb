@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {toast, ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 import Rolling from '../../components/rolling';
 
@@ -18,7 +18,7 @@ export default function dashboard() {
       try {
         const response = await fetch("/api/checkToken", {
           method: "GET",
-          credentials: "include", // Important pour envoyer les cookies
+          credentials: "include", // required for cookies
         });
 
         const data = await response.json();
@@ -42,14 +42,13 @@ export default function dashboard() {
             img.onerror = () => {
               console.log("erreur");
               setAvatarUrl("/images/avatar.svg");
-              setIsAvatarLoaded(true); // En cas d'erreur, on passe aussi au rendu (optionnel : tu peux définir une URL par défaut ici)
+              setIsAvatarLoaded(true);
             };
           } else {
-            setIsAvatarLoaded(true); // Si pas d'URL, on passe directement au rendu
+            setIsAvatarLoaded(true);
           }
-          console.log("Avatar URL : " + json.url);
         } else {
-          console.error("Erreur lors de la vérification du token");
+          console.error("Error while checking token.");
           if (data.invalidToken) {
             router.push("/login?msgError=Session+expired");
           } else {
@@ -57,7 +56,7 @@ export default function dashboard() {
           }
         }
       } catch (error) {
-        console.error("Erreur lors de la vérification du token :", error);
+        console.error("Error while checking token:", error);
         router.push("/login");
       }
     };
@@ -69,10 +68,10 @@ export default function dashboard() {
     try {
       const response = await fetch("/api/logout", { method: "POST" });
       if (response.ok) {
-        router.replace("/login"); // Redirige vers la page de connexion
+        router.replace("/login");
       }
     } catch (error) {
-      console.error("Erreur lors de la déconnexion :", error);
+      console.error("Error while disconnecting :", error);
     }
   };
 
@@ -80,7 +79,7 @@ export default function dashboard() {
     try {
       const response = await fetch("/api/deleteAccount", { method: "DELETE" });
       if (response.ok) {
-        toast.info("Compte supprimé !");
+        toast.info("Account deleted.");
         setTimeout(async () => {
           router.replace("/login");
         }, 6000);
@@ -105,7 +104,7 @@ export default function dashboard() {
           <div>{Rolling(50, 50, "#000000")}</div>
         </div>
       </div>
-    ); // Éviter de montrer le dashboard avant validation
+    );
   } else {
     const renderAvatar =
       isAvatarLoaded && avatarUrl ? (
@@ -143,14 +142,14 @@ export default function dashboard() {
     return (
       <div>
         <main>
-          <h1>{active ? "Welcome to the dashboard" : "Compte non activé"}</h1>
+          <h1>{active ? "Welcome to the dashboard" : "Account not activated"}</h1>
           {active ? (
             <div>
               {commonContent}
               <p>
                 You are connected as <b>{pseudo}</b>
               </p>
-              <p>Your account is activate 🎉</p>
+              <p>Your account is activated 🎉</p>
               <div>
                 {logoutButton}
                 {deleteButton}
@@ -159,15 +158,10 @@ export default function dashboard() {
           ) : (
             <div>
               {commonContent}
-              <p>Votre compte n'est pas encore activé.</p>
-              <p>
-                Si vous souhaitez recevoir un nouveau lien d'activation, recréez
-                votre compte avec le même e-mail.
-              </p>
-              <p>Le lien d'activation est valable pendant 1 heure.</p>
-              <p>
-                Vérifiez votre boîte de réception (et vos spams) pour le lien.
-              </p>
+              <p>Your account isn't activated yet.</p>
+              <p>If you want to receive a new activation link, recreate your account with the same email.</p>
+              <p>The activation link is valid for 1 hour.</p>
+              <p>Check your inbox (and your spam folder) for the link.</p>
               <div>
                 {logoutButton}
                 {deleteButton}

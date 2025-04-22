@@ -44,7 +44,7 @@ export default function Reset() {
         toast.error(data.error);
       }
     } catch (error) {
-      toast.error("Une erreur est survenue.");
+      toast.error("An error has occured.");
     }
   };
 
@@ -52,7 +52,7 @@ export default function Reset() {
     <div>
       <main style={{ padding: "2rem" }}>
         <h2>
-          {token ? "Réinitialisation du mot de passe" : "Mot de passe oublié"}
+          {token ? "Password reset" : "Forgotten password"}
         </h2>
         <form
           onSubmit={handleSubmit}
@@ -60,7 +60,7 @@ export default function Reset() {
         >
           {token ? (
             <input
-              placeholder="Nouveau mot de passe"
+              placeholder="New passsword"
               className="inputs"
               type="password"
               required
@@ -81,7 +81,7 @@ export default function Reset() {
           )}
 
           <button className="button" type="submit" disabled={loading}>
-            {loading ? <img src={valid} alt="valid" /> : "Valider"}
+            {loading ? <img src={valid} alt="valid" /> : "Confirm"}
           </button>
         </form>
       </main>

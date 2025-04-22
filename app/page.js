@@ -21,13 +21,13 @@ export default function Home() {
           setMessageSupabase(await res2.json());
         } else if (res2.status === 500) {
           setMessageSupabase(
-            "Erreur de connexion : BD Supabase pas disponible !"
+            "Error while connecting : Supabase DB unavailable !"
           );
         } else {
-          setMessageSupabase("Erreur lors de la connexion à la BD");
+          setMessageSupabase("Error while connecting to DB");
         }
       } catch (error) {
-        setMessageSupabase("Erreur lors de la connexion à la BD");
+        setMessageSupabase("Error while connecting to DB");
       }
     };
 
@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Welcome to the musehome</h1>
+      <h1>Welcome to musehome !</h1>
       <p>{message}</p>
       <p>{messageSupabase}</p>
     </main>

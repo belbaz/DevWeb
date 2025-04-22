@@ -9,7 +9,6 @@ import styles from '../../styles/home.module.css';
 export default function activation() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const notify = (text) => toast(text);
 
     const activation = async () => {
         const token = searchParams.get('token');
@@ -22,26 +21,24 @@ export default function activation() {
         });
         const data = await response.json();
         if (response.status === 200) {
-            console.log("activation réussi");
-            notify("Compte activé avec succes");
+            toast("Account activated successfully");
             setTimeout(() => {
                 router.push('/login');
             }, 2000);
         } else {
-            console.log("Erreur lors de l'activation");
-            toast.error(data.error);
+            toast.error("error during activation process :", data.error);
         }
     }
 
     return (
         <div className={styles['activation-container']}>
             <Head>
-                <title>Activation de compte</title>
+                <title>Account activation</title>
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
             <div className={styles['activation-content']}>
-                <p className={styles['activation-greeting']}>Bonjour,</p>
-                <button className={styles['activate-button']} onClick={activation}>Activer mon compte</button>
+                <p className={styles['activation-greeting']}>Hello,</p>
+                <button className={styles['activate-button']} onClick={activation}>Activate my account</button>
                 <p id="activation"></p>
             </div>
             <ToastContainer />

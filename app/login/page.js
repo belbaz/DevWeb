@@ -16,7 +16,7 @@ export default function Login() {
     try {
       const response = await fetch("/api/checkToken", {
         method: "GET",
-        credentials: "include", // Envoie automatiquement le cookie
+        credentials: "include", // required for cookie sharing
       });
 
       if (response.ok) {
@@ -27,18 +27,18 @@ export default function Login() {
         const data = await response.json();
         if (data.invalidToken) {
           setMsgError("Token expired");
-          console.log("Token invalide:", data.error);
+          console.log("invalid token:", data.error);
         } else if (data.noToken) {
-          console.log("Aucun token");
+          console.log("No token");
         } else {
-          setMsgError(data.error || "Erreur inconnue");
-          console.log("Erreur API:", data.error);
+          setMsgError(data.error || "Unknown error");
+          console.log("API error :", data.error);
         }
       }
     } catch (error) {
       // Erreur réseau ou autre
-      console.error("Erreur lors de la vérification du token :", error);
-      setMsgError("Erreur de connexion, veuillez réessayer");
+      console.error("Error while checking the token :", error);
+      setMsgError("Error while connecting, please try again");
     }
   };
 
@@ -76,7 +76,7 @@ export default function Login() {
     if (response.ok) {
       router.push("/dashboard");
     } else {
-      setMsgError(data.error || "Erreur inconnue");
+      setMsgError(data.error || "Unknown error");
     }
   };
 
@@ -150,12 +150,12 @@ export default function Login() {
                         {isLoading ? (
                           <div>{Rolling(50, 50, "#000000")}</div>
                         ) : (
-                          <span>Connexion</span>
+                          <span>Login</span>
                         )}
                       </button>
                       {isLoading ? (
                         <div>
-                          <p>Connexion...</p>
+                          <p>Connecting...</p>
                         </div>
                       ) : (
                         <div>

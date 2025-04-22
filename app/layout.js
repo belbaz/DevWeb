@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
 			<html lang="fr">
 				<Head>
 					<title>MuseHome</title>
-					<meta name="description" content="Une super appli web !" />
+					<meta name="description" />
 					<meta charSet="UTF-8" />
 					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 					<meta name="theme-color" content="#ffffff" />
