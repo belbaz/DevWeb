@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ToastContainer } from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 
 import Rolling from '../../components/rolling';
 
