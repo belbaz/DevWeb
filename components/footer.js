@@ -1,7 +1,9 @@
+"use client";
+
 export default function Footer() {
-    return (
-        <footer className="footer">
-            <p>&copy; 2025 MuseHome All rights reserved.</p>
-        </footer>
-    );
+  return (
+    <footer className="footer">
+      <p className="footer-text">&copy; 2025 MUSEHOME — All rights reserved.</p>
+    </footer>
+  );
 }

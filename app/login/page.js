@@ -2,8 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
 import Rolling from '../../components/rolling';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 export default function Login() {
   const router = useRouter();
@@ -12,17 +16,16 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCookies, setloadingCookies] = useState(false);
   const [msgError, setMsgError] = useState(null);
+
   const checkAuth = async () => {
     try {
       const response = await fetch("/api/checkUser", {
         method: "POST"
       });
-
       if (response.ok) {
         setloadingCookies(true);
-        router.push("/dashboard")
+        router.push("/dashboard");
       } else {
-        // invalid or missing token
         const data = await response.json();
         if (data.invalidToken) {
           setMsgError("Token expired");
@@ -35,7 +38,6 @@ export default function Login() {
         }
       }
     } catch (error) {
-      // Erreur réseau ou autre
       console.error("Error while checking the token :", error);
       setMsgError("Error while connecting, please try again");
     }
@@ -47,7 +49,6 @@ export default function Login() {
     checkAuth();
   }, []);
 
-  // display error message if present in URL
   useEffect(() => {
     const error = searchParams.get("msgError");
     if (error) {
@@ -59,8 +60,8 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    const idf = document.getElementById("idf").value;
-    const mdp = document.getElementById("mdp").value;
+    const idf = event.target.idf.value;
+    const mdp = event.target.mdp.value;
 
     const response = await fetch("/api/login", {
       method: "POST",
@@ -80,97 +81,116 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <main>
-        <div className="body" style={{ height: "auto" }}>
-          <div className="loginPage">
-            <div className="box">
-              <p className="title">Login</p>
-              <form onSubmit={handleSubmit}>
-                <div>
-                  {loadingCookies ? (
-                    <div style={{ padding: "1px 5rem" }}>
-                      {Rolling(120, 120, "#000000")}
-                      <p>Reconnexion ...</p>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="form-group">
-                        <div className="formlabel">
-                          <label className="labels" form="login">
-                            Pseudo
-                          </label>
-                          <label className="labels" form="password">
-                            Password{" "}
-                          </label>
-                        </div>
-                        <div className="formlabel">
-                          <input
-                            className="inputs"
-                            type="text"
-                            id="idf"
-                            name="idf"
-                            maxLength="19"
-                            required
-                            autoComplete="username"
-                            onClick={() => setMsgError(null)}
-                          ></input>
-                          <input
-                            className="inputs"
-                            type="password"
-                            id="mdp"
-                            name="mdp"
-                            maxLength="19"
-                            required
-                            autoComplete="current-password"
-                            onClick={() => setMsgError(null)}
-                          ></input>
-                        </div>
-                      </div>
-                      <div style={{ paddingBottom: "0.5rem" }}>
-                        <a
-                          style={{
-                            fontSize: "15px",
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                          }}
-                          onClick={() => router.replace("/reset")}
-                        >
-                          Forgotten password
-                        </a>
-                      </div>
-                      <button
-                        className="button"
-                        type="submit"
-                        disabled={isLoading}
-                        style={{ padding: isLoading ? "7px" : "20px" }}
-                        onClick={() => setMsgError(null)}
-                      >
-                        {isLoading ? (
-                          <div>{Rolling(50, 50, "#000000")}</div>
-                        ) : (
-                          <span>Login</span>
-                        )}
-                      </button>
-                      {isLoading ? (
-                        <div>
-                          <p>Connecting...</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <p></p>
-                        </div>
-                      )}
-                      <p className="error">{msgError}</p>
-                    </div>
-                  )}
-                </div>
-                <br />
-              </form>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
+    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" sx={{ background: 'none' }}>
+      <Box
+        component="main"
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          bgcolor: 'black',
+          borderRadius: 0,
+          boxShadow: 6,
+          p: 5,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3,
+        }}
+      >
+        <Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
+          Log in
+        </Typography>
+        <form onSubmit={handleSubmit} autoComplete="on">
+          <Box display="flex" flexDirection="column" gap={3}>
+            <TextField
+              label="Username"
+              name="idf"
+              id="idf"
+              placeholder="Your Username"
+              variant="outlined"
+              fullWidth
+              autoComplete="username"
+              InputLabelProps={{ style: { color: 'rgba(255,255,255,0.8)' } }}
+              InputProps={{
+                style: {
+                  color: 'white',
+                  background: 'rgba(255,255,255,0.08)',
+                  borderRadius: 0,
+                },
+              }}
+              onFocus={() => setMsgError(null)}
+              required
+            />
+            <TextField
+              label="Password"
+              name="mdp"
+              id="mdp"
+              placeholder="Your Password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              autoComplete="current-password"
+              InputLabelProps={{ style: { color: 'rgba(255,255,255,0.8)' } }}
+              InputProps={{
+                style: {
+                  color: 'white',
+                  background: 'rgba(255,255,255,0.08)',
+                  borderRadius: 0,
+                },
+              }}
+              onFocus={() => setMsgError(null)}
+              required
+            />
+            <Button
+              variant="text"
+              sx={{
+                color: 'rgba(255,255,255,0.7)',
+                textAlign: 'right',
+                fontSize: 13,
+                textTransform: 'none',
+                transition: 'color 0.3s, text-decoration 0.3s',
+                '&:hover': {
+                  color: '#ffffff', backgroundColor: 'transparent'
+                },
+              }}
+              onClick={() => router.replace("/reset")}
+            >
+              Forgotten password?
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                fontFamily: 'Roboto, sans-serif',
+                fontWeight: 300,
+                fontSize: 18,
+                letterSpacing: 2,
+                borderRadius: 0,
+                py: 1.5,
+                mt: 1,
+                bgcolor: 'rgba(255,255,255,0.12)',
+                color: 'white',
+                boxShadow: 'none',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,0.22)',
+                  color: 'white',
+                },
+              }}
+              disabled={isLoading}
+              onClick={() => setMsgError(null)}
+            >
+              {isLoading ? Rolling(40, 40, "#fff") : "Connexion"}
+            </Button>
+            {msgError && (
+              <Typography color="error" align="center" sx={{ mt: 1, fontSize: 16 }}>
+                {msgError}
+              </Typography>
+            )}
+          </Box>
+        </form>
+      </Box>
+    </Box>
   );
 }
