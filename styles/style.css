@@ -10,6 +10,7 @@ body {
     opacity: 0.7;
     scale: 0.4;
   }
+
   100% {
     border-radius: 20px;
     opacity: 1;
@@ -18,7 +19,6 @@ body {
 }
 
 .body {
-  /*background: repeating-linear-gradient(85deg, #b75190, #2d3e8f) fixed;*/
   animation: 0.7s ease-out 0s 0.8 slideInFromRight;
   display: flex;
   flex-direction: column;
@@ -60,7 +60,6 @@ body {
   max-width: 26rem;
   font-size: 1.3rem;
   background: rgba(255, 255, 255, 0.3);
-  /*box-shadow: 50px 50px 40px -6px rgba(0, 0, 0, .2);*/
   padding: 3rem;
   border: 6px solid rgba(255, 255, 255, 0.3);
   border-radius: 40px;
@@ -84,7 +83,6 @@ body {
 .labelsSignup {
   margin: 12px;
   font-size: 1.2rem;
-  /*background: rgba(0, 0, 0, .2);*/
   padding: 0.8rem;
   display: flex;
   flex-direction: column;
@@ -100,10 +98,7 @@ body {
   margin-top: 4rem;
 }
 
-/* a l'intérieur du rectangle du formulaire */
 .inputs {
-  /*height: 2.3rem;*/
-  /*width: 100%;*/
   font-size: 1.2rem;
   background: rgba(0, 0, 0, 0.2);
   border: 2px solid #f1eff1;
@@ -129,7 +124,6 @@ body {
   transition: all 0.3s;
 }
 
-/* Espacer les éléments du formulaire */
 .formlabel {
   margin: 8px 0;
 }
@@ -142,15 +136,11 @@ body {
   font-size: 40px;
 }
 
-/* Cacher les flèches de l'input number*/
-/* Chrome, Safari, Edge, Opera */
 .inputs::-webkit-outer-spin-button,
 .inputs::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
 
-/* Cacher les flèches de l'input number*/
-/* Firefox */
 .inputs[type="number"] {
   -moz-appearance: textfield;
 }
@@ -256,19 +246,23 @@ option {
   height: 100%;
   animation: 1.5s ease-in-out 0s 1 slideInFromBottom;
 }
+
 @keyframes opacite {
   0% {
     opacity: 0.3;
   }
+
   100% {
     opacity: 1;
   }
 }
+
 @keyframes slideInFromBottom {
   0% {
     opacity: 0.3;
     transform: translateX(75%);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -276,11 +270,11 @@ option {
 }
 
 .status-container {
-  position: fixed; /* Position fixe par rapport à la fenêtre */
-  bottom: 0; /* Colle au bas */
-  left: 0; /* Aligné à gauche */
-  right: 0; /* Aligné à droite */
-  padding-bottom: 20px; /* Espace en bas */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: 20px;
   display: flex;
   flex-direction: column;
   user-select: none;
@@ -308,6 +302,7 @@ option {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -330,7 +325,7 @@ option {
 
 .contact-message {
   font-family: "Arial", sans-serif;
-  text-align: center; /* Centre le bouton */
+  text-align: center;
 }
 
 .contact-message button {
@@ -341,13 +336,14 @@ option {
   border-radius: 18px;
   cursor: pointer;
   font-size: 14px;
-  margin-bottom: 10px; /* Espace en bas du bouton */
+  margin-bottom: 10px;
 }
 
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
