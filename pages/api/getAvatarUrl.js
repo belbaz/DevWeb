@@ -3,6 +3,7 @@ import {S3Client, HeadObjectCommand, GetObjectCommand} from "@aws-sdk/client-s3"
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
 import checkToken from "./checkToken";
 import Cookies from "js-cookie";
+import {getUserFromRequest} from "../../lib/getUserFromRequest";
 
 const s3 = new S3Client({
     region: "us-east-1",
@@ -15,27 +16,11 @@ const s3 = new S3Client({
 });
 
 export default async function handler(req, res) {
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.TOKEN;
+    const pseudo = getUserFromRequest(req);
 
-    if (!token) {
-        return res.status(401).json({error: 'Token manquant'});
+    if (!pseudo) {
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
-
-    // Appel à checkToken pour récupérer le pseudo
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkToken`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`,  // Envoie le token dans l'en-tête Authorization
-        },
-    });
-
-    const tokenData = await response.json();
-
-    if (tokenData.error) {
-        return res.status(401).json({error: tokenData.error}); // Renvoie l'erreur si le token est invalide
-    }
-
-    const {pseudo} = tokenData;
 
     // Essayer chaque extension pour l'avatar personnalisé
     for (const ext of ["png", "svg", "jpeg"]) {

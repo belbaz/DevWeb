@@ -40,6 +40,14 @@ export default async function checkToken(req, res) {
             .single();
 
         if (!user) {
+            //suppression du token avec un age = 0
+            res.setHeader('Set-Cookie', serialize('TOKEN', '', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV !== 'development',
+                sameSite: 'strict',
+                maxAge: 0,
+                path: '/',
+            }));
             return res.status(404).json({error: 'Utilisateur non trouvé'});
         }
 
@@ -50,6 +58,7 @@ export default async function checkToken(req, res) {
         }
     } catch (error) {
         console.error('Erreur de vérification du token:', error.message);
+        //suppression du token avec un age = 0
         res.setHeader('Set-Cookie', serialize('TOKEN', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV !== 'development',

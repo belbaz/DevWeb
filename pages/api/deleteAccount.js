@@ -2,6 +2,7 @@
 
 import supabase from 'lib/supabaseClient';
 import supabaseAdmin from 'lib/supabaseAdmin';
+import {getUserFromRequest} from "../../lib/getUserFromRequest";
 
 export default async function DeleteAccount(req, res) {
     if (req.method !== 'DELETE') {
@@ -9,27 +10,12 @@ export default async function DeleteAccount(req, res) {
     }
 
     try {
-        // 1. Récupérer le token
-        const token = req.headers.authorization?.split(' ')[1] || req.cookies.TOKEN;
+        // 1. Récupérer le pseudo
+        const pseudo = getUserFromRequest(req);
 
-        if (!token) {
-            return res.status(401).json({error: 'Token manquant'});
+        if (!pseudo) {
+            return res.status(401).json({ error: 'Utilisateur non authentifié' });
         }
-
-        // 2. Vérifier que le token est valide
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/checkToken`, {
-            method: 'GET', headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        const tokenData = await response.json();
-
-        if (!response.ok || tokenData.error) {
-            return res.status(401).json({error: 'Token invalide'});
-        }
-
-        const {pseudo} = tokenData;
 
         // 3. Supprimer l'utilisateur avec ta fonction RPC
         let {data: results, error} = await supabase
