@@ -1,41 +1,32 @@
 import jwt from 'jsonwebtoken';
-import { parse, serialize } from 'cookie';
+import {parse, serialize} from 'cookie';
 import supabase from 'lib/supabaseClient';
+import {getUserFromRequest} from "../../lib/getUserFromRequest";
 
-export default async function checkToken(req, res) {
-    if (req.method !== 'GET') {
+export default async function checkUser(req, res) {
+    if (req.method !== 'POST') {
         return res.status(405).json({error: 'Méthode non autorisée'});
     }
+    const pseudo = getUserFromRequest(req);
 
-    let token = null;
-
-    try {
-        if (req.headers.authorization?.startsWith("Bearer ")) {
-            token = req.headers.authorization.split(" ")[1];
-        } else if (req.headers.cookie) {
-            const cookies = parse(req.headers.cookie);
-            token = cookies.TOKEN;
-        }
-    } catch (error) {
-        console.error('Erreur lors du parsing des cookies:', error);
-    }
-
-    if (!token) {
-        console.log('Aucun token trouvé');
+    if (!pseudo) {
         return res.status(401).json({error: 'Aucun token fourni', noToken: true});
     }
+
+    const cookies = parse(req.headers.cookie);
+    const token = cookies.TOKEN;
 
     try {
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             console.error("JWT_SECRET n'est pas défini !");
-            return res.status(500).json({ error: "JWT secret manquant côté serveur" });
+            return res.status(500).json({error: "JWT secret manquant côté serveur"});
         }
         const decoded = jwt.verify(token, secret);
 
         const {data: user} = await supabase
             .from('User')
-            .select('isActive, pseudo')
+            .select('isActive, pseudo, level, point, role')
             .ilike('pseudo', decoded.pseudo)
             .single();
 
@@ -52,9 +43,23 @@ export default async function checkToken(req, res) {
         }
 
         if (user.isActive === false) {
-            return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: false});
+            return res.status(200).json({
+                valid: true,
+                pseudo: decoded.pseudo,
+                isActive: false,
+                level: user.level,
+                point: user.point,
+                role: user.role
+            });
         } else {
-            return res.status(200).json({valid: true, pseudo: decoded.pseudo, isActive: true});
+            return res.status(200).json({
+                valid: true,
+                pseudo: decoded.pseudo,
+                isActive: true,
+                level: user.level,
+                point: user.point,
+                role: user.role
+            });
         }
     } catch (error) {
         console.error('Erreur de vérification du token:', error.message);

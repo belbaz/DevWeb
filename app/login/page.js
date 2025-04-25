@@ -14,9 +14,8 @@ export default function Login() {
   const [msgError, setMsgError] = useState(null);
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/checkToken", {
-        method: "GET",
-        credentials: "include", // required for cookie sharing
+      const response = await fetch("/api/checkUser", {
+        method: "POST"
       });
 
       if (response.ok) {

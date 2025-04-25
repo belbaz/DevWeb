@@ -16,8 +16,8 @@ export default function dashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/checkToken", {
-          method: "GET",
+        const response = await fetch("/api/checkUser", {
+          method: "POST",
           credentials: "include", // required for cookies
         });
 
