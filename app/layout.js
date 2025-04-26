@@ -8,7 +8,7 @@ import Head from "next/head";
 import { usePathname } from "next/navigation";
 
 import { MuiHeader } from "../components/header";
-import Footer from "../components/footer";
+import Footer, { MuiFooter } from "../components/footer";
 import { ToastContainer } from "react-toastify";
 import React, { Suspense } from "react";
 
@@ -77,7 +77,7 @@ export default function RootLayout({ children }) {
 							</div>
 						</div>
 					)}
-					{!isActivationPage && <Footer />}
+					{!isActivationPage && <MuiFooter />}
 				</body>
 			</html>
 		</Suspense>
