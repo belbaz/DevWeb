@@ -1,14 +1,13 @@
 "use client";
 
 import "../styles/home.css";
-import "../styles/header.css";
 import "../styles/footer.css";
 import "../styles/style.css";
 
 import Head from "next/head";
 import { usePathname } from "next/navigation";
 
-import Header from "../components/header";
+import { MuiHeader } from "../components/header";
 import Footer from "../components/footer";
 import { ToastContainer } from "react-toastify";
 import React, { Suspense } from "react";
@@ -65,7 +64,7 @@ export default function RootLayout({ children }) {
 				</Head>
 
 				<body>
-					{!isActivationPage && <Header />}
+					{!isActivationPage && <MuiHeader />}
 					{isActivationPage ? (
 						children
 					) : (
