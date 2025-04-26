@@ -1,16 +1,17 @@
 import jwt from 'jsonwebtoken';
-import {parse, serialize} from 'cookie';
+import { parse, serialize } from 'cookie';
 import supabase from 'lib/supabaseClient';
-import {getUserFromRequest} from "../../lib/getUserFromRequest";
+import { getUserFromRequest } from "../../lib/getUserFromRequest";
 
+// checks if user is logged in and active
 export default async function checkUser(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({error: 'Méthode non autorisée'});
+        return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
     }
-    const pseudo = getUserFromRequest(req);
+    const username = getUserFromRequest(req);
 
-    if (!pseudo) {
-        return res.status(401).json({error: 'Aucun token fourni', noToken: true});
+    if (!username) {
+        return res.status(401).json({ error: 'no username found from token', noToken: true });
     }
 
     const cookies = parse(req.headers.cookie);
@@ -19,19 +20,18 @@ export default async function checkUser(req, res) {
     try {
         const secret = process.env.JWT_SECRET;
         if (!secret) {
-            console.error("JWT_SECRET n'est pas défini !");
-            return res.status(500).json({error: "JWT secret manquant côté serveur"});
+            return res.status(500).json({ error: "server error : JWT_SECRET undefined" });
         }
         const decoded = jwt.verify(token, secret);
 
-        const {data: user} = await supabase
+        const { data: user } = await supabase
             .from('User')
             .select('isActive, pseudo, level, point, role')
             .ilike('pseudo', decoded.pseudo)
             .single();
 
         if (!user) {
-            //suppression du token avec un age = 0
+            // delete token when its age is 0
             res.setHeader('Set-Cookie', serialize('TOKEN', '', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV !== 'development',
@@ -39,7 +39,7 @@ export default async function checkUser(req, res) {
                 maxAge: 0,
                 path: '/',
             }));
-            return res.status(404).json({error: 'Utilisateur non trouvé'});
+            return res.status(404).json({ error: 'user not found' });
         }
 
         if (user.isActive === false) {
@@ -62,8 +62,8 @@ export default async function checkUser(req, res) {
             });
         }
     } catch (error) {
-        console.error('Erreur de vérification du token:', error.message);
-        //suppression du token avec un age = 0
+        console.error('error while checking token :', error?.message);
+        // delete token when its age is 0
         res.setHeader('Set-Cookie', serialize('TOKEN', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV !== 'development',
@@ -71,6 +71,6 @@ export default async function checkUser(req, res) {
             maxAge: 0,
             path: '/',
         }));
-        return res.status(401).json({error: 'Token invalide', invalidToken: true});
+        return res.status(401).json({ error: 'invalid token', invalidToken: true });
     }
 }

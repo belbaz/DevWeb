@@ -5,18 +5,18 @@ import { getUserFromRequest } from "lib/getUserFromRequest";
 
 export default async function setObject(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).send(`Method ${req.method} Not Allowed`);
     }
 
     const pseudo = getUserFromRequest(req);
     if (!pseudo) {
-        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+        return res.status(401).json({ error: 'user not authenticated' });
     }
 
     const { id, description, brand, type, room_id, accesLevel } = req.body;
 
     if (!id || !accesLevel || !description || !brand || !type || !room_id) {
-        return res.status(400).json({ error: 'Données incomplètes' });
+        return res.status(400).json({ error: 'incomplete data' });
     }
 
     const accessMap = {
@@ -27,7 +27,7 @@ export default async function setObject(req, res) {
     };
 
     try {
-        // Récupération du niveau de l'utilisateur
+        // get user's level
         const { data: userData, error: userError } = await supabase
             .from('User')
             .select('level')
@@ -35,19 +35,19 @@ export default async function setObject(req, res) {
             .single();
 
         if (userError || !userData) {
-            return res.status(400).json({ error: 'Utilisateur non trouvé' });
+            return res.status(400).json({ error: 'user not found' });
         }
 
         const userLevel = userData.level;
-        const niveauxAutorises = accessMap[userLevel] || [];
-        console.log(niveauxAutorises);
+        const allowedLevels = accessMap[userLevel] || [];
+        console.log(allowedLevels);
 
-        // Vérifier si l'utilisateur a le droit de modifier cet objet
-        if (!niveauxAutorises.includes(accesLevel)) {
-            return res.status(403).json({ error: 'Droits insuffisants pour modifier cet objet' });
+        // check if the user has the right to modify the object
+        if (!allowedLevels.includes(accesLevel)) {
+            return res.status(403).json({ error: 'user is not allowed to change this object' });
         }
 
-        // Mise à jour de l'objet
+        // updating objects
         const { data: updatedObject, error: updateError } = await supabase
             .from('Object')
             .update({
@@ -58,17 +58,17 @@ export default async function setObject(req, res) {
                 accesLevel
             })
             .eq('id', id)
-            .select(); // pour renvoyer l'objet mis à jour
+            .select(); // return the updated object
 
         if (updateError) {
-            console.error("Erreur lors de la mise à jour :", updateError);
-            return res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+            console.error("error while updating object :", updateError);
+            return res.status(500).json({ error: "error while updating object :" + updateError.message });
         }
 
-        return res.status(200).json({ message: 'Objet mis à jour avec succès', objet: updatedObject });
+        return res.status(200).json({ message: 'object updated successfully ! object : ', objet: updatedObject });
 
     } catch (err) {
-        console.error("Erreur serveur :", err);
-        return res.status(500).json({ error: "Erreur interne du serveur" });
+        console.error("server error :", err);
+        return res.status(500).json({ error: "Internal server error" });
     }
 }

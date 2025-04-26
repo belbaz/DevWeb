@@ -5,26 +5,25 @@ import supabase from 'lib/supabaseClient';
 
 export default async function uploadAvatar(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'post method required' });
     }
 
     const { pseudo, imageBase64, fallbackImageUrl } = req.body;
 
     if (!pseudo) {
-        return res.status(400).json({ error: 'Le pseudo est requis' });
+        return res.status(400).json({ error: 'a username is required' });
     }
 
     try {
         let buffer;
-        let contentType = 'image/png'; // valeur par défaut
+        let contentType = 'image/png'; // default value
 
         if (imageBase64) {
             buffer = Buffer.from(imageBase64, 'base64');
-            // Astuce pour déduire le type si tu veux : mais ici on garde png par défaut pour base64
         } else if (fallbackImageUrl) {
             const response = await fetch(fallbackImageUrl);
             if (!response.ok) {
-                throw new Error("Erreur lors du téléchargement de l'image de fallback");
+                throw new Error("Error fetching fallback image");
             }
 
             const contentTypeHeader = response.headers.get('content-type');
@@ -33,10 +32,10 @@ export default async function uploadAvatar(req, res) {
             const arrayBuffer = await response.arrayBuffer();
             buffer = Buffer.from(arrayBuffer);
         } else {
-            //return res.status(400).json({ error: 'Aucune image fournie' });
+            //return res.status(400).json({ error: 'No picture inputted' });
         }
 
-        // Déduction de l'extension à partir du type MIME
+        // Deduction of the extension from the MIME type
         const mimeToExt = {
             'image/png': 'png',
             'image/jpeg': 'jpg',
@@ -56,13 +55,13 @@ export default async function uploadAvatar(req, res) {
             });
 
         if (error) {
-            console.error('Erreur Supabase :', error);
-            return res.status(500).json({ error: 'Erreur lors de l’upload' });
+            console.error('Supabase error :', error);
+            return res.status(500).json({ error: 'Error while uploading image' });
         }
 
-        return res.status(200).json({ message: 'Image uploadée', data });
+        return res.status(200).json({ message: 'Image successfully uploaded', data });
     } catch (error) {
-        console.error('Erreur API uploadAvatar :', error);
-        return res.status(500).json({ error: 'Erreur interne du serveur' });
+        console.error('API error in uploadAvatar :', error);
+        return res.status(500).json({ error: 'internal server error' });
     }
 }

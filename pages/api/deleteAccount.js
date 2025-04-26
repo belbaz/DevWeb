@@ -2,74 +2,73 @@
 
 import supabase from 'lib/supabaseClient';
 import supabaseAdmin from 'lib/supabaseAdmin';
-import {getUserFromRequest} from "../../lib/getUserFromRequest";
+import { getUserFromRequest } from "../../lib/getUserFromRequest";
 
 export default async function DeleteAccount(req, res) {
     if (req.method !== 'DELETE') {
-        return res.status(405).json({error: 'Méthode non autorisée'});
+        return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
     }
 
     try {
-        // 1. Récupérer le pseudo
-        const pseudo = getUserFromRequest(req);
+        // 1. get username
+        const username = getUserFromRequest(req);
 
-        if (!pseudo) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+        if (!username) {
+            return res.status(401).json({ error: 'username not found in DB' });
         }
 
-        // 3. Supprimer l'utilisateur avec ta fonction RPC
-        let {data: results, error} = await supabase
-            .rpc('deleteaccountbypseudo', {pseudo_input: pseudo});
+        // 3. delete user via rpc
+        let { data: results, error } = await supabase
+            .rpc('deleteaccountbypseudo', { pseudo_input: username });
 
         if (error) {
             console.error('Erreur Supabase RPC :', error);
-            return res.status(500).json({error: 'Erreur suppression utilisateur'});
+            return res.status(500).json({ error: 'Error while deleting user data :' + error?.message });
         }
 
-        // 4. Supprimer ses fichiers avatars dans Storage
+        // 4. delete all his avatars from storage
         try {
-            //Lister tous les fichiers du bucket 'avatars'
-            const {data: files, error: listError} = await supabaseAdmin
+            // list all files in the storage bucket
+            const { data: files, error: listError } = await supabaseAdmin
                 .storage
                 .from('avatars')
-                .list('', {limit: 1000});
+                .list('', { limit: 1000 });
 
             if (listError) {
-                console.error('Erreur récupération fichiers avatars:', listError);
-                return res.status(500).json({error: 'Erreur lors de la récupération des fichiers'});
+                console.error('Error while fetching avatars :', listError);
+                return res.status(500).json({ error: 'Error while fetching avatars :' + listError?.message });
             }
 
-            //Trouver ceux qui commencent par `${pseudo}_avatar`
+            // find those who begin with `${pseudo}_avatar`
             const filesToDelete = files
-                .filter(file => file.name.startsWith(`${pseudo}_avatar`))
+                .filter(file => file.name.startsWith(`${username}_avatar`))
                 .map(file => file.name);
 
             if (filesToDelete.length === 0) {
-                console.log('Aucun fichier avatar trouvé à supprimer pour ce pseudo.');
-                return res.status(200).json({message: 'Aucun avatar à supprimer.'});
+                return res.status(200).json({ message: 'no avatar to delete.' });
             }
 
-            //Supprimer tous ces fichiers
-            const {data: deleteData, error: deleteError} = await supabaseAdmin
+            // effectively delete avatars
+            const { data: deleteData, error: deleteError } = await supabaseAdmin
                 .storage
                 .from('avatars')
                 .remove(filesToDelete);
 
             if (deleteError) {
-                console.error('Erreur suppression fichiers avatars:', deleteError);
-                return res.status(500).json({error: 'Erreur lors de la suppression des avatars'});
+                console.error('Error while deleting avatars :', deleteError);
+                return res.status(500).json({ error: 'Error while deleting avatars' });
             }
         } catch (error) {
-            console.error('Erreur API suppression avatars:', error);
-            return res.status(500).json({error: 'Erreur interne du serveur'});
+            console.error('Server error while deleting avatars :', error);
+            return res.status(500).json({ error: 'Server error while deleting avatars' });
         }
 
 
-        // 5. Réponse finale
-        return res.status(200).json({message: 'Compte et avatars supprimés', pseudo: pseudo});
+        // 5. final answer
+        return res.status(200).json({ message: 'account and avatars deleted', pseudo: username });
 
     } catch (error) {
-        console.error('Erreur dans deleteAccount :', error);
-        return res.status(500).json({error: 'Erreur interne du serveur'});
+        console.error('error in deleteAccount :', error);
+        return res.status(500).json({ error: 'internal server error' });
     }
 }

@@ -2,33 +2,33 @@
 
 import supabase from 'lib/supabaseClient';
 
+// check if the username is already taken
 export default async function checkPseudo(req, res) {
     if (req.method === 'POST') {
-        const {pseudo} = req.body;
+        const { pseudo: username } = req.body;
 
         try {
-            // Vérifiez si le pseudo existe déjà
-            const {data: user} = await supabase
+            // check if username is taken
+            const { data: user } = await supabase
                 .from('User')
                 .select('pseudo, isActive')
-                .ilike('pseudo', pseudo) // utilisation de ilike pour une recherche insensible à la casse
+                .ilike('pseudo', username)
                 .eq('isActive', true)
                 .single();
 
             if (user) {
-                res.status(409).json({error: "Ce pseudo existe déjà"});
+                res.status(409).json({ error: "This username is already used." });
             } else {
-                res.status(200).json({message: "Le pseudo est disponible"});
+                res.status(200).json({ message: "This username is available" });
             }
 
         } catch (error) {
-            // Gestion des erreurs lors de la connexion à la base de données
-            console.error(error);
-            res.status(500).json({error: "Une erreur s'est produite lors de la connexion à la base de données"});
+            console.error("Error checking username:", error);
+            res.status(500).json({ error: "Internal server error" });
         }
     } else {
-        // Gérer les autres méthodes HTTP
+        // handle any other HTTP method
         res.setHeader('Allow', ['POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        res.status(405).send(`Method ${req.method} Not Allowed`);
     }
 }

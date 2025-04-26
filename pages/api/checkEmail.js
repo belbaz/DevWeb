@@ -1,15 +1,14 @@
-// pages/api/checkEmail.js
 import supabase from 'lib/supabaseClient';
 
 
-
+// checks wether the email is already taken or not
 export default async function checkPseudo(req, res) {
     if (req.method === 'POST') {
-        const {email} = req.body;
+        const { email } = req.body;
 
         try {
-            // Vérifiez si le pseudo existe déjà
-            const {data: user} = await supabase
+            // check if email is valid
+            const { data: user } = await supabase
                 .from('User')
                 .select('email, isActive')
                 .ilike('email', email)
@@ -17,19 +16,18 @@ export default async function checkPseudo(req, res) {
                 .single();
 
             if (user) {
-                res.status(409).json({error: "Cette email existe déjà"});
+                res.status(409).json({ error: "this email is already taken" });
             } else {
-                res.status(200).json({message: "Cette email est disponible"});
+                res.status(200).json({ message: "email is available" });
             }
 
         } catch (error) {
-            // Gestion des erreurs lors de la connexion à la base de données
-            console.error(error);
-            res.status(500).json({error: "Une erreur s'est produite lors de la connexion à la base de données"});
+            // handle db connection error 
+            console.error("Server error:", error);
+            res.status(500).json({ error: "Internal server error" });
         }
-    } else {
-        // Gérer les autres méthodes HTTP
+    } else { // handle method not allowed
         res.setHeader('Allow', ['POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        res.status(405).send(`Method ${req.method} Not Allowed`);
     }
 }

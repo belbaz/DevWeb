@@ -3,31 +3,31 @@
 // Import du client Supabase qui lui se connecte
 import supabase from 'lib/supabaseClient';
 
-//creation de la fonction asyncrone
+//creation of the asynchronous function
 export default async function handler(req, res) {
     try {
-        // Vérifiez si la méthode HTTP est correcte (par exemple, GET)
+        // Check if the HTTP method is correct (e.g., GET)
         if (req.method !== 'GET') {
-            return res.status(405).json({ error: 'Méthode non autorisée' });
+            return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        // Appel à Supabase pour récupérer les données de la table "devWebTEST"
+        // Call Supabase to retrieve data from the "devWebTEST" table
         const { data: devWebTEST, error } = await supabase
             .from('devWebTEST')
             .select('*');
 
-        // Vérifiez si une erreur survient lors de la requête
+        // Check if an error occurs during the request
         if (error) {
-            console.error('Erreur Supabase :', error);
-            return res.status(500).json({ error: 'Erreur lors de la récupération des données' });
+            console.error('Supabase error:', error);
+            return res.status(500).json({ error: 'Error retrieving data' });
         }
 
-        // Renvoi des données dans la réponse HTTP
+        // Return the data in the HTTP response
         // console.log(devWebTEST);
         return res.status(200).json(devWebTEST[0].nom);
     } catch (err) {
-        // Gestion des erreurs imprévues
-        console.error('Erreur interne du serveur :', err);
-        return res.status(500).json({ error: 'Erreur interne du serveur' });
+        // Handle unexpected errors
+        console.error('Internal server error:', err);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }

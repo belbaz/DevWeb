@@ -1,14 +1,13 @@
 // pages/api/activeAccount.js
 import supabase from 'lib/supabaseClient';
 
-
+// receives a token and checks if it is valid
 export default async function activeAccount(req, res) {
     if (req.method === 'POST') {
-        const {token} = req.body;
-        // console.log(token);
+        const { token } = req.body;
         try {
-            // Récupérer le token depuis la table Token
-            const {data: tokenData, error: tokenError} = await supabase
+            // get token from token table
+            const { data: tokenData, error: tokenError } = await supabase
                 .from('Token')
                 .select('pseudo, used, expires_at')
                 .eq('token', token)
@@ -16,45 +15,45 @@ export default async function activeAccount(req, res) {
                 .single();
 
             if (tokenError || !tokenData) {
-                return res.status(400).json({error: 'Token invalide'});
+                return res.status(400).json({ error: 'invalid token' });
             }
 
-            const {pseudo, used, expires_at} = tokenData;
-            // console.log("Expire à (UTC) :", new Date(expires_at).toISOString(), " | Date actuelle (UTC) :", new Date().toISOString());
-            // Vérifier si expiré ou déjà utilisé
+            const { pseudo, used, expires_at } = tokenData;
+            // checks if expired or used
             if (used || new Date(expires_at) < new Date()) {
-                return res.status(400).json({error: 'Token expiré ou déjà utilisé'});
+                return res.status(400).json({ error: 'Token expired or already used' });
             }
 
-            // Activer le compte utilisateur
-            const {error: userError} = await supabase
+            // activate the user account
+            const { error: userError } = await supabase
                 .from('User')
-                .update({isActive: true})
+                .update({ isActive: true })
                 .eq('pseudo', pseudo);
 
             if (userError) {
-                return res.status(500).json({error: "Erreur lors de l'activation du compte."});
+                return res.status(500).json({ error: "Error while activating the account :" + userError?.message });
             }
 
-            // Marquer le token comme utilisé
+            // mark token as used
             await supabase
                 .from('Token')
-                .update({used: true})
+                .update({ used: true })
                 .eq('token', token);
 
-            //supprimer la ligne du token
+            // delete token line in the table
             await supabase
                 .from('Token')
                 .delete()
                 .eq('token', token)
 
-            return res.status(200).json({message: 'Compte activé avec succès'});
+            return res.status(200).json({ message: 'account successfully activated' });
 
         } catch (error) {
-            return res.status(500).json({error: "Erreur serveur"});
+            console.error("Server error:", error);
+            return res.status(500).json({ error: "Server error" });
         }
     } else {
         res.setHeader('Allow', ['POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        res.status(405).send(`Method ${req.method} Not Allowed`);
     }
 }
