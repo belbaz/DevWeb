@@ -17,6 +17,13 @@ export default function Login() {
   const [loadingCookies, setloadingCookies] = useState(false);
   const [msgError, setMsgError] = useState(null);
 
+  useEffect(() => { // disable scroll on login page only
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "visible";
+    };
+  }, []);
+
   const checkAuth = async () => {
     try {
       const response = await fetch("/api/checkUser", {
@@ -81,7 +88,11 @@ export default function Login() {
   };
 
   return (
-    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" sx={{ background: 'none' }}>
+    <Box sx={{
+      background: 'none',
+      height: '100vh',
+      margin: 0,
+    }}>
       <Box
         component="main"
         sx={{

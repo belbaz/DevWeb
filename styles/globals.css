@@ -36,7 +36,12 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-cinzel);
   font-weight: 700;
   letter-spacing: 2px;
@@ -65,7 +70,7 @@ a:hover {
   color: rgba(255, 255, 255, 1);
 }
 
-button, 
+button,
 .button {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -85,8 +90,8 @@ button:hover,
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-input, 
-textarea, 
+input,
+textarea,
 select {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -98,8 +103,8 @@ select {
   transition: all 0.3s ease;
 }
 
-input:focus, 
-textarea:focus, 
+input:focus,
+textarea:focus,
 select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 0.5);
@@ -152,8 +157,8 @@ select:focus {
   .container {
     padding: 0 1rem;
   }
-  
+
   .section {
     padding: 4rem 0;
   }
-} 
+}

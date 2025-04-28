@@ -11,9 +11,9 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
+    <header position="fixed" className="header">
       <Link href="/" className="logo">MUSEHOME</Link>
-      
+
       <button className="hamburger" onClick={toggleMenu} aria-label="Menu">
         <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
       </button>

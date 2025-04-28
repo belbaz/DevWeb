@@ -103,7 +103,11 @@ const Signup = () => {
   };
 
   return (
-    <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center" sx={{ background: 'none' }}>
+    <Box sx={{
+      background: 'none',
+      height: '100vh',
+      margin: 0,
+    }}>
       <Box
         component="main"
         sx={{
