@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function Reset() {
   const router = useRouter();
@@ -85,9 +85,6 @@ export default function Reset() {
           </button>
         </form>
       </main>
-      <div>
-        <ToastContainer />
-      </div>
     </div>
   );
 }

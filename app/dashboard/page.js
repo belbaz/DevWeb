@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 import Rolling from '../../components/rolling';
 
@@ -169,7 +169,6 @@ export default function dashboard() {
             </div>
           )}
         </main>
-        <ToastContainer />
       </div>
     );
   }

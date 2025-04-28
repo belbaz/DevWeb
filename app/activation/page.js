@@ -2,7 +2,7 @@
 
 import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import styles from '../../styles/home.module.css';
 
@@ -41,7 +41,6 @@ export default function activation() {
                 <button className={styles['activate-button']} onClick={activation}>Activate my account</button>
                 <p id="activation"></p>
             </div>
-            <ToastContainer />
         </div>
     );
 }

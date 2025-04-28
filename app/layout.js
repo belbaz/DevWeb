@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="fr" className={`${cinzel.variable} ${roboto.variable}`}>
 			<body className="font-roboto">
-				<Suspense fallback={<div>Chargement...</div>}>
+				<Suspense fallback={<div>Loading...</div>}>
 					<ClientWrapper>{children}</ClientWrapper>
 				</Suspense>
 			</body>
