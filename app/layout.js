@@ -5,7 +5,7 @@ import "../styles/home.css";
 
 import { Cinzel, Roboto } from "next/font/google";
 import ClientWrapper from "../components/clientWrapper";
-import ThemeRegistry from "../components/ThemeRegistry";
+import React, { Suspense } from 'react';
 
 const cinzel = Cinzel({
 	subsets: ["latin"],
@@ -30,7 +30,9 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="fr" className={`${cinzel.variable} ${roboto.variable}`}>
 			<body className="font-roboto">
-				<ClientWrapper>{children}</ClientWrapper>
+				<Suspense fallback={<div>Chargement...</div>}>
+					<ClientWrapper>{children}</ClientWrapper>
+				</Suspense>
 			</body>
 		</html>
 	);
