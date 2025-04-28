@@ -26,7 +26,7 @@ export default async function checkUser(req, res) {
 
         const { data: user } = await supabase
             .from('User')
-            .select('isActive, pseudo, level, point, role')
+            .select('isActive, pseudo, level, points, role , gender, birthday, address')
             .ilike('pseudo', decoded.pseudo)
             .single();
 
@@ -49,7 +49,10 @@ export default async function checkUser(req, res) {
                 isActive: false,
                 level: user.level,
                 point: user.point,
-                role: user.role
+                role: user.role,
+                gender: user.gender,
+                birthday: user.birthday,
+                address: user.address
             });
         } else {
             return res.status(200).json({
@@ -58,7 +61,10 @@ export default async function checkUser(req, res) {
                 isActive: true,
                 level: user.level,
                 point: user.point,
-                role: user.role
+                role: user.role,
+                gender: user.gender,
+                birthday: user.birthday,
+                address: user.address
             });
         }
     } catch (error) {

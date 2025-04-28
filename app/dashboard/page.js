@@ -28,7 +28,8 @@ export default function dashboard() {
           setActive(data.isActive);
           // Récupérer l'avatar
           const res = await fetch("/api/getAvatarUrl", {
-            method: "GET"
+            method: "GET",
+            headers: {pseudo: data.pseudo},
           });
           const json = await res.json();
           if (json.url) {

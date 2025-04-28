@@ -16,11 +16,12 @@ const s3 = new S3Client({
 // returns signed url to access the avatar
 // if not avatar found, returns default avatar signed url
 export default async function getAvatarUrl(req, res) {
-    const pseudo = getUserFromRequest(req);
 
-    if (!pseudo) {
-        return res.status(401).json({error: 'User not authenticated'});
+    const pseudo = req.headers.pseudo;
+    if(!pseudo) {
+        return res.status(403).json({error: 'No pseudo'});
     }
+
     // console.log(pseudo)
     // try every extension for the avatar
     for (const ext of ["png", "jpeg", "jpg", "svg"]) {
