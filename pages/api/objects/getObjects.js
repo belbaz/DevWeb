@@ -2,6 +2,8 @@ import supabaseClient from '../../../lib/supabaseClient.js';
 import { getUserPermissions } from '../../../lib/getUserPermissions.js';
 import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
 
+// RENNVOIE LA LISTE DE TOUS LES TyPES D'OBJETS
+
 export default async function handler(req, res) {
     // Refus si la méthode n’est pas GET
     if (req.method !== 'GET') {
