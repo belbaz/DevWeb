@@ -2,7 +2,7 @@ import supabaseClient from '../../../lib/supabaseClient.js';
 import { getUserPermissions } from '../../../lib/getUserPermissions.js';
 import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
 
-// RENVOIE LA LISTE DE TOUS LES TyPES D'OBJETS
+// RENVOIE UNE PIÈCE SPÉCIFIQUE SELON SON ID
 
 export default async function handler(req, res) {
     // Refus si la méthode n’est pas GET
@@ -20,25 +20,32 @@ export default async function handler(req, res) {
         // Vérification des permissions
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
-            return res.status(403).json({ error: 'Accès refusé : lecture des objets non autorisée' });
+            return res.status(403).json({ error: 'Accès refusé : lecture des pièces non autorisée' });
         }
 
-        // Lecture des objets dans la base Supabase
-        const { data, error } = await supabaseClient
-            .from('Object')
-            .select('*');
+        // Vérification de la présence d’un paramètre ID
+        const { id } = req.query;
+        if (!id) {
+            return res.status(400).json({ error: 'ID de pièce manquant dans la requête' });
+        }
 
-        // Erreur côté Supabase
+        // Lecture de la pièce correspondante dans Supabase
+        const { data, error } = await supabaseClient
+            .from('Room')
+            .select('*')
+            .eq('id', id)
+            .single();
+
         if (error) {
             console.error('Erreur Supabase :', error.message);
             return res.status(500).json({
-                error: 'Erreur lors de la récupération des objets',
+                error: 'Erreur lors de la récupération de la pièce',
                 details: error.message,
             });
         }
 
-        // On renvoie les objets récupérés
-        return res.status(200).json({ objects: data });
+        // On renvoie la pièce
+        return res.status(200).json({ room: data });
 
     } catch (err) {
         // Erreurs serveur

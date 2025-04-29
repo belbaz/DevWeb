@@ -2,6 +2,8 @@ import supabaseClient from '../../../lib/supabaseClient.js';
 import { getUserPermissions } from '../../../lib/getUserPermissions.js';
 import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
 
+// RENVOIE QU'UN SEUL OBJET EN FONCTION DE SON ID
+
 // Fonction handler pour traiter une requête GET
 export default async function handler(req, res) {
     // Refuse toute méthode autre que GET
