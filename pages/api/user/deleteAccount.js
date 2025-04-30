@@ -2,7 +2,7 @@
 
 import supabase from 'lib/supabaseClient';
 import supabaseAdmin from 'lib/supabaseAdmin';
-import { getUserFromRequest } from "../../lib/getUserFromRequest";
+import { getUserFromRequest } from "lib/getUserFromRequest";
 
 export default async function DeleteAccount(req, res) {
     if (req.method !== 'DELETE') {

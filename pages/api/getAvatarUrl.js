@@ -1,7 +1,6 @@
 // pages/api/avatar.js
 import {S3Client, HeadObjectCommand, GetObjectCommand} from "@aws-sdk/client-s3";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
-import {getUserFromRequest} from "../../lib/getUserFromRequest";
 
 const s3 = new S3Client({
     region: "us-east-1",

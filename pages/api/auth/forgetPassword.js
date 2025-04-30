@@ -1,7 +1,7 @@
 // pages/api/forgetPassword.js
 
 import supabase from 'lib/supabaseClient';
-import { sendMail } from "../../lib/sendMail";
+import { sendMail } from "lib/sendMail";
 
 // function to send a password reset email
 export default async function forgetPassword(req, res) {

@@ -2,7 +2,7 @@
 
 // Client Supabase
 import supabase from 'lib/supabaseClient';
-import { authenticate } from "../../lib/authenticate";
+import { authenticate } from "lib/authenticate";
 
 export default async function login(req, res) {
     if (req.method !== 'POST') {

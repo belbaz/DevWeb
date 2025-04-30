@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import supabase from 'lib/supabaseClient';
-import { getUserFromRequest } from "../../lib/getUserFromRequest";
+import {getUserFromRequest} from "lib/getUserFromRequest";
 
 // checks if user is logged in and active
 export default async function checkUser(req, res) {
