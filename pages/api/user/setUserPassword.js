@@ -14,9 +14,9 @@ export default async function getUserProfil(req, res) {
 
     const user = await getUserFromRequest(req);
     if (!user) {
-        return res.status(401).json({ error: 'User not authenticated' });
+        return res.status(401).json({error: 'User not authenticated'});
     } else if (!password) {
-        return res.status(401).json({ error: 'Password is missing' });
+        return res.status(401).json({error: 'Password is missing'});
     }
     // console.log("User : " + user.pseudo);
 
