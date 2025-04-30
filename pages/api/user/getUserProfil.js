@@ -8,15 +8,16 @@ export default async function getUserProfil(req, res) {
 
     const pseudoProfil = req.query.pseudo;
     console.log(pseudoProfil);
-    const pseudo = getUserFromRequest(req);
-    console.log(pseudo);
-    if (!pseudo) {
-        return res.status(401).json({error: 'user not authenticated'});
+
+    const user = await getUserFromRequest(req);
+    if (!user) {
+        return res.status(401).json({ error: 'User not authenticated' });
     }
+    // console.log("User : " + user.pseudo + " level : " + user.level);
 
     try {
-        // 1. it's your account ou you are admin !
-        if (pseudo === pseudoProfil || pseudo === 'admin') {
+        // 1. it's your account ou you are level expert !
+        if (user.pseudo === pseudoProfil || user.level === "expert") {
             const {data: userData, error: userError} = await supabase
                 .from('User')
                 .select('name, lastName, pseudo, email, isActive, gender, level, role, address, points, birthday')
@@ -33,7 +34,7 @@ export default async function getUserProfil(req, res) {
             const {data: userProfil, error: userError} = await supabase
                 .from('User')
                 .select('name, lastName, pseudo, gender, level, points, birthday')
-                .eq('pseudo', pseudo)
+                .eq('pseudo', pseudoProfil)
                 .single();
 
             if (userError || !userProfil) {

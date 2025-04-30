@@ -66,7 +66,7 @@ const Signup = () => {
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result.split(",")[1];
-      await fetch("/api/uploadAvatar", {
+      await fetch("/api/auth/uploadAvatar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pseudo, imageBase64: base64 }),
