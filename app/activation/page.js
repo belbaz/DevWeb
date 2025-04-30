@@ -12,7 +12,7 @@ export default function activation() {
 
     const activation = async () => {
         const token = searchParams.get('token');
-        const response = await fetch("/api/activeAccount", {
+        const response = await fetch("/api/auth/activeAccount", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

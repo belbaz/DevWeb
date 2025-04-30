@@ -26,7 +26,7 @@ const Signup = () => {
 
   const checkPseudo = async () => {
     const pseudo = document.getElementById("Pseudo").value;
-    const response = await fetch("/api/checkPseudo", {
+    const response = await fetch("/api/user/checkPseudo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ pseudo }),
@@ -40,7 +40,7 @@ const Signup = () => {
 
   const checkEmail = async () => {
     const email = document.getElementById("Email").value;
-    const response = await fetch("/api/checkEmail", {
+    const response = await fetch("/api/user/checkEmail", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -84,7 +84,7 @@ const Signup = () => {
     const email = event.target.Email.value;
     const password = event.target.Password.value;
     await uploadImage(selectedFile, pseudo);
-    const response = await fetch("/api/signup", {
+    const response = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, lastName, pseudo, email, password }),

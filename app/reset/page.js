@@ -25,7 +25,7 @@ export default function Reset() {
 
     try {
       const res = await fetch(
-        token ? "/api/resetPassword" : "/api/forgetPassword",
+        token ? "/api/resetPassword" : "/api/auth/forgetPassword",
         {
           method: "POST",
           headers: {

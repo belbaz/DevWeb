@@ -26,7 +26,7 @@ export default function Login() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/checkUser", {
+      const response = await fetch("/api/user/checkUser", {
         method: "POST"
       });
       if (response.ok) {
@@ -70,7 +70,7 @@ export default function Login() {
     const idf = event.target.idf.value;
     const mdp = event.target.mdp.value;
 
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idf, mdp }),
