@@ -19,10 +19,10 @@ export default function ClientWrapper({ children }) {
 					<div className="content-container">
 						{children}
 					</div>
-					<ToastContainer />
 				</div>
 			)}
 			{!isActivationPage && <Footer />}
+			<ToastContainer />
 		</>
 	);
 }

@@ -3,6 +3,8 @@
 import React, { useEffect } from "react";
 import { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
+import Box from '@mui/material/Box';
+
 
 // restricts access to its children based on inputted user level
 export default function CheckUserLevel({ requiredLevel = "debutant", children }) {
@@ -28,7 +30,7 @@ export default function CheckUserLevel({ requiredLevel = "debutant", children })
 				const data = await response.json();
 				if (response.ok) {
 					if (accessLevels[data.level] >= accessLevels[requiredLevel]) {
-						return;
+						return children; // access granted
 					} else {
 						throw new Error("access denied: insufficient level (requires at least " + requiredLevel + ")");
 					}
@@ -46,11 +48,12 @@ export default function CheckUserLevel({ requiredLevel = "debutant", children })
 			} catch (error) {
 				toast.error("Cannot access page : " + error.message);
 				router.push("/");
+				return null;
 			}
 		};
 
 		checkAuth();
 	}, []);
 
-	return children;
+	return <Box>{children}</Box>;
 }
