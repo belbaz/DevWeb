@@ -15,7 +15,7 @@ export default async function checkPseudo(req, res) {
                 .ilike('pseudo', username)
                 .eq('isActive', true)
                 .single();
-
+            console.log(username);
             if (user) {
                 res.status(409).json({ error: "This username is already used." });
             } else {

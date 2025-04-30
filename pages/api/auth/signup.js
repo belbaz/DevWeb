@@ -1,8 +1,8 @@
 // pages/api/signup.js
 import bcrypt from 'bcrypt';
 import supabase from 'lib/supabaseClient';
-import {sendMail} from "/lib/sendMail";
-import {authenticate} from "/lib/authenticate";
+import {sendMail} from "lib/sendMail";
+import {authenticate} from "lib/authenticate";
 
 export default async function signup(req, res) {
     if (req.method === 'POST') {

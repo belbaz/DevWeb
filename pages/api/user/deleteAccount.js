@@ -11,7 +11,8 @@ export default async function DeleteAccount(req, res) {
 
     try {
         // 1. get username
-        const username = getUserFromRequest(req);
+        const user = await getUserFromRequest(req);
+        const username = user?.pseudo;
 
         if (!username) {
             return res.status(401).json({ error: 'username not found in DB' });

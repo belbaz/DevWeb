@@ -1,17 +1,18 @@
 import jwt from 'jsonwebtoken';
 import { parse, serialize } from 'cookie';
 import supabase from 'lib/supabaseClient';
-import {getUserFromRequest} from "lib/getUserFromRequest";
+import {getUserFromRequest} from 'lib/getUserFromRequest';
 
 // checks if user is logged in and active
 export default async function checkUser(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
     }
-    const username = getUserFromRequest(req);
-
+    const user = await getUserFromRequest(req);
+    const username = user?.pseudo;
+    // console.log(username);
     if (!username) {
-        return res.status(401).json({ error: 'no username found from token', noToken: true });
+        return res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
 
     const cookies = parse(req.headers.cookie);
