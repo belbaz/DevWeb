@@ -131,53 +131,6 @@ body::before {
   text-transform: uppercase;
 }
 
-.inputs {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: var(--spacing-md);
-  color: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-roboto);
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  font-weight: 300;
-  letter-spacing: 1px;
-  border-radius: 4px;
-}
-
-.inputs:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* buttons */
-.button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: 1rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  font-weight: 300;
-  margin-top: var(--spacing-lg);
-  border-radius: 4px;
-}
-
-.button:hover:enabled {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* messages */
 .info {
   color: rgba(255, 255, 255, 0.8);

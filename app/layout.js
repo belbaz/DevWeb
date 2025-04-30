@@ -1,3 +1,4 @@
+import "../styles/globals.css";
 import "../styles/style.css";
 import "../styles/header.css";
 import "../styles/footer.css";
