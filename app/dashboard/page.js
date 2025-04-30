@@ -66,7 +66,7 @@ export default function dashboard() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/logout", { method: "POST" });
+      const response = await fetch("/api/auth/logout", { method: "POST" });
       if (response.ok) {
         router.replace("/login");
       }
@@ -77,7 +77,7 @@ export default function dashboard() {
 
   const deleteAccount = async () => {
     try {
-      const response = await fetch("/api/deleteAccount", { method: "DELETE" });
+      const response = await fetch("/api/user/deleteAccount", { method: "DELETE" });
       if (response.ok) {
         toast.info("Account deleted.");
         setTimeout(async () => {

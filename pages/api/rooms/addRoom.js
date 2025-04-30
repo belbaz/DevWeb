@@ -1,6 +1,6 @@
-import supabaseClient from '../../../lib/supabaseClient.js';
-import { getUserPermissions } from '../../../lib/getUserPermissions.js';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
+import supabaseClient from 'lib/supabaseClient.js';
+import { getUserPermissions } from 'lib/getUserPermissions.js';
+import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // Handler pour traiter une requête POST (création d’une nouvelle pièce)
 export default async function handler(req, res) {

@@ -1,6 +1,6 @@
-import supabaseClient from '../../../lib/supabaseClient.js';
-import { getUserPermissions } from '../../../lib/getUserPermissions.js';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
+import supabaseClient from 'lib/supabaseClient.js';
+import { getUserPermissions } from 'lib/getUserPermissions.js';
+import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // CRÉE UNE NOUVELLE INSTANCE DE DONNÉE (ObjectData)
 

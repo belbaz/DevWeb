@@ -1,6 +1,6 @@
-import supabaseClient from '../../../lib/supabaseClient.js';
-import { getUserPermissions } from '../../../lib/getUserPermissions.js';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
+import supabaseClient from 'lib/supabaseClient.js';
+import { getUserPermissions } from 'lib/getUserPermissions.js';
+import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // RENVOIE TOUTES LES DONNÉES LIÉES À UN OBJET SPÉCIFIQUE PAR TYPE
 

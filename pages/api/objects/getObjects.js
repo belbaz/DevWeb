@@ -1,6 +1,6 @@
-import supabaseClient from '../../../lib/supabaseClient.js';
-import { getUserPermissions } from '../../../lib/getUserPermissions.js';
-import { getUserFromRequest } from '../../../lib/getUserFromRequest.js';
+import supabaseClient from 'lib/supabaseClient.js';
+import { getUserPermissions } from 'lib/getUserPermissions.js';
+import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // RENVOIE LA LISTE DE TOUS LES TyPES D'OBJETS
 
