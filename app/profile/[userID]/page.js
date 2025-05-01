@@ -12,7 +12,6 @@ export default function Profile({ }) {
 	const router = useRouter();
 
 	const { userID } = params;
-	console.log("test");
 	if (!userID || isNaN(userID)) {
 		router.push('/');
 		return null; // avoid render for forbidden pages
