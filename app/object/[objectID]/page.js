@@ -4,7 +4,7 @@ import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
@@ -17,26 +17,26 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 
 
 
-export default function Room({ }) {
-	const [isRoomValid, setisRoomValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
+export default function ObjectData({ }) {
+	const [isObjectValid, setisObjectValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
-	const [roomData, setRoomData] = useState(null); // to store the room data from the API call
+	const [object, setObject] = useState(null); // to store the object data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
 	const [editable, setEditable] = useState(false);
 
 	const params = useParams();
 	const router = useRouter();
 
-	const { roomID } = params;
-	if (!roomID || isNaN(roomID)) {
+	const { objectID } = params;
+	if (!objectID || isNaN(objectID)) {
 		router.push('/');
 		return null; // avoid render for forbidden pages
 	}
 
 	useEffect(() => {
-		async function getRoom() {
+		async function getObejct() {
 			try {
-				const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
+				const response = await fetch(`/api/objects/getObjectById?id=${encodeURIComponent(objectID)}`, {
 					method: "GET"
 				});
 
@@ -46,19 +46,19 @@ export default function Room({ }) {
 				}
 
 				const data = await response.json();
-				setisRoomValid(data.room != null); // remains false if no data is returned and keeps showing the error message
-				setRoomData(data.room); // set the room data to the state
+				setisObjectValid(data.object != null); // remains false if no data is returned and keeps showing the error message
+				setObject(data.object); // set the object data to the state
 
 			} catch (error) {
-				toast.error("Error while fetching room data : " + error.message);
+				toast.error("Error while fetching object data : " + error.message);
 			} finally {
 				setLoading(false);
 			}
 		}
 
-		getRoom();
+		getObejct();
 		getSelf();
-	}, [roomID]);
+	}, [objectID]);
 
 	// returns the current's user data
 	async function getSelf() {
@@ -103,10 +103,10 @@ export default function Room({ }) {
 						gap: 3,
 					}}
 				>
-					{!isRoomValid ? ( // error case
+					{!isObjectValid ? ( // error case
 						<Box>
 							<Typography variant="h1" align="center" sx={{ fontFamily: 'Cinzel, serif', color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
-								room not found
+								object not found
 							</Typography>
 							<Button
 								sx={{
@@ -126,22 +126,22 @@ export default function Room({ }) {
 					) : (
 						<Box>
 							<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
-								{roomData?.name}
+								Type : {object?.type}
 							</Typography>
 
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
 									{self?.level == 'expert' ? ( // edit room info
-										<>{category('Room information')}
+										<>{category('Object information')}
 											<TextField
 												size="small"
 												disabled={!editable}
-												label="Floor"
-												value={roomData?.floor}
-												type="number"
-												name='floor'
-												onChange={(e) => setRoomData({ ...roomData, floor: e.target.value })}
+												label="Brand"
+												value={object?.brand}
+												type="text"
+												name='brand'
+												onChange={(e) => setObject({ ...object, brand: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
 													backgroundColor: "#3a3a3a",
@@ -180,11 +180,11 @@ export default function Room({ }) {
 											<TextField
 												size="small"
 												disabled={!editable}
-												label="Access level"
-												value={roomData?.levelAcces}
+												label="Level access"
+												value={object?.levelAcces}
 												select
 												name='levelAcces'
-												onChange={(e) => setRoomData({ ...roomData, levelAcces: e.target.value })}
+												onChange={(e) => setObject({ ...object, levelAcces: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
 													backgroundColor: "#3a3a3a",
@@ -232,10 +232,10 @@ export default function Room({ }) {
 												size="small"
 												disabled={!editable}
 												label="Room type"
-												value={roomData?.roomtype}
+												value={object?.roomtype}
 												select
 												name='roomtype'
-												onChange={(e) => setRoomData({ ...roomData, roomtype: e.target.value })}
+												onChange={(e) => setObject({ ...object, roomtype: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
 													backgroundColor: "#3a3a3a",
@@ -281,21 +281,23 @@ export default function Room({ }) {
 										</>
 									) : ( // if the user is not the owner of the profile or not an admin, display only the information
 										<>
-											{category('Room information')}
+											{category('Object information')}
 											<Box>
-												{fieldName('Floor', String(roomData?.floor))}
+												{fieldName('Brand', String(object?.brand))}
 											</Box>
 											<Box>
-												{fieldName('Level access', roomData?.levelAcces)}
+												{fieldName('Access level', object?.accessLevel)}
 											</Box>
+											<Link onClick={() => { router.push("/room/" + object?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
+												{fieldName('Room', object?.room_id)}
+											</Link>
 											<Box>
-												{fieldName('Room type', roomData?.roomtype)}
+												{fieldName('Description', object?.description)}
 											</Box>
 										</>
 									)}
 								</Box>
 							</Box>
-
 						</Box>
 					)}
 					{self?.level == 'expert' ? ( // edit room info
