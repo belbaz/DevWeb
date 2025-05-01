@@ -35,9 +35,9 @@ export default async function getAvatarUrl(req, res) {
             return res.status(200).json({ url });
         } catch (e) {
             if (e.$metadata?.httpStatusCode !== 404) {
-                console.error(`Erreur lors de la vérification de l'avatar ${fileName}:`, e);
+                console.error(`Error while checking avatar ${fileName}:`, e);
             } else {
-                console.log(`Avatar non trouvé: ${fileName}`);
+                console.log(`Avatar not found: ${fileName}`);
             }
         }
     }

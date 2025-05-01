@@ -7,7 +7,7 @@ import {getUserFromRequest} from "lib/getUserFromRequest";
 export default async function getUserProfil(req, res) {
 
     const pseudoProfil = req.query.pseudo;
-    console.log(pseudoProfil);
+    // console.log(pseudoProfil);
 
     const user = await getUserFromRequest(req);
     if (!user) {

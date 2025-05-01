@@ -16,7 +16,7 @@ export default async function login(req, res) {
         try {
             let { data, error: dbError } = await supabase
                 .from('User')
-                .select('*')
+                .select('pseudo, password')
                 .eq('pseudo', idf)
                 .single();
 

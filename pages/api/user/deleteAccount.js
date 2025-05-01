@@ -1,7 +1,6 @@
 // pages/api/deleteAccount.js
 
 import supabase from 'lib/supabaseClient';
-import supabaseAdmin from 'lib/supabaseAdmin';
 import { getUserFromRequest } from "lib/getUserFromRequest";
 
 export default async function DeleteAccount(req, res) {
@@ -15,7 +14,7 @@ export default async function DeleteAccount(req, res) {
         const username = user?.pseudo;
 
         if (!username) {
-            return res.status(401).json({ error: 'username not found in DB' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
         // 3. delete user via rpc
@@ -30,7 +29,7 @@ export default async function DeleteAccount(req, res) {
         // 4. delete all his avatars from storage
         try {
             // list all files in the storage bucket
-            const { data: files, error: listError } = await supabaseAdmin
+            const { data: files, error: listError } = await supabase
                 .storage
                 .from('avatars')
                 .list('', { limit: 1000 });
@@ -50,7 +49,7 @@ export default async function DeleteAccount(req, res) {
             }
 
             // effectively delete avatars
-            const { data: deleteData, error: deleteError } = await supabaseAdmin
+            const { data: deleteData, error: deleteError } = await supabase
                 .storage
                 .from('avatars')
                 .remove(filesToDelete);
