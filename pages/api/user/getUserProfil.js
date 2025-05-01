@@ -2,6 +2,7 @@
 
 import supabase from "lib/supabaseClient";
 import {getUserFromRequest} from "lib/getUserFromRequest";
+import moment from "moment-timezone";
 
 // get users profil
 export default async function getUserProfil(req, res) {
@@ -11,7 +12,7 @@ export default async function getUserProfil(req, res) {
 
     const user = await getUserFromRequest(req);
     if (!user) {
-        return res.status(401).json({ error: 'User not authenticated' });
+        return res.status(401).json({error: 'User not authenticated'});
     }
     // console.log("User : " + user.pseudo + " level : " + user.level);
 
@@ -20,7 +21,7 @@ export default async function getUserProfil(req, res) {
         if (user.pseudo === pseudoProfil || user.level === "expert") {
             const {data: userData, error: userError} = await supabase
                 .from('User')
-                .select('name, lastName, pseudo, email, isActive, gender, level, role, address, points, birthday')
+                .select('name, lastName, pseudo, email, isActive, gender, level, role, address, points, birthday, dateOnline')
                 .eq('pseudo', pseudoProfil)
                 .single();
 
@@ -28,7 +29,10 @@ export default async function getUserProfil(req, res) {
                 console.error("user error :", userError);
                 return res.status(400).json({error: "user not found"});
             }
-
+            //set date to timezon paris
+            if (userData?.dateOnline) {
+                userData.dateOnline = moment.utc(userData.dateOnline).tz('Europe/Paris').format('YYYY-MM-DD HH:mm:ss');
+            }
             return res.status(200).json({data: userData});
         } else {
             const {data: userProfil, error: userError} = await supabase

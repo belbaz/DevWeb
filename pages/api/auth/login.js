@@ -24,7 +24,6 @@ export default async function login(req, res) {
                 return res.status(401).json({ error: 'incorrect username or password' });
             }
 
-
             user = data;
         } catch (err) {
             console.error('unexpected error :', err);
