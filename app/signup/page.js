@@ -22,6 +22,8 @@ const Signup = () => {
     const [isFinish, setIsfinish] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [avatar, setAvatar] = useState("/images/avatar.svg");
+    const [gender, setGender] = useState('');
+
 
     const fileInput = useRef(null);
 
@@ -273,6 +275,8 @@ const Signup = () => {
                             label="Gender"
                             name="gender"
                             id="gender"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
                             variant="outlined"
                             fullWidth
                             InputLabelProps={{style: {color: 'rgba(255,255,255,0.8)'}}}

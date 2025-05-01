@@ -73,7 +73,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/search/index?q=${encodeURIComponent(query)}`);
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data);
