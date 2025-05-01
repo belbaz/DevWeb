@@ -23,8 +23,8 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Utilisateur non authentifié' });
         }
 
-        // Vérification des permissions
-        const { permissions } = getUserPermissions(user.points || 0);
+        // Vérifie si l'utilisateur a la permission de supprimer une pièce
+        const { permissions } = getUserPermissions(user.pointsss || 0);
         if (!permissions.deleteObject) {
             return res.status(403).json({ error: 'Accès refusé : suppression non autorisée' });
         }

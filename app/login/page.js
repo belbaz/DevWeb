@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Rolling from '../../components/rolling';
 import Box from '@mui/material/Box';
@@ -8,10 +8,12 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { useAuth } from '../../components/AuthContext';
 
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setIsAuthenticated } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingCookies, setloadingCookies] = useState(false);
@@ -31,6 +33,7 @@ export default function Login() {
       });
       if (response.ok) {
         setloadingCookies(true);
+        setIsAuthenticated(true);
         router.push("/dashboard");
       } else {
         const data = await response.json();
@@ -81,6 +84,7 @@ export default function Login() {
     setIsLoading(false);
 
     if (response.ok) {
+      setIsAuthenticated(true);
       router.push("/dashboard");
     } else {
       setMsgError(data.error || "Unknown error");
@@ -167,11 +171,9 @@ export default function Login() {
             >
               Forgotten password?
             </Button>
-
             <Button
               type="submit"
               variant="contained"
-              color="primary"
               fullWidth
               sx={{
                 fontFamily: 'Roboto, sans-serif',
@@ -190,9 +192,8 @@ export default function Login() {
                 },
               }}
               disabled={isLoading}
-              onClick={() => setMsgError(null)}
             >
-              {isLoading ? Rolling(40, 40, "#fff") : "Connexion"}
+              {isLoading ? Rolling(40, 40, "#fff") : "Log in"}
             </Button>
             {msgError && (
               <Typography color="error" align="center" sx={{ mt: 1, fontSize: 16 }}>

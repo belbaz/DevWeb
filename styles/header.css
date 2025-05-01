@@ -10,7 +10,7 @@
   align-items: center;
   z-index: 300;
   backdrop-filter: blur(14px);
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(0, 0, 0, 0.35);
 }
 
 .header::after {
@@ -22,7 +22,7 @@
   height: 40px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.35) 0%,
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
@@ -48,7 +48,7 @@
   cursor: pointer;
   padding: 0;
   width: 30px;
-  height: 20px;
+  height: 24px;
   position: relative;
   z-index: 101;
 }
@@ -58,7 +58,9 @@
   width: 100%;
   height: 2px;
   background-color: rgba(255, 255, 255, 0.9);
-  position: relative;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   transition: all 0.3s ease;
 }
 
@@ -70,6 +72,7 @@
   height: 2px;
   background-color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s ease;
+  left: 0;
 }
 
 .hamburger-line::before {
@@ -100,7 +103,7 @@
   gap: var(--spacing-lg);
 }
 
-.header-nav a {
+.header-nav a, .header-nav .nav-link {
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-family: var(--font-roboto);
@@ -110,9 +113,10 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 300;
+  cursor: pointer;
 }
 
-.header-nav a::after {
+.header-nav a::after, .header-nav .nav-link::after {
   content: '';
   position: absolute;
   width: 0%;
@@ -123,11 +127,11 @@
   transition: width 0.3s ease;
 }
 
-.header-nav a:hover {
+.header-nav a:hover, .header-nav .nav-link:hover {
   color: rgba(255, 255, 255, 1);
 }
 
-.header-nav a:hover::after {
+.header-nav a:hover::after, .header-nav .nav-link:hover::after {
   width: 100%;
 }
 
@@ -136,13 +140,23 @@
     display: block;
   }
 
+  .logo {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+  }
+
+  .header {
+    height: 70px;
+    padding: 0 var(--spacing-md);
+  }
+
   .header-nav {
     position: fixed;
     top: 0;
     right: -100%;
     width: 100%;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(14px);
     flex-direction: column;
     justify-content: center;
@@ -154,14 +168,14 @@
     right: 0;
   }
 
-  .header-nav a {
+  .header-nav a, .header-nav .nav-link {
     font-size: 1.2rem;
     opacity: 0;
     transform: translateX(20px);
     transition: all 0.3s ease;
   }
 
-  .header-nav.open a {
+  .header-nav.open a, .header-nav.open .nav-link {
     opacity: 1;
     transform: translateX(0);
   }

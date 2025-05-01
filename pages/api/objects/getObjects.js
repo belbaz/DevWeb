@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         }
 
         // Vérification des permissions
-        const { permissions } = getUserPermissions(user.points || 0);
+        const { permissions } = getUserPermissions(user.pointsss || 0);
         if (!permissions.readObject) {
             return res.status(403).json({ error: 'Accès refusé : lecture des objets non autorisée' });
         }

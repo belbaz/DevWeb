@@ -12,7 +12,7 @@ export default async function checkUser(req, res) {
     const username = user?.pseudo;
     // console.log(username);
     if (!username) {
-        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+        return res.status(401).json({ error: 'User not authenticated' });
     }
 
     const cookies = parse(req.headers.cookie);
@@ -49,7 +49,7 @@ export default async function checkUser(req, res) {
                 pseudo: decoded.pseudo,
                 isActive: false,
                 level: user.level,
-                point: user.point,
+                point: user.pointsss,
                 role: user.role,
                 gender: user.gender,
                 birthday: user.birthday,
@@ -61,7 +61,7 @@ export default async function checkUser(req, res) {
                 pseudo: decoded.pseudo,
                 isActive: true,
                 level: user.level,
-                point: user.point,
+                point: user.pointsss,
                 role: user.role,
                 gender: user.gender,
                 birthday: user.birthday,

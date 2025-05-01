@@ -1,3 +1,4 @@
+import "../styles/globals.css";
 import "../styles/style.css";
 import "../styles/header.css";
 import "../styles/footer.css";
@@ -5,6 +6,7 @@ import "../styles/home.css";
 
 import { Cinzel, Roboto } from "next/font/google";
 import ClientWrapper from "../components/clientWrapper";
+import { AuthProvider } from "../components/AuthContext";
 import React, { Suspense } from 'react';
 
 const cinzel = Cinzel({
@@ -30,9 +32,11 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="fr" className={`${cinzel.variable} ${roboto.variable}`}>
 			<body className="font-roboto">
-				<Suspense fallback={<div>Loading...</div>}>
-					<ClientWrapper>{children}</ClientWrapper>
-				</Suspense>
+				<AuthProvider>
+					<Suspense fallback={<div>Loading...</div>}>
+						<ClientWrapper>{children}</ClientWrapper>
+					</Suspense>
+				</AuthProvider>
 			</body>
 		</html>
 	);
