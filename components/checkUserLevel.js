@@ -51,7 +51,6 @@ export default function CheckUserLevel({ requiredLevel = "debutant", children })
 		checkAuth();
 	}, []);
 
-	if (hasAccess === null) return null; // waiting
-	if (hasAccess === false) return null; // shouldn't happen (router redirects)
-	return <Box>{children}</Box>;
+	if (hasAccess === true) return <Box>{children}</Box>;
+	return null;
 }
