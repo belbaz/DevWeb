@@ -2,16 +2,20 @@
 
 import { useState, useCallback, memo } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import SearchBar from "./searchBar";
+import { useRouter } from 'next/navigation';
+import SearchBar from './searchBar';
 import { useAuth } from './AuthContext';
-import Box from '@mui/material/Box';
+import {
+    Box,
+    Typography,
+    Button,
+    IconButton
+} from '@mui/material';
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const { isAuthenticated, setIsAuthenticated } = useAuth();
-    const pathname = usePathname();
     const router = useRouter();
 
     const toggleMenu = useCallback(() => {
@@ -41,7 +45,7 @@ const Header = () => {
 
     const handleLogout = useCallback(async () => {
         try {
-            const response = await fetch("/api/auth/logout", { 
+            const response = await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include"
             });
@@ -54,64 +58,148 @@ const Header = () => {
         }
     }, [router, setIsAuthenticated]);
 
-    const showSearchBar = isAuthenticated && pathname === '/dashboard';
-
     return (
-        <header className="header">
-            <Link href="/" className="logo">MUSEHOME</Link>
-
-            {showSearchBar && (
-                <Box sx={{ 
-                    position: "relative", 
-                    flex: { xs: "0 1 auto", md: 1 },
-                    maxWidth: { xs: 200, md: 400 },
-                    mx: { xs: 2, md: 'auto' },
-                    display: 'flex',
-                    alignItems: 'center'
+        <Box component="header" sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 80,
+            px: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            zIndex: 300,
+            backdropFilter: 'blur(14px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        }}>
+            <Link href="/" style={{ textDecoration: 'none' }}>
+                <Typography variant="h5" sx={{
+                    fontFamily: 'var(--font-cinzel)',
+                    color: 'rgba(255, 255, 255, 0.95)',
+                    letterSpacing: 3,
+                    '&:hover': { color: 'white' }
                 }}>
-                    <SearchBar onSearch={handleSearch} />
-                    {suggestions.length > 0 && (
-                        <ul className="search-suggestions">
-                            {suggestions.map((item, index) => (
-                                <li key={index}>
-                                    <strong>[{item.type}]</strong> {item.name}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </Box>
-            )}
+                    MUSEHOME
+                </Typography>
+            </Link>
 
-            <button className="hamburger" onClick={toggleMenu} aria-label="Menu">
-                <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-            </button>
+            <Box sx={{
+                position: "relative",
+                flex: 1,
+                maxWidth: 450,
+                mx: 3,
+                display: "flex",
+                alignItems: "center"
+            }}>
+                <SearchBar onSearch={handleSearch} showFiltersButton />
+                {suggestions.length > 0 && (
+                    <Box
+                        component="ul"
+                        sx={{
+                            position: "absolute",
+                            top: "100%",
+                            left: 0,
+                            width: "100%",
+                            marginTop: "4px",
+                            backgroundColor: "rgba(0,0,0,0.85)",
+                            color: "white",
+                            listStyle: "none",
+                            padding: "6px 0",
+                            borderRadius: "4px",
+                            zIndex: 999,
+                            boxSizing: "border-box"
+                        }}
+                    >
+                        {suggestions.map((item, index) => (
+                            <Box
+                                component="li"
+                                key={index}
+                                sx={{
+                                    padding: "8px 12px",
+                                    fontSize: "0.9rem",
+                                    fontFamily: "var(--font-roboto)",
+                                    cursor: "default",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(255,255,255,0.1)",
+                                    }
+                                }}
+                            >
+                                <strong>[{item.type}]</strong> {item.name}
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+            </Box>
 
-            <nav className={`header-nav ${isMenuOpen ? 'open' : ''}`}>
-                <Link href="/">Home</Link>
+            <IconButton
+                onClick={toggleMenu}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    color: 'white',
+                    zIndex: 101
+                }}
+                aria-label="Menu"
+            >
+                <Box sx={{
+                    width: 30,
+                    height: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    position: 'relative',
+                    transition: 'all 0.3s ease',
+                    '&::before, &::after': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        height: 2,
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        transition: 'all 0.3s ease'
+                    },
+                    '&::before': { top: -8 },
+                    '&::after': { bottom: -8 }
+                }} />
+            </IconButton>
+
+            <Box component="nav" sx={{
+                display: { xs: isMenuOpen ? 'flex' : 'none', md: 'flex' },
+                alignItems: 'center',
+                gap: 3,
+                position: { xs: 'fixed', md: 'static' },
+                top: 0,
+                right: 0,
+                width: { xs: '100%', md: 'auto' },
+                height: { xs: '100vh', md: 'auto' },
+                flexDirection: { xs: 'column', md: 'row' },
+                justifyContent: 'center',
+                backgroundColor: { xs: 'rgba(0, 0, 0, 0.95)', md: 'transparent' },
+                backdropFilter: { xs: 'blur(14px)', md: 'none' },
+                zIndex: 100,
+                transition: 'right 0.3s ease'
+            }}>
+                <Link href="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
                 {isAuthenticated ? (
                     <>
-                        <Link href="/dashboard">Dashboard</Link>
-                        <Link href="/settings">Settings</Link>
-                        <a 
-                            href="#" 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleLogout();
+                        <Link href="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>
+                        <Link href="/settings" style={{ color: 'white', textDecoration: 'none' }}>Settings</Link>
+                        <Button
+                            onClick={handleLogout}
+                            sx={{
+                                color: 'white',
+                                textTransform: 'none'
                             }}
-                            className="nav-link"
                         >
                             Logout
-                        </a>
+                        </Button>
                     </>
                 ) : (
                     <>
-                        <Link href="/contact">Contact</Link>
-                        <Link href="/login">Login</Link>
-                        <Link href="/signup">Sign Up</Link>
+                        <Link href="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact</Link>
+                        <Link href="/login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
+                        <Link href="/signup" style={{ color: 'white', textDecoration: 'none' }}>Sign Up</Link>
                     </>
                 )}
-            </nav>
-        </header>
+            </Box>
+        </Box>
     );
 };
 

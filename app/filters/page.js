@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SearchBar from "components/searchBar";
-import "styles/filters.css";
+import {
+    Box,
+    Typography,
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    List,
+    ListItem,
+    Button
+} from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function FiltersPage() {
-    const [query, setQuery] = useState("");
     const [selectedFloors, setSelectedFloors] = useState([]);
     const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
     const [filteredRooms, setFilteredRooms] = useState([]);
+    const router = useRouter();
 
     const availableFloors = [0, 1];
     const availableRoomTypes = [
@@ -20,25 +29,25 @@ export default function FiltersPage() {
 
     const toggleFloor = (floor) => {
         setSelectedFloors((prev) =>
-            prev.includes(floor)
-                ? prev.filter((f) => f !== floor)
-                : [...prev, floor]
+            prev.includes(floor) ? prev.filter((f) => f !== floor) : [...prev, floor]
         );
     };
 
     const toggleRoomType = (type) => {
         setSelectedRoomTypes((prev) =>
-            prev.includes(type)
-                ? prev.filter((t) => t !== type)
-                : [...prev, type]
+            prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
         );
+    };
+
+    const resetFilters = () => {
+        setSelectedFloors([]);
+        setSelectedRoomTypes([]);
+        setFilteredRooms([]);
     };
 
     useEffect(() => {
         const fetchRooms = async () => {
             const params = new URLSearchParams();
-
-            if (query) params.append("q", query);
             if (selectedFloors.length > 0) params.append("floors", selectedFloors.join(","));
             if (selectedRoomTypes.length > 0) params.append("types", selectedRoomTypes.join(","));
 
@@ -54,66 +63,118 @@ export default function FiltersPage() {
         };
 
         fetchRooms();
-    }, [query, selectedFloors, selectedRoomTypes]);
+    }, [selectedFloors, selectedRoomTypes]);
 
     return (
-        <main className="filters-page">
-            <h1 className="filters-title">Advanced Search</h1>
+        <Box component="main" sx={{ px: 3, py: 4, maxWidth: 800, mx: "auto" }}>
+            <Typography variant="h3" sx={{
+                fontFamily: 'var(--font-cinzel)',
+                color: 'rgba(255, 255, 255, 0.95)',
+                letterSpacing: 3,
+                textAlign: 'center',
+                mb: 3,
+                '&:hover': { color: 'white' }
+            }}>
+                Advanced Search
+            </Typography>
 
-            <div className="filters-searchbar large-searchbar">
-                <SearchBar onSearch={setQuery} showFiltersButton={false} />
-            </div>
+            <Box textAlign="center">
+                <Typography variant="h6" gutterBottom>
+                    Filter by Floor
+                </Typography>
+            </Box>
 
-            <div className="filters-section">
-                <h2 className="filters-subtitle">Filter by Floor</h2>
-                <div className="checkbox-group">
-                    {availableFloors.map((floor) => (
-                        <label key={floor} className="checkbox-item">
-                            <input
-                                type="checkbox"
+            <FormGroup row sx={{ justifyContent: "center", mb: 2 }}>
+                {availableFloors.map((floor) => (
+                    <FormControlLabel
+                        key={floor}
+                        control={
+                            <Checkbox
                                 checked={selectedFloors.includes(floor)}
                                 onChange={() => toggleFloor(floor)}
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-checked': {
+                                        color: 'white',
+                                    },
+                                }}
                             />
-                            <span>{floor === 0 ? "Ground floor (0)" : `Floor ${floor}`}</span>
-                        </label>
-                    ))}
-                </div>
-            </div>
+                        }
+                        label={floor === 0 ? "Ground floor (0)" : `Floor ${floor}`}
+                    />
+                ))}
+            </FormGroup>
 
-            <div className="filters-section">
-                <h2 className="filters-subtitle">Filter by Room Type</h2>
-                <div className="checkbox-group">
-                    {availableRoomTypes.map((type) => (
-                        <label key={type} className="checkbox-item">
-                            <input
-                                type="checkbox"
+
+            <Box textAlign="center">
+                <Typography variant="h6" gutterBottom>
+                    Filter by Room Type
+                </Typography>
+            </Box>
+
+            <FormGroup row sx={{ justifyContent: "center", mb: 4 }}>
+                {availableRoomTypes.map((type) => (
+                    <FormControlLabel
+                        key={type}
+                        control={
+                            <Checkbox
                                 checked={selectedRoomTypes.includes(type)}
                                 onChange={() => toggleRoomType(type)}
+                                sx={{
+                                    color: 'white',
+                                    '&.Mui-checked': {
+                                        color: 'white',
+                                    },
+                                }}
                             />
-                            <span>{type}</span>
-                        </label>
-                    ))}
-                </div>
-            </div>
+                        }
+                        label={type}
+                    />
+                ))}
+            </FormGroup>
 
-            <div className="results-list">
-                <h2 className="filters-subtitle">Results</h2>
+
+            <Button
+                variant="text"
+                onClick={resetFilters}
+                sx={{ textTransform: "none", display: "block", mx: "auto", mb: 4 }}
+            >
+                Reset all filters
+            </Button>
+
+            <Box>
+                <Typography variant="h6" gutterBottom>
+                    Results
+                </Typography>
                 {filteredRooms.length === 0 ? (
-                    <p>No matching room found.</p>
+                    <Typography sx={{ mt: 2, fontStyle: 'italic' }}>
+                        No matching room found.
+                    </Typography>
                 ) : (
-                    <ul>
+                    <List>
                         {filteredRooms.map((room, index) => (
-                            <li key={index} className="room-item">
-                                <span>{room.name}</span>
-                                <a href={`/roomPage/${room.id}`} className="see-more-button">
+                            <ListItem
+                                key={index}
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    py: 1
+                                }}
+                            >
+                                <Typography>{room.name}</Typography>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    href={`/roomPage/${room.id}`}
+                                >
                                     See more
-                                </a>
-                            </li>
+                                </Button>
+                            </ListItem>
                         ))}
-                    </ul>
+                    </List>
                 )}
-            </div>
-
-        </main>
+            </Box>
+        </Box>
     );
 }
