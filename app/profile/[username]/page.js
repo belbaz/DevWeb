@@ -21,11 +21,11 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 
 
 export default function Profile({ }) {
-	const [isUsernameValid, setisUsernameValid] = useState(true); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
+	const [isUsernameValid, setisUsernameValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
 	const [userData, setUserData] = useState(null); // to store the user data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
-	const [editable, setEditable] = useState(false); // logged in user data
+	const [editable, setEditable] = useState(false);
 
 	const params = useParams();
 	const router = useRouter();
@@ -71,7 +71,6 @@ export default function Profile({ }) {
 			});
 			const data = await response.json();
 			if (response.ok) {
-				console.log(data, "gertself");
 				setSelf(data);
 			} else {
 				if (data.invalidToken) console.log("invalid token");
@@ -502,7 +501,7 @@ export default function Profile({ }) {
 												>
 													<MenuItem value={"debutant"}>débutant</MenuItem>
 													<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-													<MenuItem value={"avance"}>avance</MenuItem>
+													<MenuItem value={"avance"}>avancé</MenuItem>
 													<MenuItem value={"expert"}>expert</MenuItem>
 												</TextField>
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>
