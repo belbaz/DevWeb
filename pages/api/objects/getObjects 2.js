@@ -5,13 +5,13 @@ import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 // RENVOIE LA LISTE DE TOUS LES TyPES D'OBJETS
 
 export default async function handler(req, res) {
-    // Refus si la méthode n’est pas GET
+    // Refus si la méthode n'est pas GET
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
     }
 
     try {
-        // Récupération de l’utilisateur depuis la requête
+        // Récupération de l'utilisateur depuis la requête
         const user = await getUserFromRequest(req);
         if (!user) {
             return res.status(401).json({ error: 'Utilisateur non authentifié' });

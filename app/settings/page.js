@@ -1,0 +1,288 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../components/AuthContext';
+import { toast } from 'react-toastify';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Paper from '@mui/material/Paper';
+import Divider from '@mui/material/Divider';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import LogoutIcon from '@mui/icons-material/Logout';
+import DeleteIcon from '@mui/icons-material/Delete';
+import UserProfileDetails from '../../components/settings/UserProfileDetails';
+import Rolling from '../../components/rolling';
+import '../../styles/dashboard.css';
+
+export default function Settings() {
+    const router = useRouter();
+    const { setIsAuthenticated } = useAuth();
+    const [userData, setUserData] = useState(null);
+    const [permissions, setPermissions] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch("/api/user/checkUser", {
+                    method: "POST",
+                    credentials: "include"
+                });
+                if (!response.ok) {
+                    router.push("/login");
+                    return;
+                }
+                const data = await response.json();
+                setUserData(data);
+                
+                // Récupérer les permissions basées sur les points de l'utilisateur
+                const permissionsResponse = await fetch(`/api/user/getUserPermissions?points=${data.point || 0}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (permissionsResponse.ok) {
+                    const permissionsData = await permissionsResponse.json();
+                    setPermissions(permissionsData.permissions || {});
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                router.push("/login");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+            if (response.ok) {
+                setIsAuthenticated(false);
+                router.push("/login");
+            }
+        } catch (error) {
+            console.error("Error while disconnecting:", error);
+        }
+    };
+
+    const handlePasswordChange = async () => {
+        if (newPassword !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            toast.error("Password must be at least 8 characters long");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/user/setUserPassword", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: newPassword }),
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                toast.success("Password changed successfully");
+                setOpenPasswordDialog(false);
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                const data = await response.json();
+                toast.error(data.error || "Error changing password");
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            toast.error("Error changing password");
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        try {
+            const response = await fetch("/api/user/deleteAccount", {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            if (response.ok) {
+                toast.success("Account deleted successfully");
+                setIsAuthenticated(false);
+                router.push("/login");
+            } else {
+                const data = await response.json();
+                toast.error(data.error || "Error deleting account");
+            }
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            toast.error("Error deleting account");
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="settings-container">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+                    <div>{Rolling(50, 50, "#fff")}</div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="settings-container">
+            <h1 className="settings-title">Account Settings</h1>
+
+            <div className="grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
+                <div style={{ gridColumn: 'span 12' }}>
+                    <div className="settings-panel settings-profile-panel">
+                        {userData && permissions && (
+                            <UserProfileDetails user={userData} permissions={permissions} />
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ gridColumn: 'span 12' }}>
+                    <div className="card settings-actions-card">
+                        <h2 className="card-title">Account Actions</h2>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <button 
+                                className="btn btn-primary"
+                                onClick={() => setOpenPasswordDialog(true)}
+                            >
+                                <VpnKeyIcon style={{ fontSize: '1.2rem' }} />
+                                Change Password
+                            </button>
+
+                            <button
+                                className="btn btn-secondary"
+                                onClick={handleLogout}
+                            >
+                                <LogoutIcon style={{ fontSize: '1.2rem' }} />
+                                Logout
+                            </button>
+
+                            <div className="divider"></div>
+
+                            <button
+                                className="btn btn-danger"
+                                onClick={() => setOpenDeleteDialog(true)}
+                            >
+                                <DeleteIcon style={{ fontSize: '1.2rem' }} />
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Password Change Dialog */}
+            <Dialog 
+                open={openPasswordDialog} 
+                onClose={() => setOpenPasswordDialog(false)}
+                PaperProps={{
+                    className: 'modal',
+                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                }}
+            >
+                <DialogTitle className="modal-title">Change Password</DialogTitle>
+                <DialogContent className="modal-content">
+                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
+                        Please enter your new password twice to confirm.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="New Password"
+                        type="password"
+                        fullWidth
+                        variant="filled"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        sx={{ 
+                            mt: 2,
+                            input: { color: 'white' },
+                            label: { color: 'rgba(255, 255, 255, 0.7)' },
+                            '& .MuiFilledInput-root': {
+                                bgcolor: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }}
+                    />
+                    <TextField
+                        margin="dense"
+                        label="Confirm Password"
+                        type="password"
+                        fullWidth
+                        variant="filled"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        sx={{ 
+                            mt: 2,
+                            input: { color: 'white' },
+                            label: { color: 'rgba(255, 255, 255, 0.7)' },
+                            '& .MuiFilledInput-root': {
+                                bgcolor: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions className="modal-actions">
+                    <Button onClick={() => setOpenPasswordDialog(false)} sx={{ color: 'white' }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handlePasswordChange} variant="contained" color="primary">
+                        Change
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Account Dialog */}
+            <Dialog
+                open={openDeleteDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                PaperProps={{
+                    className: 'modal',
+                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                }}
+            >
+                <DialogTitle className="modal-title">Delete Account</DialogTitle>
+                <DialogContent className="modal-content">
+                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                        Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions className="modal-actions">
+                    <Button onClick={() => setOpenDeleteDialog(false)} sx={{ color: 'white' }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDeleteAccount} variant="contained" color="error">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </div>
+    );
+} 

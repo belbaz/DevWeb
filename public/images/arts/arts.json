@@ -1,0 +1,49 @@
+[
+    {
+      "filename": "girlWB.jpeg",
+      "title": "Girl with Balloon",
+      "artist": "Banksy",
+      "description": "One of Banksy's most iconic artworks, depicting a young girl letting go of a red heart-shaped balloon. Often interpreted as a symbol of hope, innocence, or loss."
+    },
+    {
+      "filename": "thinker.jpg",
+      "title": "The Thinker",
+      "artist": "Auguste Rodin",
+      "description": "Rodin's famous sculpture of a man in deep thought, symbolizing philosophy and the complexity of the human condition."
+    },
+    {
+      "filename": "monalisa.jpg",
+      "title": "Mona Lisa",
+      "artist": "Leonardo da Vinci",
+      "description": "Painted between 1503 and 1506, Mona Lisa is one of the most iconic portraits in art history. Known for her enigmatic smile and the subtle sfumato technique, the painting is widely considered a masterpiece of the Italian Renaissance and resides in the Louvre Museum in Paris."
+    },
+    {
+      "filename": "starryN.jpg",
+      "title": "The Starry Night",
+      "artist": "Vincent van Gogh",
+      "description": "Painted in 1889, The Starry Night is one of Van Gogh’s most famous works. With swirling skies and bold brushstrokes, it captures a dreamlike view from his asylum window in Saint-Rémy-de-Provence."
+    },
+    {
+      "filename": "persistenceOM.jpg",
+      "artist": "Salvador Dalí",
+      "description": "This surrealist masterpiece from 1931 features melting clocks in a desolate landscape, exploring the fluidity of time and the subconscious mind. It is one of Dalí’s most iconic works."
+    },
+    {
+      "filename": "bete.jpg",
+      "title": "Doe (Kwere) – Female Ancestor Mask",
+      "artist": "Bété People, Ivory Coast",
+      "description": "This traditional mask from the Bété people represents a female ancestor spirit. Often used in rituals and ceremonies, it embodies strength, protection, and a connection to lineage and the spiritual world."
+    },
+    {
+      "filename": "balloonDog.jpg",
+      "title": "Balloon Dog (Blue)",
+      "artist": "Jeff Koons",
+      "description": "Balloon Dog is part of Jeff Koons’s 'Celebration' series. Made of polished stainless steel, it transforms a childlike balloon animal into a monumental and reflective sculpture, blending kitsch and high art."
+    },
+    {
+      "filename": "david.jpg",
+      "title": "David",
+      "artist": "Michelangelo",
+      "description": "Created between 1501 and 1504, David is a Renaissance sculpture by Michelangelo that depicts the biblical hero before his battle with Goliath. It is celebrated for its anatomical precision and emotional intensity."
+    }
+  ]

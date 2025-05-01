@@ -14,7 +14,8 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Utilisateur non authentifié' });
         }
 
-        const { permissions } = getUserPermissions(user.points || 0);
+        // Vérifie si l'utilisateur a le droit de créer une pièce
+        const { permissions } = getUserPermissions(user.pointsss || 0);
         if (!permissions.addObject) {
             return res.status(403).json({ error: 'Accès refusé : création de pièce non autorisée' });
         }

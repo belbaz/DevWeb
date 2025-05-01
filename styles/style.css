@@ -47,7 +47,7 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 0;
 }
 
@@ -74,7 +74,7 @@ body::before {
 
 /* welcome section */
 .welcomDiv {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: var(--spacing-xxl);
@@ -107,7 +107,7 @@ body::before {
 }
 
 .box {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: var(--spacing-xxl);
@@ -194,4 +194,21 @@ body::before {
   .h1 {
     font-size: 2.4rem;
   }
+}
+
+/* Styles pour les éléments qui utilisent des couleurs de fond */
+
+.navbar {
+  background: rgba(0, 0, 0, 0.6); /* Réduction de l'opacité de 0.75 à 0.6 */
+  /* Autres styles... */
+}
+
+.nav-backdrop {
+  background: rgba(0, 0, 0, 0.4); /* Réduction de l'opacité de 0.5 à 0.4 */
+  /* Autres styles... */
+}
+
+.content-overlay {
+  background: rgba(0, 0, 0, 0.4); /* Réduction de l'opacité de 0.5 à 0.4 */
+  /* Autres styles... */
 }
