@@ -22,6 +22,7 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UserProfileDetails from '../../components/settings/UserProfileDetails';
+import UserAccessLevel from '../../components/settings/UserAccessLevel';
 import Rolling from '../../components/rolling';
 import '../../styles/dashboard.css';
 
@@ -39,19 +40,60 @@ export default function Settings() {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch("/api/user/checkUser", {
+                // 1. Vérifier si l'utilisateur est connecté
+                const authCheck = await fetch("/api/user/checkUser", {
                     method: "POST",
                     credentials: "include"
                 });
-                if (!response.ok) {
+                
+                if (!authCheck.ok) {
                     router.push("/login");
                     return;
                 }
-                const data = await response.json();
-                setUserData(data);
+                
+                const authData = await authCheck.json();
+                
+                // 2. Récupérer les données complètes du profil avec getUserProfil (plus approprié pour la page profil)
+                const profilResponse = await fetch(`/api/user/getUserProfil?pseudo=${authData.pseudo}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+                
+                if (!profilResponse.ok) {
+                    console.error("Error fetching user profile:", await profilResponse.text());
+                    return;
+                }
+                
+                const profilData = await profilResponse.json();
+                
+                // Debug: Vérifions les données utilisateur reçues de getUserProfil
+                console.log("Données utilisateur reçues de getUserProfil:", {
+                    data: profilData.data,
+                    points: profilData.data.points,
+                    point: profilData.data.point,
+                    pointsss: profilData.data.pointsss,
+                    level: profilData.data.level,
+                    role: profilData.data.role
+                });
+                
+                // Utiliser les données du profil, avec fallback sur les données d'authentification si nécessaire
+                const userData = {
+                    ...profilData.data,
+                    // Pour les cas où checkUser a des données que getUserProfil n'a pas
+                    isActive: profilData.data.isActive !== undefined ? profilData.data.isActive : authData.isActive,
+                    role: profilData.data.role || authData.role,
+                    // Pour gérer le problème des points
+                    point: profilData.data.points, // getUserProfil utilise 'points'
+                };
+                
+                setUserData(userData);
                 
                 // Récupérer les permissions basées sur les points de l'utilisateur
-                const permissionsResponse = await fetch(`/api/user/getUserPermissions?points=${data.point || 0}`, {
+                const pointsValue = profilData.data.points !== undefined ? profilData.data.points : 
+                                  (userData.point !== undefined ? userData.point : 
+                                  (userData.pointsss !== undefined ? userData.pointsss : 0));
+                
+                const permissionsResponse = await fetch(`/api/user/getUserPermissions?points=${pointsValue}`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -160,6 +202,14 @@ export default function Settings() {
                     <div className="settings-panel settings-profile-panel">
                         {userData && permissions && (
                             <UserProfileDetails user={userData} permissions={permissions} />
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ gridColumn: 'span 12' }}>
+                    <div className="settings-panel">
+                        {userData && (
+                            <UserAccessLevel userData={userData} />
                         )}
                     </div>
                 </div>

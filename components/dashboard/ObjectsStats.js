@@ -14,22 +14,8 @@ const ObjectsStats = ({ permissions }) => {
   const [stats, setStats] = useState({
     totalObjects: 0,
     byType: {},
-    byRoom: {},
-    byAccessLevel: {
-      debutant: 0,
-      intermediaire: 0,
-      avance: 0,
-      expert: 0
-    }
+    byRoom: {}
   });
-
-  // Mapping des niveaux en anglais
-  const levelMap = {
-    'debutant': 'Beginner',
-    'intermediaire': 'Intermediate',
-    'avance': 'Advanced',
-    'expert': 'Expert'
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,13 +78,7 @@ const ObjectsStats = ({ permissions }) => {
     const newStats = {
       totalObjects: Array.isArray(objects) ? objects.length : 0,
       byType: {},
-      byRoom: {},
-      byAccessLevel: {
-        debutant: 0,
-        intermediaire: 0,
-        avance: 0,
-        expert: 0
-      }
+      byRoom: {}
     };
 
     // Compter les objets par type
@@ -117,11 +97,6 @@ const ObjectsStats = ({ permissions }) => {
           newStats.byRoom[roomId] = (newStats.byRoom[roomId] || 0) + 1;
         } else {
           newStats.byRoom['unassigned'] = (newStats.byRoom['unassigned'] || 0) + 1;
-        }
-        
-        // Par niveau d'accès
-        if (obj.accessLevel) {
-          newStats.byAccessLevel[obj.accessLevel] = (newStats.byAccessLevel[obj.accessLevel] || 0) + 1;
         }
       });
     }
@@ -150,30 +125,6 @@ const ObjectsStats = ({ permissions }) => {
     } catch (error) {
       console.error('Error preparing type chart data:', error);
       return [];
-    }
-  };
-
-  // Safely prepare chart data for access levels
-  const prepareAccessLevelChartData = () => {
-    try {
-      if (!stats || !stats.byAccessLevel) {
-        return { data: [], labels: [] };
-      }
-      
-      const accessLevels = Object.keys(stats.byAccessLevel);
-      const counts = Object.values(stats.byAccessLevel);
-      
-      if (accessLevels.length === 0 || counts.some(isNaN)) {
-        return { data: [], labels: [] };
-      }
-      
-      return {
-        data: counts,
-        labels: accessLevels.map(level => levelMap[level] || level.charAt(0).toUpperCase() + level.slice(1))
-      };
-    } catch (error) {
-      console.error('Error preparing access level chart data:', error);
-      return { data: [], labels: [] };
     }
   };
 
@@ -273,13 +224,6 @@ const ObjectsStats = ({ permissions }) => {
            data.every(item => item && typeof item.value === 'number' && item.value > 0);
   };
   
-  const canRenderBarChart = (data, labels) => {
-    return Array.isArray(data) && data.length > 0 && 
-           Array.isArray(labels) && labels.length > 0 &&
-           data.length === labels.length &&
-           data.every(value => typeof value === 'number');
-  };
-  
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -289,7 +233,6 @@ const ObjectsStats = ({ permissions }) => {
   }
 
   const objectTypeChartData = prepareTypeChartData();
-  const { data: accessLevelData, labels: accessLevelLabels } = prepareAccessLevelChartData();
   const objectDataChartData = prepareObjectDataChartData();
   
   return (
@@ -335,7 +278,7 @@ const ObjectsStats = ({ permissions }) => {
       {/* Graphiques */}
       <Grid container spacing={3}>
         {/* Distribution par type */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={12}>
           <Paper sx={{ p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', height: '100%' }}>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>Distribution by Type</Typography>
             {canRenderPieChart(objectTypeChartData) ? (
@@ -355,42 +298,6 @@ const ObjectsStats = ({ permissions }) => {
                     '--ChartsLegend-itemMarkSize': '8px',
                     '--ChartsLegend-labelColor': 'white',
                     '--ChartsLegend-labelFontSize': '12px',
-                  }}
-                />
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
-                <Typography align="center">No data available</Typography>
-              </Box>
-            )}
-          </Paper>
-        </Grid>
-        
-        {/* Distribution par niveau d'accès */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', height: '100%' }}>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>Distribution by Access Level</Typography>
-            {canRenderBarChart(accessLevelData, accessLevelLabels) ? (
-              <Box sx={{ height: 300, position: 'relative' }}>
-                <BarChart
-                  series={[{ 
-                    data: accessLevelData,
-                    label: 'Objects',
-                    valueFormatter: (value) => `${value}`
-                  }]}
-                  xAxis={[{ 
-                    data: accessLevelLabels,
-                    scaleType: 'band',
-                    tickLabelStyle: { fill: 'white' }
-                  }]}
-                  yAxis={[{ 
-                    tickLabelStyle: { fill: 'white' },
-                    valueFormatter: (value) => `${value}`
-                  }]}
-                  height={300}
-                  sx={{
-                    '.MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': { fill: 'white' },
-                    '.MuiChartsAxis-left .MuiChartsAxis-tickLabel': { fill: 'white' },
                   }}
                 />
               </Box>

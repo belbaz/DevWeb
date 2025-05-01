@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../components/AuthContext';
+import { calculateProgress, levelMap, getUserPoints } from '../../lib/userLevelUtils';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -20,6 +21,20 @@ const UserProfileCard = ({ user }) => {
   const { setIsAuthenticated } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+  
+  // Récupération des points avec console.log pour debugging
+  const userPoints = getUserPoints(user);
+  useEffect(() => {
+    // Debug: Affichez les données pour vérifier où se trouvent les points
+    if (user) {
+      console.log("User data in UserProfileCard:", {
+        pointsss: user.pointsss,
+        point: user.point,
+        points: user.points,
+        calculatedPoints: userPoints
+      });
+    }
+  }, [user, userPoints]);
   
   useEffect(() => {
     const fetchAvatar = async () => {
@@ -76,42 +91,7 @@ const UserProfileCard = ({ user }) => {
     }
   };
 
-  // Calcul du niveau suivant et de la progression
-  const calculateProgress = () => {
-    const points = user.point || 0;
-    
-    if (points < 250) {
-      return {
-        level: 'debutant',
-        nextLevel: 'intermediaire',
-        progress: (points / 250) * 100,
-        pointsNeeded: 250 - points
-      };
-    } else if (points < 1000) {
-      return {
-        level: 'intermediaire',
-        nextLevel: 'avance',
-        progress: ((points - 250) / 750) * 100,
-        pointsNeeded: 1000 - points
-      };
-    } else if (points < 2000) {
-      return {
-        level: 'avance',
-        nextLevel: 'expert',
-        progress: ((points - 1000) / 1000) * 100,
-        pointsNeeded: 2000 - points
-      };
-    } else {
-      return {
-        level: 'expert',
-        nextLevel: null,
-        progress: 100,
-        pointsNeeded: 0
-      };
-    }
-  };
-
-  const progressInfo = calculateProgress();
+  const progressInfo = calculateProgress(user);
 
   return (
     <Paper sx={{ 
@@ -150,7 +130,7 @@ const UserProfileCard = ({ user }) => {
         <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
           <Chip 
             icon={<PersonIcon fontSize="small" />} 
-            label={progressInfo.level} 
+            label={levelMap[progressInfo.level] || progressInfo.level} 
             color="primary" 
             size="small"
             sx={{ textTransform: 'capitalize' }}
@@ -167,7 +147,7 @@ const UserProfileCard = ({ user }) => {
 
       <Box sx={{ mb: 3, flex: 1 }}>
         <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 0.5 }}>
-          Points: {user.point || 0}
+          Points: {userPoints}
         </Typography>
         
         {progressInfo.nextLevel && (
@@ -178,7 +158,7 @@ const UserProfileCard = ({ user }) => {
               sx={{ height: 8, borderRadius: 1, mb: 1 }}
             />
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-              {progressInfo.pointsNeeded} points needed for {progressInfo.nextLevel} level
+              {progressInfo.pointsNeeded} points needed for {levelMap[progressInfo.nextLevel] || progressInfo.nextLevel} level
             </Typography>
           </>
         )}

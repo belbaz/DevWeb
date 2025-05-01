@@ -12,7 +12,7 @@ export default async function checkUser(req, res) {
     const username = user?.pseudo;
     // console.log(username);
     if (!username) {
-        return res.status(401).json({ error: 'Utilisateur non authentifié' });
+        return res.status(401).json({ error: 'User not authenticated' });
     }
 
     const cookies = parse(req.headers.cookie);
