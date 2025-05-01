@@ -24,13 +24,15 @@ const UserProfileDetails = ({ user, permissions }) => {
         points: user.points,
         calculatedPoints: getUserPoints(user),
         calculatedLevel: getUserLevel(user),
+        dbLevel: user.level,
         allUserKeys: Object.keys(user)
       });
     }
   }, [user]);
   
-  // Obtenir le niveau actuel et les points de l'utilisateur avec nos fonctions d'utilitaire
-  const userLevel = getUserLevel(user);
+  // Obtenir le niveau actuel et les points de l'utilisateur
+  // Utiliser le niveau de la base de données plutôt que de le calculer
+  const userLevel = user.level || getUserLevel(user); // Fallback sur le calcul si level n'existe pas
   const userPoints = getUserPoints(user);
   
   useEffect(() => {

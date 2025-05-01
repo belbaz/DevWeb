@@ -23,6 +23,7 @@ const UserAccessLevel = ({ userData }) => {
         point: userData.point,
         pointsss: userData.pointsss,
         points: userData.points,
+        level: userData.level,
         calculatedPoints: getUserPoints(userData)
       });
     }
@@ -34,7 +35,7 @@ const UserAccessLevel = ({ userData }) => {
   useEffect(() => {
     // Calculate the access level stats based on user data
     if (userData) {
-      const userLevel = getUserLevel(userData);
+      const userLevel = userData.level || getUserLevel(userData);
       const stats = {
         byAccessLevel: {
           debutant: 0,
@@ -86,6 +87,9 @@ const UserAccessLevel = ({ userData }) => {
 
   const { data: accessLevelData, labels: accessLevelLabels } = prepareAccessLevelChartData();
   const progressInfo = calculateProgress(userData);
+  
+  // Obtenir le niveau utilisateur directement de la base de données
+  const userLevel = userData?.level || (progressInfo ? progressInfo.level : null);
 
   return (
     <Box sx={{ mb: 4 }}>
@@ -104,7 +108,7 @@ const UserAccessLevel = ({ userData }) => {
         <Grid item xs={12} sm={6} md={4}>
           <Card sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
             <CardContent>
-              <Typography variant="h3" align="center">{levelMap[progressInfo.level] || 'Unknown'}</Typography>
+              <Typography variant="h3" align="center">{levelMap[userLevel] || 'Unknown'}</Typography>
               <Typography variant="body2" align="center">Current Level</Typography>
             </CardContent>
           </Card>
@@ -129,7 +133,7 @@ const UserAccessLevel = ({ userData }) => {
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
             <Typography variant="body2">
-              {levelMap[progressInfo.level] || progressInfo.level}
+              {levelMap[userLevel] || userLevel}
             </Typography>
             {progressInfo.nextLevel && (
               <Typography variant="body2">
