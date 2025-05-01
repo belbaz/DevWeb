@@ -13,18 +13,30 @@ export default function Header() {
     };
 
     const handleSearch = async (query) => {
-        if (!query) return setSuggestions([]);
+        if (!query || query.trim() === "") {
+            setSuggestions([]);
+            return;
+        }
 
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        setSuggestions(data);
+        try {
+            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+
+            if (!res.ok) throw new Error("Erreur serveur");
+
+            const data = await res.json();
+            setSuggestions(data);
+        } catch (err) {
+            console.error("Erreur de recherche :", err);
+            setSuggestions([]);
+        }
     };
+
 
     return (
         <header className="header">
             <Link href="/" className="logo">MUSEHOME</Link>
 
-            <div style={{ position: "relative" }}>
+            <div className="search-container">
                 <SearchBar onSearch={handleSearch} />
                 {suggestions.length > 0 && (
                     <ul className="search-suggestions">

@@ -1,11 +1,13 @@
 "use client";
+
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import "../styles/searchBar.css";
 
-export default function SearchBar({ onSearch }) {
+export default function SearchBar({ onSearch, showFiltersButton = true }) {
     const [query, setQuery] = useState("");
+    const router = useRouter();
 
-    // Lancer la recherche dès que l'utilisateur tape
     useEffect(() => {
         if (onSearch) {
             onSearch(query);
@@ -21,6 +23,15 @@ export default function SearchBar({ onSearch }) {
                 onChange={(e) => setQuery(e.target.value)}
                 className="search-input"
             />
+            {showFiltersButton && (
+                <button
+                    type="button"
+                    className="filter-button"
+                    onClick={() => router.push("/filters")}
+                >
+                    + de filtres
+                </button>
+            )}
         </form>
     );
 }

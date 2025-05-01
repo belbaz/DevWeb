@@ -1,0 +1,115 @@
+.filters-page {
+    padding: 2rem;
+    color: white;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.filters-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.large-searchbar .search-bar {
+    height: 50px;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.filters-section {
+    margin-top: 1.5rem;
+}
+
+.filters-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.results-list {
+    margin-top: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.results-list h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.results-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.results-list li {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    color: white;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.results-list li:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.room-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.room-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.room-meta {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.room-link {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    align-self: flex-start;
+}
+
+.room-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+}

@@ -4,36 +4,36 @@ import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // Handler pour traiter une requête DELETE (suppression d’une pièce)
 export default async function handler(req, res) {
-    const { id } = req.query; // Récupération de l'ID de la pièce à supprimer
-
     // Refuse toute méthode autre que DELETE
     if (req.method !== 'DELETE') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
     }
 
-    // Vérifie que l'ID est présent
-    if (!id) {
-        return res.status(400).json({ error: 'ID de pièce manquant dans l’URL' });
+    // Vérifie que l'ID est bien fourni et est un nombre entier
+    const { id } = req.query;
+    const parsedId = parseInt(id, 10);
+    if (isNaN(parsedId)) {
+        return res.status(400).json({ error: 'ID de pièce invalide ou manquant' });
     }
 
     try {
-        // Récupération de l'utilisateur à partir de la requête
+        // Récupération de l'utilisateur
         const user = await getUserFromRequest(req);
         if (!user) {
             return res.status(401).json({ error: 'Utilisateur non authentifié' });
         }
 
-        // Vérifie si l'utilisateur a la permission de supprimer une pièce
+        // Vérification des permissions
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.deleteObject) {
-            return res.status(403).json({ error: 'Accès refusé : suppression de pièce non autorisée' });
+            return res.status(403).json({ error: 'Accès refusé : suppression non autorisée' });
         }
 
-        // Supprime la pièce correspondante dans Supabase
+        // Suppression dans Supabase
         const { data, error } = await supabaseClient
             .from('Room')
             .delete()
-            .eq('id', id)
+            .eq('id', parsedId)
             .select();
 
         if (error) {
@@ -44,7 +44,6 @@ export default async function handler(req, res) {
             });
         }
 
-        // Renvoie la pièce supprimée
         return res.status(200).json({ deleted: data });
     } catch (err) {
         console.error('Erreur serveur :', err);
