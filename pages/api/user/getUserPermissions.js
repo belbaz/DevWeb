@@ -7,11 +7,20 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Récupère les points depuis la requête
-        const points = parseInt(req.query.points) || 0;
+        // Priorité au niveau de la DB s'il est fourni
+        const userLevel = req.query.level;
+        let level, permissions;
         
-        // Utilise la fonction existante pour obtenir le niveau et les permissions
-        const { level, permissions } = getUserPermissions(points);
+        if (userLevel) {
+            // Si le niveau est fourni directement, l'utiliser au lieu de le calculer
+            // et récupérer directement les permissions associées
+            ({ permissions } = getUserPermissionsByLevel(userLevel));
+            level = userLevel;
+        } else {
+            // Rétrocompatibilité: utiliser les points pour calculer le niveau et les permissions
+            const points = parseInt(req.query.points) || 0;
+            ({ level, permissions } = getUserPermissions(points));
+        }
         
         // Retourne les données
         return res.status(200).json({ 
@@ -22,4 +31,66 @@ export default async function handler(req, res) {
         console.error('Server error:', err);
         return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
+}
+
+// Nouvelle fonction qui retourne les permissions directement par niveau
+function getUserPermissionsByLevel(level) {
+    let permissions = {
+        readObject: false,
+        readData: false,
+        readRoom: false,
+        updateObject: false,
+        updateData: false,
+        updateRoom: false,
+        addObject: false,
+        addData: false,
+        addRoom: false,
+        deleteObject: false,
+        deleteData: false,
+        deleteRoom: false,
+    };
+
+    switch (level) {
+        case 'debutant':
+            permissions.readObject = true;
+            permissions.readRoom = true;
+            break;
+        case 'intermediaire':
+            permissions.readObject = true;
+            permissions.readData = true;
+            permissions.readRoom = true;
+            permissions.updateRoom = true;
+            permissions.addData = true;
+            break;
+        case 'avance':
+            permissions.readObject = true;
+            permissions.readData = true;
+            permissions.readRoom = true;
+            permissions.addData = true;
+            permissions.deleteData = true;
+            permissions.updateRoom = true;
+            permissions.updateObject = true;
+            permissions.updateData = true;
+            break;
+        case 'expert':
+            permissions.readObject = true;
+            permissions.readData = true;
+            permissions.readRoom = true;
+            permissions.addData = true;
+            permissions.addObject = true;
+            permissions.addRoom = true;
+            permissions.deleteObject = true;
+            permissions.deleteData = true;
+            permissions.deleteRoom = true;
+            permissions.updateObject = true;
+            permissions.updateData = true;
+            permissions.updateRoom = true;
+            break;
+        default:
+            // Pour tout autre niveau ou cas inconnu, permissions minimales
+            permissions.readObject = true;
+            permissions.readRoom = true;
+    }
+
+    return { permissions };
 } 

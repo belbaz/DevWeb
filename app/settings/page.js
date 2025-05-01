@@ -82,18 +82,18 @@ export default function Settings() {
                     // Pour les cas où checkUser a des données que getUserProfil n'a pas
                     isActive: profilData.data.isActive !== undefined ? profilData.data.isActive : authData.isActive,
                     role: profilData.data.role || authData.role,
+                    level: profilData.data.level || authData.level, // S'assurer que level est présent
                     // Pour gérer le problème des points
                     point: profilData.data.points, // getUserProfil utilise 'points'
                 };
                 
                 setUserData(userData);
                 
-                // Récupérer les permissions basées sur les points de l'utilisateur
-                const pointsValue = profilData.data.points !== undefined ? profilData.data.points : 
-                                  (userData.point !== undefined ? userData.point : 
-                                  (userData.pointsss !== undefined ? userData.pointsss : 0));
+                // Récupérer les permissions en utilisant le niveau stocké en base de données
+                // et non plus en utilisant un calcul basé sur les points
+                const userLevel = userData.level || 'debutant'; // Fallback sur 'debutant' si pas de niveau
                 
-                const permissionsResponse = await fetch(`/api/user/getUserPermissions?points=${pointsValue}`, {
+                const permissionsResponse = await fetch(`/api/user/getUserPermissions?level=${userLevel}`, {
                     method: "GET",
                     credentials: "include",
                 });

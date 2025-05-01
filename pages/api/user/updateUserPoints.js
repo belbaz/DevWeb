@@ -1,5 +1,6 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import { updateUserLevel } from 'lib/userPointsUtils.js';
 
 export default async function handler(req, res) {
     // Vérifie que la méthode est bien POST
@@ -49,12 +50,17 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Error updating user points' });
         }
 
-        // Retourne les points mis à jour
+        // Mettre à jour le niveau en fonction des nouveaux points
+        const levelResult = await updateUserLevel(user.pseudo, newPoints);
+
+        // Retourne les points mis à jour et les informations de niveau
         return res.status(200).json({ 
             success: true,
             previousPoints: currentPoints,
             pointsAdded: points,
-            newPoints: newPoints
+            newPoints: newPoints,
+            levelUp: levelResult.levelChanged,
+            newLevel: levelResult.levelChanged ? levelResult.newLevel : undefined
         });
     } catch (err) {
         console.error('Server error:', err);
