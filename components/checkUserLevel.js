@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import { useRouter } from "next/navigation";
 import Box from '@mui/material/Box';
 
 
 // restricts access to its children based on inputted user level
+// reads the cookie
 export default function CheckUserLevel({ requiredLevel = "debutant", children }) {
+	const [hasAccess, setHasAccess] = useState(null);
 	const router = useRouter();
 	const accessLevels = {
 		"debutant": 1,
@@ -22,38 +24,34 @@ export default function CheckUserLevel({ requiredLevel = "debutant", children })
 	}
 
 	useEffect(() => {
-		const checkAuth = async () => {
+		async function checkAuth() {
 			try {
-				const response = await fetch("/api/checkUser", {
+				const response = await fetch("/api/user/checkUser", {
 					method: "POST"
 				});
 				const data = await response.json();
 				if (response.ok) {
 					if (accessLevels[data.level] >= accessLevels[requiredLevel]) {
-						return children; // access granted
+						setHasAccess(true);
 					} else {
 						throw new Error("access denied: insufficient level (requires at least " + requiredLevel + ")");
 					}
-				}
-				else { // handle req error
-					if (data.invalidToken) {
-						console.log("invalid token");
-					} else if (data.noToken) {
-						console.log("No token provided");
-					} else {
-						console.log("Unknown error");
-					}
-					throw new Error("API error :" + data.error);
+				} else {
+					if (data.invalidToken) console.log("invalid token");
+					else if (data.noToken) console.log("No token provided");
+					else console.log("Unknown error");
+					throw new Error("API error : " + data.error);
 				}
 			} catch (error) {
 				toast.error("Cannot access page : " + error.message);
 				router.push("/");
-				return null;
 			}
-		};
+		}
 
 		checkAuth();
 	}, []);
 
+	if (hasAccess === null) return null; // waiting
+	if (hasAccess === false) return null; // shouldn't happen (router redirects)
 	return <Box>{children}</Box>;
 }
