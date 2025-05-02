@@ -3,6 +3,7 @@
 // Client Supabase
 import supabase from 'lib/supabaseClient';
 import {authenticate} from "lib/authenticate";
+import {logAction} from "lib/logAction";
 
 export default async function login(req, res) {
     if (req.method !== 'POST') {
@@ -36,6 +37,7 @@ export default async function login(req, res) {
             return res.status(401).json({ error: 'incorrect password or username' });
         }
         res.setHeader("Set-Cookie", authResult.cookie);
+        await logAction(idf,"login");
         return res.status(200).json({ success: true, pseudo: authResult.pseudo });
 
     } catch (error) {
