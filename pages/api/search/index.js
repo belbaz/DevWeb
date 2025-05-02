@@ -6,22 +6,22 @@ export default async function handler(req, res) {
     const user = await getUserFromRequest(req);
     const results = [];
 
-    let query = supabase.from("Room").select("id, name, floor, roomtype");
+    // Requête pour les pièces
+    let roomQuery = supabase.from("Room").select("id, name, floor, roomtype");
 
-    if (q) query = query.ilike("name", `%${q}%`);
+    if (q) roomQuery = roomQuery.ilike("name", `%${q}%`);
     if (floors) {
         const parsedFloors = Array.isArray(floors) ? floors.map(Number) : floors.split(',').map(Number);
-        query = query.in("floor", parsedFloors);
+        roomQuery = roomQuery.in("floor", parsedFloors);
     }
     if (types) {
         const parsedTypes = Array.isArray(types) ? types : types.split(',');
-        query = query.in("roomtype", parsedTypes);
+        roomQuery = roomQuery.in("roomtype", parsedTypes);
     }
 
-    const { data: roomData, error } = await query;
-    if (error) return res.status(500).json({ error: "Supabase error" });
+    const { data: roomData, error: roomError } = await roomQuery;
+    if (roomError) return res.status(500).json({ error: "Supabase Room error" });
 
-    // Inclure ID dans chaque pièce
     const formattedRooms = roomData.map(room => ({
         type: "Pièce",
         name: room.name,
@@ -30,12 +30,24 @@ export default async function handler(req, res) {
 
     results.push(...formattedRooms);
 
-    if (user?.pseudo) {
-        const users = ["deux", "me"];
-        const filteredUsers = users
-            .filter(u => q && u.toLowerCase().includes(q.toLowerCase()))
-            .map(u => ({ type: "Utilisateur", name: u }));
-        results.push(...filteredUsers);
+    // Requête pour les utilisateurs
+    if (user?.pseudo && q) {
+        const { data: userData, error: userError } = await supabase
+            .from("User")
+            .select("id, pseudo, name, lastName")
+            .ilike("pseudo", `%${q}%`);
+
+        if (userError) return res.status(500).json({ error: "Supabase User error" });
+
+        const formattedUsers = userData.map(u => ({
+            type: "Utilisateur",
+            name: `${u.name} ${u.lastName} (${u.pseudo})`,
+            id: u.id,
+            pseudo: u.pseudo
+        }));
+
+
+        results.push(...formattedUsers);
     }
 
     return res.status(200).json(results);

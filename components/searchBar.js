@@ -55,7 +55,7 @@ export default function SearchBar({ showFiltersButton = true }) {
 
     const handleSuggestionClick = (item) => {
         if (item.type === "Utilisateur") {
-            router.push(`/profile/${item.name}`);
+            router.push(`/profile/${item.pseudo}`);
         } else if (item.type === "Pièce") {
             router.push(`/room/${item.id}`);
         }
@@ -170,7 +170,6 @@ export default function SearchBar({ showFiltersButton = true }) {
                 )}
             </Box>
 
-            {/* Suggestions avec style d'origine */}
             {suggestions.length > 0 && (
                 <Box
                     component="ul"
@@ -189,24 +188,43 @@ export default function SearchBar({ showFiltersButton = true }) {
                         boxSizing: "border-box"
                     }}
                 >
-                    {suggestions.map((item, index) => (
-                        <Box
-                            component="li"
-                            key={index}
-                            onClick={() => handleSuggestionClick(item)}
-                            sx={{
-                                padding: "8px 12px",
-                                fontSize: "0.9rem",
-                                fontFamily: "var(--font-roboto)",
-                                cursor: "pointer",
-                                "&:hover": {
-                                    backgroundColor: "rgba(255,255,255,0.1)",
-                                }
-                            }}
-                        >
-                            <strong>[{item.type}]</strong> {item.name}
-                        </Box>
-                    ))}
+                    {suggestions.map((item, index) => {
+                        const cleanedName = item.name.replace(/\s*\(.*?\)\s*/g, "");
+
+                        return (
+                            <Box
+                                component="li"
+                                key={index}
+                                onClick={() => handleSuggestionClick(item)}
+                                sx={{
+                                    padding: "8px 12px",
+                                    fontSize: "0.9rem",
+                                    fontFamily: "var(--font-roboto)",
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(255,255,255,0.1)",
+                                    },
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "2px",
+                                }}
+                            >
+                                {item.type === "Utilisateur" ? (
+                                    <>
+                    <span style={{ fontWeight: "bold" }}>
+                        {cleanedName}
+                    </span>
+                                        <span style={{ fontSize: "0.75rem", fontStyle: "italic", color: "rgba(255,255,255,0.7)" }}>
+                        {item.pseudo.replace(/[()]/g, "")}
+                    </span>
+                                    </>
+                                ) : (
+                                    <span>{cleanedName}</span>
+                                )}
+                            </Box>
+                        );
+                    })}
+
                 </Box>
             )}
         </>
