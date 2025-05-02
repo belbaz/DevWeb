@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../components/AuthContext';
-import { calculateProgress, levelMap, getUserPoints } from '../../lib/userLevelUtils';
+import { useAuth } from '../components/AuthContext';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';

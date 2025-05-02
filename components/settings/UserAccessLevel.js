@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Paper, Typography, Grid, Card, CardContent, CircularProgress, Tooltip } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { calculateProgress, getUserLevel, levelMap, getUserPoints } from '../../lib/userLevelUtils';
 
 const UserAccessLevel = ({ userData }) => {
   const [accessLevelStats, setAccessLevelStats] = useState({

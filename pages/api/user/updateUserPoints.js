@@ -1,6 +1,5 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import { updateUserLevel } from 'lib/userPointsUtils.js';
 
 export default async function handler(req, res) {
     // Vérifie que la méthode est bien POST
