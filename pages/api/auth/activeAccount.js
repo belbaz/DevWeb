@@ -14,7 +14,8 @@ export default async function activeAccount(req, res) {
                 .eq('token', token)
                 .eq('type', 'activation')
                 .single();
-
+            console.log(tokenData);
+            console.log(token);
             if (tokenError || !tokenData) {
                 return res.status(400).json({ error: 'invalid token' });
             }
@@ -46,7 +47,7 @@ export default async function activeAccount(req, res) {
                 .from('Token')
                 .delete()
                 .eq('token', token)
-            await logAction(idf,"accountActivation");
+            // await logAction(pseudo,"accountActivation");
             return res.status(200).json({ message: 'account successfully activated' });
 
         } catch (error) {
