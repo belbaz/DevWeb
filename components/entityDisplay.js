@@ -1,14 +1,16 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-export const fieldName = (label, value) => (
-	<Box>
-		<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959' }}>
-			{label + " "}
-		</Typography>
-		: {value || 'unknown'}
-	</Box>
-);
+export const fieldName = (label, value) => {
+	return (
+		<Box>
+			<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959' }}>
+				{label + " "}
+			</Typography>
+			: {value || 'unknown'}
+		</Box>
+	)
+};
 
 export const category = (label) => (
 	<Typography
