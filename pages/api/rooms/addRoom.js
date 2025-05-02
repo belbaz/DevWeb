@@ -1,6 +1,7 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import {logAction} from "lib/logAction";
 
 // Handler pour traiter une requête POST (création d’une nouvelle pièce)
 export default async function handler(req, res) {
@@ -59,6 +60,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Erreur Supabase', details: error.message });
         }
 
+        await logAction(idf,"addRoom");
         return res.status(201).json({ created: data });
 
     } catch (err) {

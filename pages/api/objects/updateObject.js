@@ -1,6 +1,7 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import {logAction} from "lib/logAction";
 
 // Handler pour traiter les requêtes PUT (mise à jour d’un objet)
 export default async function handler(req, res) {
@@ -51,6 +52,7 @@ export default async function handler(req, res) {
             });
         }
 
+        await logAction(idf,"updateObject");
         // Renvoie l’objet mis à jour
         return res.status(200).json({ updated: data });
     } catch (err) {

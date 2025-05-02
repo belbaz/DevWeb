@@ -1,6 +1,7 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import {logAction} from "lib/logAction";
 
 // Handler pour traiter une requête DELETE (suppression d'un objet)
 export default async function handler(req, res) {
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
                 details: deleteError.message,
             });
         }
-
+        await logAction(idf,"deleteObject");
         return res.status(200).json({ success: true, message: 'Objet supprimé avec succès' });
 
     } catch (err) {

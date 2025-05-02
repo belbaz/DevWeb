@@ -1,6 +1,7 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import {logAction} from "lib/logAction";
 
 // Handler pour traiter une requête DELETE (suppression d’une pièce)
 export default async function handler(req, res) {
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
                 details: error.message,
             });
         }
-
+        await logAction(idf,"login");
         return res.status(200).json({ deleted: data });
     } catch (err) {
         console.error('Erreur serveur :', err);

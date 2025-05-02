@@ -1,6 +1,7 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
+import {logAction} from "lib/logAction";
 
 // Handler pour traiter les requêtes PUT (mise à jour d’une pièce)
 export default async function handler(req, res) {
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
             console.error('Erreur mise à jour pièce :', error);
             return res.status(500).json({ error: 'Erreur Supabase', details: error.message });
         }
-
+        await logAction(idf,"updateRoom");
         return res.status(200).json({ updated: data });
 
     } catch (err) {
