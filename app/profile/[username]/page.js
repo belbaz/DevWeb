@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
+import Skeleton from '@mui/material/Skeleton';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
 import React, { useEffect, useState } from "react";
@@ -22,10 +24,14 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 
 export default function Profile({ }) {
 	const [isUsernameValid, setisUsernameValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
-	const [loading, setLoading] = useState(true);
+	const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+	const [avatarUrl, setAvatarUrl] = useState(null);
 	const [userData, setUserData] = useState(null); // to store the user data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
+
+	const [loading, setLoading] = useState(true);
 	const [editable, setEditable] = useState(false);
+	const [showPasswordInput, setShowPasswordInput] = useState(false);
 
 	const params = useParams();
 	const router = useRouter();
@@ -61,6 +67,7 @@ export default function Profile({ }) {
 
 		getProfile();
 		getSelf();
+		getAvatar();
 	}, [username]);
 
 	// returns the current's user data
@@ -82,6 +89,39 @@ export default function Profile({ }) {
 			toast.error("Cannot get current user's data : " + error.message);
 		}
 	}
+
+	async function getAvatar() {
+		try {
+			const res = await fetch("/api/getAvatarUrl", {
+				method: "GET",
+				headers: { pseudo: username }
+			});
+
+			const json = await res.json();
+
+			if (json.url) {
+				const img = new Image();
+				img.src = json.url;
+
+				img.onload = () => {
+					setAvatarUrl(json.url);
+					setIsAvatarLoaded(true);
+				};
+
+				img.onerror = () => {
+					setAvatarUrl("/images/avatar.svg");
+					setIsAvatarLoaded(true);
+				};
+			} else {
+				setAvatarUrl("/images/avatar.svg");
+				setIsAvatarLoaded(true);
+			}
+		} catch (error) {
+			console.error("Error while fetching avatar:", error);
+			setAvatarUrl("/images/avatar.svg");
+			setIsAvatarLoaded(true);
+		}
+	};
 
 	return (
 		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
@@ -128,8 +168,41 @@ export default function Profile({ }) {
 						</Box>
 					) : (
 						<Box>
-							<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
-								{/* import pfp */}
+							<Typography
+								variant="h3"
+								sx={{
+									mb: 2,
+									fontFamily: 'Cinzel, serif',
+									fontWeight: 400,
+									letterSpacing: 3,
+									color: 'white',
+									fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' },
+									display: 'flex',
+									alignItems: 'center',
+									flexDirection: 'column'
+								}}>
+								<Box
+									sx={{ position: 'relative', width: '30vw', aspectRatio: '1', maxWidth: '120px' }}>
+									{isAvatarLoaded ? (
+										<img
+											src={avatarUrl}
+											alt={username.pseudo}
+											style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+										/>
+									) : (
+										<Skeleton
+											variant="circular"
+											sx={{
+												width: '100%',
+												height: '100%',
+												position: 'absolute',
+												top: 0,
+												left: 0,
+												bgcolor: 'rgba(255, 255, 255, 0.1)',
+											}}
+										/>
+									)}
+								</Box>
 								{userData?.pseudo}
 							</Typography>
 
@@ -541,6 +614,37 @@ export default function Profile({ }) {
 												</Typography>
 											</>
 										)}
+										{self?.pseudo === userData?.pseudo ? (
+											<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: { xs: "30vw", md: "20vw" } }}>
+												<Button
+													sx={{
+														width: '100%',
+														mt: 2,
+														background: '#5a7391',
+														"&:hover": { background: 'steelblue' },
+														border: 'none',
+														color: 'white',
+														cursor: 'pointer',
+														transition: 'background 0.3s ease',
+														outline: 'none',
+														fontSize: '0.85rem',
+														fontFamily: 'var(--font-roboto)',
+													}}
+													onClick={() => setShowPasswordInput(!showPasswordInput)}
+												>
+													Change password
+												</Button>
+
+												{showPasswordInput && (
+													<TextField
+														label="New Password"
+														type="password"
+														size="small"
+														sx={{ width: '100%' }}
+													/>
+												)}
+											</Box>
+										) : null}
 									</Box>
 								</Box>
 
@@ -594,7 +698,8 @@ export default function Profile({ }) {
 						</Box>
 					) : null}
 				</Box>
-			)}
+			)
+			}
 		</Box >
 	);
 }
