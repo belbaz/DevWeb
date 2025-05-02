@@ -14,33 +14,11 @@ import {
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [suggestions, setSuggestions] = useState([]);
     const { isAuthenticated, setIsAuthenticated } = useAuth();
     const router = useRouter();
 
     const toggleMenu = useCallback(() => {
         setIsMenuOpen(prev => !prev);
-    }, []);
-
-    const handleSearch = useCallback(async (query) => {
-        if (!query || query.trim() === '') {
-            setSuggestions([]);
-            return;
-        }
-
-        try {
-            const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-            if (res.ok) {
-                const data = await res.json();
-                setSuggestions(data);
-            } else {
-                console.error("Search API error:", res.status);
-                setSuggestions([]);
-            }
-        } catch (error) {
-            console.error("Error in search:", error);
-            setSuggestions([]);
-        }
     }, []);
 
     const handleLogout = useCallback(async () => {
@@ -92,44 +70,7 @@ const Header = () => {
                 display: "flex",
                 alignItems: "center"
             }}>
-                <SearchBar onSearch={handleSearch} showFiltersButton />
-                {suggestions.length > 0 && (
-                    <Box
-                        component="ul"
-                        sx={{
-                            position: "absolute",
-                            top: "100%",
-                            left: 0,
-                            width: "100%",
-                            marginTop: "4px",
-                            backgroundColor: "rgba(0,0,0,0.85)",
-                            color: "white",
-                            listStyle: "none",
-                            padding: "6px 0",
-                            borderRadius: "4px",
-                            zIndex: 999,
-                            boxSizing: "border-box"
-                        }}
-                    >
-                        {suggestions.map((item, index) => (
-                            <Box
-                                component="li"
-                                key={index}
-                                sx={{
-                                    padding: "8px 12px",
-                                    fontSize: "0.9rem",
-                                    fontFamily: "var(--font-roboto)",
-                                    cursor: "default",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(255,255,255,0.1)",
-                                    }
-                                }}
-                            >
-                                <strong>[{item.type}]</strong> {item.name}
-                            </Box>
-                        ))}
-                    </Box>
-                )}
+                <SearchBar showFiltersButton />
             </Box>
 
             <IconButton

@@ -166,7 +166,7 @@ export default function FiltersPage() {
                                 <Button
                                     variant="outlined"
                                     size="small"
-                                    href={`/roomPage/${room.id}`}
+                                    href={`/room/${room.id}`}
                                 >
                                     See more
                                 </Button>
