@@ -79,7 +79,7 @@ export default function FiltersPage() {
             </Typography>
 
             <Box textAlign="center">
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
                     Filter by Floor
                 </Typography>
             </Box>
@@ -100,14 +100,14 @@ export default function FiltersPage() {
                                 }}
                             />
                         }
-                        label={floor === 0 ? "Ground floor (0)" : `Floor ${floor}`}
+                        label={floor === 0 ? "Ground floor" : `Floor ${floor}`}
+                        sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}
                     />
                 ))}
             </FormGroup>
 
-
             <Box textAlign="center">
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
                     Filter by Room Type
                 </Typography>
             </Box>
@@ -129,25 +129,31 @@ export default function FiltersPage() {
                             />
                         }
                         label={type}
+                        sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}
                     />
                 ))}
             </FormGroup>
 
-
             <Button
                 variant="text"
                 onClick={resetFilters}
-                sx={{ textTransform: "none", display: "block", mx: "auto", mb: 4 }}
+                sx={{
+                    textTransform: "none",
+                    display: "block",
+                    mx: "auto",
+                    mb: 4,
+                    fontFamily: 'var(--font-roboto)'
+                }}
             >
                 Reset all filters
             </Button>
 
             <Box>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
                     Results
                 </Typography>
                 {filteredRooms.length === 0 ? (
-                    <Typography sx={{ mt: 2, fontStyle: 'italic' }}>
+                    <Typography sx={{ mt: 2, fontStyle: 'italic', fontFamily: 'var(--font-roboto)', color: 'white' }}>
                         No matching room found.
                     </Typography>
                 ) : (
@@ -162,11 +168,14 @@ export default function FiltersPage() {
                                     py: 1
                                 }}
                             >
-                                <Typography>{room.name}</Typography>
+                                <Typography sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
+                                    {room.name}
+                                </Typography>
                                 <Button
                                     variant="outlined"
                                     size="small"
                                     href={`/room/${room.id}`}
+                                    sx={{ fontFamily: 'var(--font-roboto)' }}
                                 >
                                     See more
                                 </Button>
@@ -176,5 +185,6 @@ export default function FiltersPage() {
                 )}
             </Box>
         </Box>
+
     );
 }

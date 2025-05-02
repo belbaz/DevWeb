@@ -170,9 +170,8 @@ export default function SearchBar({ showFiltersButton = true }) {
                 )}
             </Box>
 
-            {suggestions.length > 0 && (
+            {query.trim() !== "" && suggestions.length > 0 && (
                 <Box
-                    component="ul"
                     sx={{
                         position: "absolute",
                         top: "100%",
@@ -181,52 +180,64 @@ export default function SearchBar({ showFiltersButton = true }) {
                         marginTop: "4px",
                         backgroundColor: "rgba(0,0,0,0.85)",
                         color: "white",
-                        listStyle: "none",
-                        padding: "6px 0",
                         borderRadius: "4px",
                         zIndex: 999,
-                        boxSizing: "border-box"
+                        maxHeight: "240px",
+                        overflow: "hidden",
+                        boxSizing: "border-box",
+                        // Dégradé visuel de bas de liste pour suggérer le scroll
+                        maskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
+                        WebkitMaskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
                     }}
+                    component="ul"
                 >
-                    {suggestions.map((item, index) => {
-                        const cleanedName = item.name.replace(/\s*\(.*?\)\s*/g, "");
+                    <Box
+                        sx={{
+                            overflowY: "auto",
+                            maxHeight: "240px",
+                            pr: 1, // petit padding droit pour éviter le masquage par scrollbar
+                        }}
+                    >
+                        {suggestions.map((item, index) => {
+                            const cleanedName = item.name.replace(/\s*\(.*?\)\s*/g, "");
 
-                        return (
-                            <Box
-                                component="li"
-                                key={index}
-                                onClick={() => handleSuggestionClick(item)}
-                                sx={{
-                                    padding: "8px 12px",
-                                    fontSize: "0.9rem",
-                                    fontFamily: "var(--font-roboto)",
-                                    cursor: "pointer",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(255,255,255,0.1)",
-                                    },
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "2px",
-                                }}
-                            >
-                                {item.type === "Utilisateur" ? (
-                                    <>
-                    <span style={{ fontWeight: "bold" }}>
-                        {cleanedName}
-                    </span>
-                                        <span style={{ fontSize: "0.75rem", fontStyle: "italic", color: "rgba(255,255,255,0.7)" }}>
-                        {item.pseudo.replace(/[()]/g, "")}
-                    </span>
-                                    </>
-                                ) : (
-                                    <span>{cleanedName}</span>
-                                )}
-                            </Box>
-                        );
-                    })}
-
+                            return (
+                                <Box
+                                    component="li"
+                                    key={index}
+                                    onClick={() => handleSuggestionClick(item)}
+                                    sx={{
+                                        padding: "8px 12px",
+                                        fontSize: "0.9rem",
+                                        fontFamily: "var(--font-roboto)",
+                                        cursor: "pointer",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(255,255,255,0.1)",
+                                        },
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "2px",
+                                    }}
+                                >
+                                    {item.type === "Utilisateur" ? (
+                                        <>
+                                <span style={{ fontWeight: "bold" }}>
+                                    {cleanedName}
+                                </span>
+                                            <span style={{ fontSize: "0.75rem", fontStyle: "italic", color: "rgba(255,255,255,0.7)" }}>
+                                    {item.pseudo.replace(/[()]/g, "")}
+                                </span>
+                                        </>
+                                    ) : (
+                                        <span>{cleanedName}</span>
+                                    )}
+                                </Box>
+                            );
+                        })}
+                    </Box>
                 </Box>
             )}
+
         </>
     );
 }
