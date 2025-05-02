@@ -1,5 +1,6 @@
 // pages/api/activeAccount.js
 import supabase from 'lib/supabaseClient';
+import {logAction} from "../../../lib/logAction";
 
 // receives a token and checks if it is valid
 export default async function activeAccount(req, res) {
@@ -45,7 +46,7 @@ export default async function activeAccount(req, res) {
                 .from('Token')
                 .delete()
                 .eq('token', token)
-
+            await logAction(idf,"login");
             return res.status(200).json({ message: 'account successfully activated' });
 
         } catch (error) {
