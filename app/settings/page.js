@@ -70,8 +70,6 @@ export default function Settings() {
                 console.log("Données utilisateur reçues de getUserProfil:", {
                     data: profilData.data,
                     points: profilData.data.points,
-                    point: profilData.data.point,
-                    pointsss: profilData.data.pointsss,
                     level: profilData.data.level,
                     role: profilData.data.role
                 });

@@ -19,8 +19,6 @@ const UserProfileDetails = ({ user, permissions }) => {
   useEffect(() => {
     if (user) {
       console.log("UserProfileDetails - Données utilisateur:", {
-        point: user.point,
-        pointsss: user.pointsss,
         points: user.points,
         calculatedPoints: getUserPoints(user),
         calculatedLevel: getUserLevel(user),

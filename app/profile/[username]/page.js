@@ -228,10 +228,10 @@ export default function Profile({ }) {
 											size="small"
 											disabled={!editable}
 											label="Birth date"
-											value={userData?.birthday}
+											value={userData?.birthdate}
 											type="date"
-											name='birthday'
-											onChange={(e) => setUserData({ ...userData, birthday: e.target.value })}
+											name='birthdate'
+											onChange={(e) => setUserData({ ...userData, birthdate: e.target.value })}
 											sx={{
 												cursor: editable ? 'text' : 'not-allowed',
 												backgroundColor: "#3a3a3a",
@@ -552,7 +552,7 @@ export default function Profile({ }) {
 											{fieldName('Full name', userData?.name + " " + userData?.lastName)}
 										</Box>
 										<Box>
-											{fieldName('Birthday', userData?.birthday)}
+											{fieldName('birthdate', userData?.birthdate)}
 										</Box>
 										<Box>
 											{fieldName('Gender', userData?.gender)}

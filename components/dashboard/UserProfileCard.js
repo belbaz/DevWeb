@@ -28,8 +28,6 @@ const UserProfileCard = ({ user }) => {
     // Debug: Affichez les données pour vérifier où se trouvent les points
     if (user) {
       console.log("User data in UserProfileCard:", {
-        pointsss: user.pointsss,
-        point: user.point,
         points: user.points,
         calculatedPoints: userPoints
       });

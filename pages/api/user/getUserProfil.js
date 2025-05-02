@@ -21,7 +21,7 @@ export default async function getUserProfil(req, res) {
         if (user.pseudo === pseudoProfil || user.level === "expert") {
             const { data: userData, error: userError } = await supabase
                 .from('User')
-                .select('name, lastName, pseudo, email, isActive, gender, level, role, address, points, birthday, dateOnline')
+                .select('name, lastName, pseudo, email, isActive, gender, level, role, address, points, birthdate, dateOnline')
                 .eq('pseudo', pseudoProfil)
                 .single();
 
@@ -37,7 +37,7 @@ export default async function getUserProfil(req, res) {
         } else {
             const { data: userProfil, error: userError } = await supabase
                 .from('User')
-                .select('name, lastName, pseudo, gender, level, points, birthday')
+                .select('name, lastName, pseudo, gender, level, points, birthdate')
                 .eq('pseudo', pseudoProfil)
                 .single();
 

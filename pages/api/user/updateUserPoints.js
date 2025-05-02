@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         // Récupère les points actuels de l'utilisateur
         const { data: userData, error: fetchError } = await supabaseClient
             .from('User')
-            .select('pointsss')
+            .select('points')
             .eq('pseudo', user.pseudo)
             .single();
 
@@ -36,13 +36,13 @@ export default async function handler(req, res) {
         }
 
         // Calcule les nouveaux points (en s'assurant qu'ils ne soient pas négatifs)
-        const currentPoints = userData.pointsss || 0;
+        const currentPoints = userData.points || 0;
         const newPoints = Math.max(0, currentPoints + points);
 
         // Met à jour les points de l'utilisateur
         const { error: updateError } = await supabaseClient
             .from('User')
-            .update({ pointsss: newPoints })
+            .update({ points: newPoints })
             .eq('pseudo', user.pseudo);
 
         if (updateError) {

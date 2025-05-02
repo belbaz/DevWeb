@@ -20,8 +20,6 @@ const UserAccessLevel = ({ userData }) => {
     if (userData) {
       console.log("UserAccessLevel - Données utilisateur:", {
         userData,
-        point: userData.point,
-        pointsss: userData.pointsss,
         points: userData.points,
         level: userData.level,
         calculatedPoints: getUserPoints(userData)

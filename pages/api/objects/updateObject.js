@@ -20,8 +20,8 @@ export default async function handler(req, res) {
         }
 
         // Vérification des permissions de mise à jour en fonction des points utilisateur
-        const { permissions } = getUserPermissions(user.pointsss || 0);
-        console.log("POINTS =", user.pointsss);
+        const { permissions } = getUserPermissions(user.points || 0);
+        console.log("POINTS =", user.points);
         console.log("PERMISSIONS =", permissions);
         if (!permissions.updateObject) {
             return res.status(403).json({ error: 'Accès refusé : modification non autorisée' });

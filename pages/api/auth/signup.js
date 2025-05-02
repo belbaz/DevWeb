@@ -6,9 +6,9 @@ import {authenticate} from "lib/authenticate";
 
 export default async function signup(req, res) {
     if (req.method === 'POST') {
-        const {name, lastName, pseudo, email, password, gender, birthday, address} = req.body;
+        const {name, lastName, pseudo, email, password, gender, birthdate, address} = req.body;
 
-        if (!name || !lastName || !pseudo || !email || !password || !gender || !birthday || !address) {
+        if (!name || !lastName || !pseudo || !email || !password || !gender || !birthdate || !address) {
             return res.status(400).json({error: 'Please enter all data'});
         }
 
@@ -71,7 +71,7 @@ export default async function signup(req, res) {
                     level: 'debutant',
                     role: 'visiteur',
                     gender: gender,
-                    birthday: birthday,
+                    birthdate: birthdate,
                     address: address
                 })
                 .select()

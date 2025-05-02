@@ -15,7 +15,7 @@ export default async function handler(req, res) {
             return res.status(401).json({ error: 'Utilisateur non authentifié' });
         }
 
-        const { permissions } = getUserPermissions(user.pointsss || 0);
+        const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readData) {
             return res.status(403).json({ error: 'Accès refusé : lecture non autorisée' });
         }

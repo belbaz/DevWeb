@@ -88,13 +88,13 @@ const Signup = () => {
         const password = event.target.password.value;
         const gender = event.target.gender.value;
         const address = event.target.address.value;
-        const birthday = event.target.birthday.value;
-        console.log(email, password, gender, address, birthday, gender, birthday);
+        const birthdate = event.target.birthdate.value;
+        console.log(email, password, gender, address, birthdate, gender, birthdate);
         await uploadImage(selectedFile, pseudo);
         const response = await fetch("/api/auth/signup", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({name, lastName, pseudo, email, password, gender, address, birthday}),
+            body: JSON.stringify({name, lastName, pseudo, email, password, gender, address, birthdate}),
         });
         if (response.status === 200) {
             toast.success("Account created! Please check your email to activate your account.");
@@ -293,9 +293,9 @@ const Signup = () => {
                             <MenuItem value="W">Female</MenuItem>
                         </TextField>
                         <TextField
-                            label="Birthday"
-                            name="birthday"
-                            id="birthday"
+                            label="birthdate"
+                            name="birthdate"
+                            id="birthdate"
                             type="date"
                             variant="outlined"
                             fullWidth
