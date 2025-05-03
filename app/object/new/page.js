@@ -193,7 +193,7 @@ export default function Room({ }) {
 									</Button>
 								)}
 								<Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-									<DialogTitle>Confirm deletion</DialogTitle>
+									<DialogTitle>Confirm Insertion</DialogTitle>
 									<DialogContent>
 										<Typography>
 											A new Object will be created.

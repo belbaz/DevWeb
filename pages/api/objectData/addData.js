@@ -23,7 +23,7 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Access denied: creation not allowed' });
         }
 
-        const { data, type_Object } = req.body;
+        const { data, type_Object } = JSON.parse(req.body);
 
         // Check if required fields are present
         if (!data || !type_Object) {

@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
 import Rolling from '../../../components/rolling';
@@ -16,26 +16,28 @@ import Rolling from '../../../components/rolling';
 
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
-	const [object, setObject] = useState(null);
+	const [objectInstance, setObjectInstance] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [objectTypes, setObjectTypes] = useState(null);
+
+	useEffect(() => {
+		getObjects();
+	}, []);
 
 	const router = useRouter();
 
 	async function insertObject() {
 		setIsLoading(true);
 		try {
-			if (!object?.type || !object?.brand || !object?.room_id || !object?.accessLevel || !object?.description) {
+			if (!objectInstance?.data || !objectInstance?.type_Object) {
 				throw new Error("Please fill all the fields");
 			}
-			const response = await fetch("/api/objects/addObject", {
+			const response = await fetch("/api/objectData/addData", {
 				method: "POST",
 				credentials: "include",
 				body: JSON.stringify({
-					type: object.type,
-					brand: object.brand,
-					accessLevel: object.accessLevel,
-					room_id: object.room_id,
-					description: object.description,
+					data: objectInstance.data,
+					type_Object: objectInstance.type_Object
 				}),
 			});
 
@@ -43,8 +45,7 @@ export default function Room({ }) {
 				const data = await response.json();
 
 				toast.success("object inserted successfully");
-				console.log(data);
-				router.push('/object/' + data?.created[0]?.id); // redirect to the new room page with returned id
+				router.push('/objectInstance/' + data.created.id); // redirect to the new room page with returned id
 			} else {
 				const data = await response.json();
 				throw new Error(data.error || "Unknown error while inserting room");
@@ -52,6 +53,24 @@ export default function Room({ }) {
 		} catch (error) {
 			toast.error(error.message || "An unexpected error occurred");
 		} finally { setIsLoading(false); setOpenConfirm(false); }
+	}
+
+	async function getObjects() {
+		try {
+			const response = await fetch(`/api/objects/getObjects`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setObjectTypes(data.objects); // set the filtered object instance data to the state
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		}
 	}
 
 	return (
@@ -78,103 +97,52 @@ export default function Room({ }) {
 						<>{category('Object information')}
 							<TextField
 								size="small"
-								label="Type"
-								value={object?.type}
-								type="text"
-								name='type'
-								onChange={(e) => setObject({ ...object, type: e.target.value })}
-								sx={{
-									backgroundColor: "#3a3a3a",
-
-									'&& .MuiSelect-icon': {
-										color: 'white',
-									},
-									'&& .MuiInputBase-input': {
-										color: 'white',
-										WebkitTextFillColor: 'white',
-									},
-									'&& .MuiInputLabel-root': {
-										color: '#9e9e9e',
-									},
-								}}
-							/>
-							<TextField
-								size="small"
-								label="Brand"
-								value={object?.brand}
-								type="text"
-								name='brand'
-								onChange={(e) => setObject({ ...object, brand: e.target.value })}
-								sx={{
-									backgroundColor: "#3a3a3a",
-
-									'&& .MuiSelect-icon': {
-										color: 'white',
-									},
-									'&& .MuiInputBase-input': {
-										color: 'white',
-										WebkitTextFillColor: 'white',
-									},
-									'&& .MuiInputLabel-root': {
-										color: '#9e9e9e',
-									},
-								}}
-							/>
-							<TextField
-								size="small"
-								label="Access level"
-								value={object?.accessLevel}
+								label="Object Type"
+								value={objectInstance?.type_Object}
 								select
-								name='accessLevel'
-								onChange={(e) => setObject({ ...object, accessLevel: e.target.value })}
+								name='type_Object'
+								onChange={(e) => setObjectInstance({ ...objectInstance, type_Object: e.target.value })}
 								sx={{
-									cursor: 'text',
 									backgroundColor: "#3a3a3a",
 									borderRadius: 1,
-									'&& .MuiSelect-icon': {
-										color: 'white',
-									},
 									'&& .MuiInputBase-input': {
 										color: 'white',
 										WebkitTextFillColor: 'white',
 									},
 									'&& .MuiInputLabel-root': {
-										color: '#9e9e9e',
+										color: 'white',
 									},
+								}}
+								slotProps={{
+									input: {
+										sx: {
+											'&&.Mui-disabled': {
+												color: '#9e9e9e',
+												WebkitTextFillColor: '#9e9e9e',
+											}
+										}
+									},
+									inputLabel: {
+										shrink: true,
+										sx: {
+											'&&.Mui-disabled': {
+												color: '#9e9e9e !important',
+											}
+										}
+									}
 								}}
 							>
-								<MenuItem value={"debutant"}>débutant</MenuItem>
-								<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-								<MenuItem value={"avance"}>avancé</MenuItem>
-								<MenuItem value={"expert"}>expert</MenuItem>
+								{Array.isArray(objectTypes) && objectTypes.map((objectType) => (
+									<MenuItem key={objectType.type} value={objectType.type}>
+										{objectType.type}
+									</MenuItem>
+								))}
 							</TextField>
-							<TextField
-								size="small"
-								label="Room ID"
-								value={object?.room_id}
-								type="number"
-								name='room_id'
-								onChange={(e) => setObject({ ...object, room_id: e.target.value })}
-								sx={{
-									cursor: 'text',
-									backgroundColor: "#3a3a3a",
-									borderRadius: 1,
-									'&& .MuiSelect-icon': {
-										color: 'white',
-									},
-									'&& .MuiInputBase-input': {
-										color: 'white',
-										WebkitTextFillColor: 'white',
-									},
-									'&& .MuiInputLabel-root': {
-										color: '#9e9e9e',
-									},
-								}}
-							/>
+
 							{category('Additional data')}
 							<TextareaAutosize
-								value={object?.description}
-								onChange={(e) => { setObject({ ...object, description: e.target.value }); }}
+								value={objectInstance?.data}
+								onChange={(e) => { setObjectInstance({ ...objectInstance, data: e.target.value }); }}
 								style={{ resize: 'none', backgroundColor: "#3a3a3a", color: 'white', }}
 							/>
 
@@ -193,10 +161,10 @@ export default function Room({ }) {
 									</Button>
 								)}
 								<Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-									<DialogTitle>Confirm deletion</DialogTitle>
+									<DialogTitle>Confirm Insertion</DialogTitle>
 									<DialogContent>
 										<Typography>
-											A new Object will be created.
+											A new Object Instance will be created.
 										</Typography>
 									</DialogContent>
 									<DialogActions>

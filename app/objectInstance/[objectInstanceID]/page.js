@@ -21,7 +21,6 @@ export default function ObjectInstance({ }) {
 	const [isObjectInstanceValid, setisObjectInstanceValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
 	const [objectInstanceData, setObjectInstanceData] = useState(null); // to store the objectInstance data from the API call
-	const [objectTypes, setObjectTypes] = useState(null);
 	const [self, setSelf] = useState(null); // logged in objectInstance data
 	const [editable, setEditable] = useState(false);
 
@@ -36,7 +35,6 @@ export default function ObjectInstance({ }) {
 
 	useEffect(() => {
 		getObjectData();
-		getObjects();
 		getSelf();
 	}, [objectInstanceID]);
 
@@ -52,7 +50,6 @@ export default function ObjectInstance({ }) {
 			}
 
 			const data = await response.json();
-			console.log("object instance data", data);
 			setisObjectInstanceValid(data.instance !== null); // remains false if no data is returned and keeps showing the error message
 			setObjectInstanceData(data.instance); // set the object instance data to the state
 
@@ -80,27 +77,6 @@ export default function ObjectInstance({ }) {
 			}
 		} catch (error) {
 			toast.error("Cannot get current user's data : " + error.message);
-		}
-	}
-
-	async function getObjects() {
-		try {
-			const response = await fetch(`/api/objects/getObjects`, {
-				method: "GET"
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Unknown error");
-			}
-
-			const data = await response.json();
-			console.log("all objects", data);
-			setObjectTypes(data.objects); // set the filtered object instance data to the state
-		} catch (error) {
-			toast.error("Error while fetching object instance data : " + error.message);
-		} finally {
-			setLoading(false);
 		}
 	}
 
@@ -181,55 +157,9 @@ export default function ObjectInstance({ }) {
 								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
 										{category('Information')}
-										<TextField
-											size="small"
-											disabled={!editable}
-											label="Object Type"
-											value={objectInstanceData?.type_Object}
-											select
-											name='type_Object'
-											onChange={(e) => setObjectInstanceData({ ...objectInstanceData, type_Object: e.target.value })}
-											sx={{
-												cursor: editable ? 'text' : 'not-allowed',
-												backgroundColor: "#3a3a3a",
-												borderRadius: 1,
-												'&& .MuiInputBase-input': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .MuiInputLabel-root': {
-													color: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .Mui-disabled': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												}
-											}}
-											slotProps={{
-												input: {
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e',
-															WebkitTextFillColor: '#9e9e9e',
-														}
-													}
-												},
-												inputLabel: {
-													shrink: true,
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e !important',
-														}
-													}
-												}
-											}}
-										>
-											{Array.isArray(objectTypes) && objectTypes.map((objectType) => (
-												<MenuItem key={objectType.type} value={objectType.type}>
-													{objectType.type}
-												</MenuItem>
-											))}
-										</TextField>
+										<Box>
+											{fieldName('Object type', objectInstanceData?.type_Object)}
+										</Box>
 										{category('Additional data')}
 										<TextareaAutosize
 											value={JSON.stringify(objectInstanceData?.data || {}, null, 2)}
@@ -244,9 +174,6 @@ export default function ObjectInstance({ }) {
 								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
 										{category('Information')}
-										<Box>
-											{fieldName('Object type', objectInstanceData?.type_Object)}
-										</Box>
 										<Box>
 											{category('Additional data')}
 											{Object.entries(objectInstanceData.data).map(([key, value]) => (
