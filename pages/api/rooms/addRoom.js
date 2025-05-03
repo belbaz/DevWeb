@@ -11,7 +11,6 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Get user from request
         const user = await getUserFromRequest(req);
         if (!user) {
             return res.status(401).json({ error: 'User not authenticated' });
@@ -23,12 +22,11 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Access denied: room creation not allowed' });
         }
 
-        // Extract data from request body
-        const { name, floor, levelAcces = 'debutant', roomtype } = req.body;
+        const { name, floor, levelAcces = 'debutant', roomtype } = JSON.parse(req.body);
 
-        // Validate required fields
-        if (!name || typeof floor !== 'number' || !roomtype) {
-            return res.status(400).json({ error: 'Missing required fields: name, floor, roomtype' });
+        // Vérification des champs obligatoires
+        if (!name || isNaN(floor) || !roomtype) {
+            return res.status(400).json({ error: 'Champs obligatoires manquants ou invalides ' + name + " " + floor + " " + roomtype });
         }
 
         // Get the highest existing ID to generate a new one
@@ -63,10 +61,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Supabase error', details: error.message });
         }
 
-        // Log the creation action
-        await logAction(idf, "addRoom");
-
-        // Return created room
+        await logAction(user.pseudo, "addRoom");
         return res.status(201).json({ created: data });
 
     } catch (err) {

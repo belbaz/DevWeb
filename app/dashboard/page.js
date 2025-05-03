@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import ObjectsStats from '../../components/dashboard/ObjectsStats';
 import ObjectsPanel from '../../components/dashboard/ObjectsPanel';
@@ -77,19 +78,19 @@ export default function Dashboard() {
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data);
-        
+
         // Changer automatiquement l'onglet en fonction du type de résultat trouvé
         if (data.length > 0) {
           const firstResult = data[0];
           if (firstResult.type === "Objet" && permissions.readObject) {
             // Trouver l'index de l'onglet Objets
             const tabIndex = [
-              permissions.readObject, 
-              permissions.readData, 
-              permissions.readRoom, 
+              permissions.readObject,
+              permissions.readData,
+              permissions.readRoom,
               permissions.readData
             ].findIndex(p => p === true);
-            
+
             if (tabIndex >= 0) {
               setActiveTab(tabIndex);
             }
@@ -138,32 +139,32 @@ export default function Dashboard() {
 
       <div className="dashboard-panel dashboard-content-panel">
         <div className="tabs">
-          {permissions.readObject && 
-            <div 
+          {permissions.readObject &&
+            <div
               className={`tab ${activeTab === 0 ? 'tab-active' : ''}`}
               onClick={() => handleTabChange(0)}
             >
               Objects
             </div>
           }
-          {permissions.readData && 
-            <div 
+          {permissions.readData &&
+            <div
               className={`tab ${activeTab === 1 ? 'tab-active' : ''}`}
               onClick={() => handleTabChange(1)}
             >
               Data
             </div>
           }
-          {permissions.readRoom && 
-            <div 
+          {permissions.readRoom &&
+            <div
               className={`tab ${activeTab === 2 ? 'tab-active' : ''}`}
               onClick={() => handleTabChange(2)}
             >
               Rooms
             </div>
           }
-          {permissions.readData && 
-            <div 
+          {permissions.readData &&
+            <div
               className={`tab ${activeTab === 3 ? 'tab-active' : ''}`}
               onClick={() => handleTabChange(3)}
             >
@@ -173,34 +174,76 @@ export default function Dashboard() {
         </div>
 
         {/* Content based on selected tab */}
-        {activeTab === 0 && permissions.readObject && 
-          <ObjectsPanel 
-            permissions={permissions} 
-            searchQuery={searchQuery} 
-            searchResults={searchResults} 
-          />
-        }
-        {activeTab === 1 && permissions.readData && 
-          <DataPanel 
-            permissions={permissions} 
+        {activeTab === 0 && permissions.readObject &&
+          <ObjectsPanel
+            permissions={permissions}
             searchQuery={searchQuery}
             searchResults={searchResults}
           />
         }
-        {activeTab === 2 && permissions.readRoom && 
-          <RoomsPanel 
-            permissions={permissions} 
+        {activeTab === 1 && permissions.readData &&
+          <DataPanel
+            permissions={permissions}
             searchQuery={searchQuery}
             searchResults={searchResults}
           />
         }
-        {activeTab === 3 && permissions.readData && 
-          <HistoryPanel 
-            permissions={permissions} 
+        {activeTab === 2 && permissions.readRoom &&
+          <RoomsPanel
+            permissions={permissions}
             searchQuery={searchQuery}
             searchResults={searchResults}
           />
         }
+        {activeTab === 3 && permissions.readData &&
+          <HistoryPanel
+            permissions={permissions}
+            searchQuery={searchQuery}
+            searchResults={searchResults}
+          />
+        }
+      </div>
+      <div>
+        {user?.level == 'expert' ? (
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+            <Button
+              onClick={() => router.push("/room/new")}
+              color="success"
+              variant="contained"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#4caf50',
+                },
+              }}
+            >
+              Insert Room
+            </Button>
+            <Button
+              onClick={() => router.push("/object/new")}
+              color="success"
+              variant="contained"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#4caf50',
+                },
+              }}
+            >
+              Insert Object
+            </Button>
+            <Button
+              onClick={() => router.push("/objectInstance/new")}
+              color="success"
+              variant="contained"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#4caf50',
+                },
+              }}
+            >
+              Insert Object Instance
+            </Button>
+          </Box>
+        ) : null}
       </div>
     </div>
   );
