@@ -59,10 +59,18 @@ export default function ExpoInstancePage() {
                     </select>
                 </div>
 
+                {availability.includes("tickets available") && (
+                    <div className="purchase-button-wrapper">
+                        <button className="purchase-button">Purchase</button>
+                    </div>
+                )}
+
                 <div>
                     Status : <strong>{availability}</strong>
                 </div>
             </div>
+
+
 
             <div className="expo-instance-details-vertical">
                 <div className="expo-poster-centered">

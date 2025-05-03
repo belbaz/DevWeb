@@ -13,6 +13,7 @@
     align-items: center;
     flex-wrap: wrap;
     font-size: 1.5rem;
+    padding: 1rem;
 }
 
 .expo-instance-header select {
@@ -76,3 +77,25 @@
     color: rgba(255, 255, 255, 0.9);
     white-space: pre-line;
 }
+
+
+
+.purchase-button-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.purchase-button {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding : 1rem;
+    border-radius: 0px;
+    font-weight: bold;
+}
+
+
