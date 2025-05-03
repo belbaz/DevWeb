@@ -3,7 +3,7 @@ import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 export default async function handler(req, res) {
-    const {id} = req.query;
+    const { id } = req.query;
 
     if (req.method !== 'PUT') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -11,8 +11,8 @@ export default async function handler(req, res) {
 
     try {
         const user = await getUserFromRequest(req);
-        if (!user || !user.id) {
-            return res.status(401).json({ error: 'User not authenticated or missing ID' });
+        if (!user) {
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
         const { permissions } = getUserPermissions(user.points || 0);
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing or invalid JSON payload' });
         }
 
-        // Get previous state
+        // Récupération de l'état précédent
         const { data: oldState, error: fetchError } = await supabaseClient
             .from('ObjectData')
             .select('data')
@@ -40,13 +40,18 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Error fetching current data', details: fetchError.message });
         }
 
-        // Insert into history table
+        // Historisation dans ObjectDataHistory
+        const updatedByValue = user.id ?? user.pseudo;
+        if (!updatedByValue) {
+            return res.status(500).json({ error: 'Cannot determine updatedBy value' });
+        }
+
         const { error: insertError } = await supabaseClient
             .from('ObjectDataHistory')
             .insert([{
                 object_data_id: parseInt(id, 10),
                 old_data: oldState.data,
-                updatedBy: user.id, // <- REQUIRES `id` to be selected in getUserFromRequest
+                updatedBy: updatedByValue,
                 updated_at: new Date().toISOString()
             }]);
 
@@ -54,7 +59,7 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Error inserting into history', details: insertError.message });
         }
 
-        // Update the new data
+        // Mise à jour de l'objet
         const { data: updatedData, error: updateError } = await supabaseClient
             .from('ObjectData')
             .update({ data: jsonData, updated_at: new Date().toISOString() })
