@@ -276,13 +276,6 @@
     gap: var(--spacing-sm);
   }
   
-  /* S'assurer que l'icône utilisateur et le hamburger sont bien alignés */
-  .MuiBox-root {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-  }
-  
   /* Ajuster la taille de l'avatar en mode mobile */
   .MuiAvatar-root {
     width: 32px !important;
