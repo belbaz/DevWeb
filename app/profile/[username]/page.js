@@ -174,7 +174,11 @@ export default function Profile({ }) {
 		try {
 			const response = await fetch("/api/user/deleteAccount", {
 				method: "DELETE",
-				credentials: "include"
+				credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ userToDelete: username })
 			});
 
 			if (response.ok) {
