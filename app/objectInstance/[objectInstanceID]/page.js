@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from '@mui/material';
+import { Button, MenuItem } from '@mui/material';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -20,6 +21,7 @@ export default function ObjectInstance({ }) {
 	const [isObjectInstanceValid, setisObjectInstanceValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
 	const [objectInstanceData, setObjectInstanceData] = useState(null); // to store the objectInstance data from the API call
+	const [objectTypes, setObjectTypes] = useState(null);
 	const [self, setSelf] = useState(null); // logged in objectInstance data
 	const [editable, setEditable] = useState(false);
 
@@ -33,11 +35,12 @@ export default function ObjectInstance({ }) {
 	}
 
 	useEffect(() => {
-		getObjectInstance();
+		getObjectData();
+		getObjects();
 		getSelf();
 	}, [objectInstanceID]);
 
-	async function getObjectInstance() {
+	async function getObjectData() {
 		try {
 			const response = await fetch(`/api/objectData/getDatasByInstance?id=${encodeURIComponent(objectInstanceID)}`, {
 				method: "GET"
@@ -49,7 +52,7 @@ export default function ObjectInstance({ }) {
 			}
 
 			const data = await response.json();
-			console.log("objectInstanceData", data);
+			console.log("object instance data", data);
 			setisObjectInstanceValid(data.instance !== null); // remains false if no data is returned and keeps showing the error message
 			setObjectInstanceData(data.instance); // set the object instance data to the state
 
@@ -68,7 +71,7 @@ export default function ObjectInstance({ }) {
 			});
 			const data = await response.json();
 			if (response.ok) {
-				setSelf(data);
+				setSelf({ ...data, level: 'expert' });
 			} else {
 				if (data.invalidToken) console.log("invalid token");
 				else if (data.noToken) console.log("No token provided");
@@ -79,6 +82,50 @@ export default function ObjectInstance({ }) {
 			toast.error("Cannot get current user's data : " + error.message);
 		}
 	}
+
+	async function getObjects() {
+		try {
+			const response = await fetch(`/api/objects/getObjects`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			console.log("all objects", data);
+			setObjectTypes(data.objects); // set the filtered object instance data to the state
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	async function updateObjectData() {
+		try {
+			const response = await fetch(`/api/objectData/updateObjectData?id=${encodeURIComponent(objectInstanceData.id)}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					data: objectInstanceData.data,
+					type_Object: objectInstanceData.type_Object
+				}),
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success(" object data updated successfully");
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while updating object data");
+			}
+		} catch (error) {
+			toast.error("Error while updating  object data " + error);
+		} finally { getSelf(); getObjectData(); }
+	};
 
 	return (
 		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
@@ -126,7 +173,7 @@ export default function ObjectInstance({ }) {
 					) : (
 						<Box>
 							<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
-								Object instance {objectInstanceData?.id}
+								Object instance
 							</Typography>
 
 
@@ -176,7 +223,13 @@ export default function ObjectInstance({ }) {
 													}
 												}
 											}}
-										/>
+										>
+											{Array.isArray(objectTypes) && objectTypes.map((objectType) => (
+												<MenuItem key={objectType.type} value={objectType.type}>
+													{objectType.type}
+												</MenuItem>
+											))}
+										</TextField>
 										{category('Additional data')}
 										<TextareaAutosize
 											value={JSON.stringify(objectInstanceData?.data || {}, null, 2)}
@@ -192,16 +245,14 @@ export default function ObjectInstance({ }) {
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
 										{category('Information')}
 										<Box>
-											{fieldName('Battery level', objectInstanceData?.type_Object)}
+											{fieldName('Object type', objectInstanceData?.type_Object)}
 										</Box>
-										{['intermediaire', 'avance', 'expert'].includes(self?.level) ? (
-											<Box>
-												{category('Additional data')}
-												{Object.entries(objectInstanceData.data).map(([key, value]) => (
-													<Box>{fieldName(key, value)}</Box>
-												))}
-											</Box>
-										) : null}
+										<Box>
+											{category('Additional data')}
+											{Object.entries(objectInstanceData.data).map(([key, value]) => (
+												<Box>{fieldName(key, value)}</Box>
+											))}
+										</Box>
 									</Box>
 								</Box>
 							)}
@@ -215,7 +266,7 @@ export default function ObjectInstance({ }) {
 								display: 'flex',
 								justifyContent: 'flex-end',
 							}}>
-							< EditState setEditable={(x) => { setEditable(x) }} />
+							< EditState setEditable={(x) => { setEditable(x) }} onCancel={() => getObjectData()} onConfirm={() => { updateObjectData() }} />
 						</Box>
 					) : null}
 				</Box>
