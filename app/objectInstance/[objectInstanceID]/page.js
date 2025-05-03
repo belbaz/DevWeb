@@ -18,9 +18,10 @@ export default function ObjectInstance({ }) {
 	const [isObjectInstanceValid, setisObjectInstanceValid] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [objectInstanceData, setObjectInstanceData] = useState(null);
+	const [rawJsonInput, setRawJsonInput] = useState('');
 	const [self, setSelf] = useState(null);
 	const [editable, setEditable] = useState(false);
-	const [instanceIndex, setInstanceIndex] = useState(null); // AJOUT
+	const [instanceIndex, setInstanceIndex] = useState(null);
 
 	const params = useParams();
 	const router = useRouter();
@@ -41,9 +42,7 @@ export default function ObjectInstance({ }) {
 			try {
 				const all = await fetch('/api/objectData/listAllDatas');
 				const { objectData } = await all.json();
-
 				if (objectInstanceData?.id && objectData?.length > 0) {
-					// ✅ Filtrer par type_Object avant calcul
 					const sameTypeObjects = objectData.filter(o => o.type_Object === objectInstanceData.type_Object);
 					const index = sameTypeObjects.findIndex(o => o.id === objectInstanceData.id);
 					setInstanceIndex(index + 1);
@@ -57,7 +56,6 @@ export default function ObjectInstance({ }) {
 		}
 	}, [objectInstanceData]);
 
-
 	async function getObjectData() {
 		try {
 			const response = await fetch(`/api/objectData/getDatasByInstance?id=${encodeURIComponent(objectInstanceID)}`);
@@ -68,6 +66,7 @@ export default function ObjectInstance({ }) {
 			const data = await response.json();
 			setisObjectInstanceValid(data.instance !== null);
 			setObjectInstanceData(data.instance);
+			setRawJsonInput(JSON.stringify(data.instance?.data || {}, null, 2));
 		} catch (error) {
 			toast.error("Error while fetching object instance data : " + error.message);
 		} finally {
@@ -92,17 +91,25 @@ export default function ObjectInstance({ }) {
 
 	async function updateObjectData() {
 		try {
+			let parsed;
+			try {
+				parsed = JSON.parse(rawJsonInput);
+			} catch {
+				toast.error("Format JSON invalide");
+				return;
+			}
+
 			const response = await fetch(`/api/objectData/updateObjectData?id=${encodeURIComponent(objectInstanceData.id)}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					data: objectInstanceData.data,
+					data: parsed,
 					type_Object: objectInstanceData.type_Object
 				}),
 				credentials: "include"
 			});
 			if (response.ok) {
-				toast.success(" object data updated successfully");
+				toast.success("Object data updated successfully");
 			} else {
 				const data = await response.json();
 				toast.error(data.error || "Error while updating object data");
@@ -123,38 +130,19 @@ export default function ObjectInstance({ }) {
 					<div>{Rolling(50, 50, "#000000")}</div>
 				</Box>
 			) : (
-				<Box component="main" sx={{
-					width: { xs: '100vw', sm: '80vw' },
-					maxWidth: '1000px',
-					bgcolor: 'black',
-					borderRadius: 0,
-					boxShadow: 6,
-					p: 5,
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 3,
-				}}>
+				<Box component="main" sx={{ width: { xs: '100vw', sm: '80vw' }, maxWidth: '1000px', bgcolor: 'black', borderRadius: 0, boxShadow: 6, p: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
 					{!isObjectInstanceValid ? (
 						<Box>
 							<Typography variant="h1" align="center" sx={{ fontFamily: 'Cinzel, serif', color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
 								Object instance not found
 							</Typography>
-							<Button sx={{
-								mt: 2,
-								background: 'rgba(255, 255, 255, 0.2)',
-								color: 'white',
-								fontSize: '0.85rem',
-								fontFamily: 'var(--font-roboto)',
-							}} onClick={() => router.push('/')}>
-								return to home
-							</Button>
+							<Button sx={{ mt: 2, background: 'rgba(255, 255, 255, 0.2)', color: 'white', fontSize: '0.85rem', fontFamily: 'var(--font-roboto)' }} onClick={() => router.push('/')}>return to home</Button>
 						</Box>
 					) : (
 						<Box>
 							<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
 								{instanceIndex ? `${objectInstanceData?.type_Object} n°${instanceIndex}` : "Loading..."}
 							</Typography>
-
 							{['avance', 'expert'].includes(self?.level) ? (
 								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
@@ -162,9 +150,9 @@ export default function ObjectInstance({ }) {
 										<Box>{fieldName('Object type', objectInstanceData?.type_Object)}</Box>
 										{category('Datas')}
 										<TextareaAutosize
-											value={JSON.stringify(objectInstanceData?.data || {}, null, 2)}
+											value={editable ? rawJsonInput : JSON.stringify(objectInstanceData?.data || {}, null, 2)}
 											disabled={!editable}
-											onChange={(e) => { setObjectInstanceData(); }}
+											onChange={(e) => setRawJsonInput(e.target.value)}
 											style={{ resize: 'none', backgroundColor: "#3a3a3a", color: editable ? 'white' : '#9e9e9e' }}
 										/>
 									</Box>
@@ -184,7 +172,6 @@ export default function ObjectInstance({ }) {
 							)}
 						</Box>
 					)}
-
 					{['avance', 'expert'].includes(self?.level) && (
 						<Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 							<EditState setEditable={setEditable} onCancel={getObjectData} onConfirm={updateObjectData} />

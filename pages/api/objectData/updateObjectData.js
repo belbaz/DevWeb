@@ -15,6 +15,8 @@ function safeParseJson(data) {
     }
 }
 
+
+
 /**
  * API Route Handler (PUT only) for updating an ObjectData instance.
  * This route also logs the previous state into ObjectDataHistory.
@@ -60,7 +62,25 @@ export default async function handler(req, res) {
         }
 
         // Parse JSON body (can be stringified or direct JSON)
-        const jsonData = safeParseJson(req.body.data || req.body);
+        // 4. Parse and validate JSON body (supports stringified or direct object)
+        let parsedBody;
+        try {
+            parsedBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        } catch {
+            return res.status(400).json({ error: 'Invalid JSON format in body' });
+        }
+
+        const jsonData = safeParseJson(parsedBody.data ?? parsedBody);
+
+        if (!jsonData || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
+            return res.status(400).json({ error: 'Missing or invalid JSON payload' });
+        }
+
+
+        if (!jsonData || typeof jsonData !== 'object') {
+            return res.status(400).json({ error: 'Missing or invalid JSON payload' });
+        }
+
         if (!jsonData || typeof jsonData !== 'object') {
             return res.status(400).json({ error: 'Missing or invalid JSON payload' });
         }
