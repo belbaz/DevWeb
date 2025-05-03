@@ -11,37 +11,37 @@ import { getUserPermissions } from 'lib/getUserPermissions.js';
  * @returns {Object[]} List of objects in the room
  */
 export default async function handler(req, res) {
-    // Allow only GET method
+    // 1. Allow only GET method
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // 1. Authenticate user
+        // 2. Authenticate the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // 2. Check user permissions
+        // 3. Check if user has permission to read objects
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
             return res.status(403).json({ error: 'Access denied: reading objects not allowed' });
         }
 
-        // 3. Extract room ID from query string
+        // 4. Extract the room ID from the query string
         const roomId = req.query.id;
         if (!roomId) {
             return res.status(400).json({ error: 'Missing room ID in query string.' });
         }
 
-        // 4. Query Supabase for objects in the room
+        // 5. Query Supabase for objects associated with the room
         const { data, error } = await supabaseClient
             .from('Object')
             .select('*')
             .eq('room_id', roomId);
 
-        // 5. Handle Supabase error
+        // 6. Handle Supabase errors
         if (error) {
             console.error('Supabase error while fetching objects by room:', error.message);
             return res.status(500).json({
@@ -50,11 +50,11 @@ export default async function handler(req, res) {
             });
         }
 
-        // 6. Return the object list
+        // 7. Return the list of objects
         return res.status(200).json({ objects: data });
 
     } catch (err) {
-        // Handle unexpected server error
+        // 8. Handle unexpected server-side errors
         console.error('Unexpected server error in /rooms/objects:', err);
         return res.status(500).json({
             error: 'Unexpected server error',

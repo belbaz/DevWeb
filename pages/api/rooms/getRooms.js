@@ -2,33 +2,49 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// Handler to return a list of rooms with optional filters
+/**
+ * API Route Handler (GET only) to retrieve a list of rooms from the "Room" table,
+ * optionally filtered by floor, roomtype, and levelAcces.
+ *
+ * Workflow:
+ * 1. Accept GET method only
+ * 2. Authenticate the user
+ * 3. Check read permissions
+ * 4. Extract and apply optional filters (floor, roomtype, levelAcces)
+ * 5. Execute query and return result
+ *
+ * @route GET /api/rooms
+ * @queryParam {number} [floor] - Optional floor number filter
+ * @queryParam {string} [roomtype] - Optional room type filter (partial match)
+ * @queryParam {string} [levelAcces] - Optional access level filter
+ * @returns {Object[]} - List of filtered rooms or error
+ */
 export default async function handler(req, res) {
-    // Only allow GET requests
+    // 1. Only allow GET method
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Get user from request
+        // 2. Authenticate user
         const user = await getUserFromRequest(req);
         if (!user) {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Check user permissions
+        // 3. Check permission to read room data
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
             return res.status(403).json({ error: 'Access denied: reading rooms not allowed' });
         }
 
-        // Extract optional filters from URL
+        // 4. Extract filters from query parameters
         const { floor, roomtype, levelAcces } = req.query;
 
-        // Base Supabase query
+        // 5. Start Supabase query
         let query = supabaseClient.from('Room').select('*');
 
-        // Filter by floor (if valid)
+        // 6. Apply floor filter (if valid)
         if (floor !== undefined) {
             const parsedFloor = parseInt(floor, 10);
             if (!isNaN(parsedFloor)) {
@@ -36,20 +52,19 @@ export default async function handler(req, res) {
             }
         }
 
-        // Filter by room type
+        // 7. Apply roomtype filter (partial match, case-insensitive)
         if (roomtype) {
             query = query.ilike('roomtype', `%${roomtype}%`);
         }
 
-        // Filter by access level
+        // 8. Apply levelAcces filter (exact match)
         if (levelAcces) {
             query = query.eq('levelAcces', levelAcces);
         }
 
-        // Execute the query
+        // 9. Execute the query
         const { data, error } = await query;
 
-        // Handle Supabase error
         if (error) {
             console.error('Supabase error:', error.message);
             return res.status(500).json({
@@ -58,11 +73,11 @@ export default async function handler(req, res) {
             });
         }
 
-        // Return filtered rooms
+        // 10. Return filtered room list
         return res.status(200).json({ rooms: data });
 
     } catch (err) {
-        // Handle unexpected server error
+        // 11. Handle unexpected server-side errors
         console.error('Server error:', err);
         return res.status(500).json({
             error: 'Unexpected server error',

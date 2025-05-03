@@ -8,7 +8,7 @@ import { getUserFromRequest } from 'lib/getUserFromRequest.js';
  * API Route Handler (POST only) for inserting a new object data entry.
  *
  * Workflow:
- * 1. Verify HTTP method is POST
+ * 1. Verify HTTPS method is POST
  * 2. Authenticate user from request
  * 3. Check if user has permission to add data
  * 4. Validate presence of required fields (data, type_Object)
@@ -20,6 +20,7 @@ import { getUserFromRequest } from 'lib/getUserFromRequest.js';
  * @param {Object} res - HTTPS response object
  * @returns {Object} - JSON response with status and result or error
  */
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         // Only POST method is allowed
