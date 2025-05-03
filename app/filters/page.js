@@ -57,7 +57,7 @@ export default function FiltersPage() {
                 const roomsOnly = data.filter(item => item.type === "Pièce");
                 setFilteredRooms(roomsOnly);
             } catch (err) {
-                console.error("Erreur lors du fetch :", err);
+                console.error("Fetch error:", err); // <-- Message d'erreur traduit
                 setFilteredRooms([]);
             }
         };
@@ -78,61 +78,59 @@ export default function FiltersPage() {
                 Advanced Search
             </Typography>
 
-            <Box textAlign="center">
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                    Filter by Floor
+            <Box textAlign="center" sx={{ mb: 3 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
+                    Floor
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                    {availableFloors.map((floor) => (
+                        <FormControlLabel
+                            key={floor}
+                            control={
+                                <Checkbox
+                                    checked={selectedFloors.includes(floor)}
+                                    onChange={() => toggleFloor(floor)}
+                                    sx={{
+                                        color: 'white',
+                                        '&.Mui-checked': {
+                                            color: 'white',
+                                        },
+                                    }}
+                                />
+                            }
+                            label={floor === 0 ? "Ground floor" : `Floor ${floor}`}
+                            sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
+                        />
+                    ))}
+                </Box>
             </Box>
 
-            <FormGroup row sx={{ justifyContent: "center", mb: 2 }}>
-                {availableFloors.map((floor) => (
-                    <FormControlLabel
-                        key={floor}
-                        control={
-                            <Checkbox
-                                checked={selectedFloors.includes(floor)}
-                                onChange={() => toggleFloor(floor)}
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-checked': {
-                                        color: 'white',
-                                    },
-                                }}
-                            />
-                        }
-                        label={floor === 0 ? "Ground floor" : `Floor ${floor}`}
-                        sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}
-                    />
-                ))}
-            </FormGroup>
-
-            <Box textAlign="center">
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                    Filter by Room Type
+            <Box textAlign="center" sx={{ mb: 4 }}>
+                <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
+                    Room Type
                 </Typography>
-            </Box>
-
-            <FormGroup row sx={{ justifyContent: "center", mb: 4 }}>
-                {availableRoomTypes.map((type) => (
-                    <FormControlLabel
-                        key={type}
-                        control={
-                            <Checkbox
-                                checked={selectedRoomTypes.includes(type)}
-                                onChange={() => toggleRoomType(type)}
-                                sx={{
-                                    color: 'white',
-                                    '&.Mui-checked': {
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                    {availableRoomTypes.map((type) => (
+                        <FormControlLabel
+                            key={type}
+                            control={
+                                <Checkbox
+                                    checked={selectedRoomTypes.includes(type)}
+                                    onChange={() => toggleRoomType(type)}
+                                    sx={{
                                         color: 'white',
-                                    },
-                                }}
-                            />
-                        }
-                        label={type}
-                        sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}
-                    />
-                ))}
-            </FormGroup>
+                                        '&.Mui-checked': {
+                                            color: 'white',
+                                        },
+                                    }}
+                                />
+                            }
+                            label={type}
+                            sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
+                        />
+                    ))}
+                </Box>
+            </Box>
 
             <Button
                 variant="text"
@@ -185,6 +183,5 @@ export default function FiltersPage() {
                 )}
             </Box>
         </Box>
-
     );
 }

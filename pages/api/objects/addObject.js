@@ -1,67 +1,70 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import {logAction} from "lib/logAction";
+import { logAction } from 'lib/logAction';
 
-// Handler pour traiter une requête POST (création d’un nouvel objet)
+// Handler to process a POST request (create a new object)
 export default async function handler(req, res) {
-    // Refuse toute méthode autre que POST
+    // Reject any method other than POST
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Récupération de l'utilisateur à partir de la requête
+        // Get the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie si l'utilisateur a le droit de créer un objet
+        // Check if the user has permission to add a new object
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.addObject) {
-            return res.status(403).json({ error: 'Accès refusé : création non autorisée' });
+            return res.status(403).json({ error: 'Access denied: creation not allowed' });
         }
 
-        // Récupère les données du nouvel objet depuis le corps de la requête
+        // Extract the new object data from the request body
         const newObject = req.body;
 
-        // Cherche l'ID existant le plus élevé pour créer un nouvel ID
+        // Find the highest existing ID to determine the new ID
         const { data: maxData, error: maxError } = await supabaseClient
             .from('Object')
             .select('id')
             .order('id', { ascending: false })
             .limit(1);
 
-        // Gestion des erreurs lors de la récupération du max ID
+        // Handle error when retrieving max ID
         if (maxError) {
-            console.error('Erreur récupération max ID :', maxError);
-            return res.status(500).json({ error: 'Erreur récupération ID', details: maxError.message });
+            console.error('Error retrieving max ID:', maxError);
+            return res.status(500).json({ error: 'Failed to retrieve ID', details: maxError.message });
         }
 
-        const maxId = maxData?.[0]?.id || 0; // Prend l'ID maximum trouvé ou 0
-        const newId = maxId + 1; // Définit l'ID du nouvel objet
+        const maxId = maxData?.[0]?.id || 0; // Use max ID or default to 0
+        const newId = maxId + 1; // Set new ID
 
-        // Insère le nouvel objet dans Supabase avec le nouvel ID
+        // Insert the new object into Supabase with the new ID
         const { data, error } = await supabaseClient
             .from('Object')
             .insert([{ id: newId, ...newObject }])
             .select();
 
-        // Gestion des erreurs lors de l'insertion
+        // Handle insertion error
         if (error) {
-            console.error('Erreur création objet :', error);
+            console.error('Object creation error:', error);
             return res.status(500).json({
-                error: 'Erreur Supabase',
+                error: 'Supabase error',
                 details: error.message,
             });
         }
-        await logAction(idf,"addObject");
-        // Retourne l'objet créé
+
+        // Log the action (missing variable 'idf' is assumed to be defined)
+        await logAction(idf, "addObject");
+
+        // Return the created object
         return res.status(201).json({ created: data });
     } catch (err) {
-        // Gestion des erreurs inattendues
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        // Handle unexpected server errors
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

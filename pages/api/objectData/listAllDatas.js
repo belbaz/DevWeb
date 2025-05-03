@@ -2,44 +2,46 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// RENVOIE LA LISTE DE TOUTES LES INSTANCES DE DONNÉES (ObjectData)
+// RETURNS THE LIST OF ALL OBJECTDATA INSTANCES
 
 export default async function handler(req, res) {
-    // Vérifie que la méthode est bien GET
+    // Ensure the method is GET
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Récupère l'utilisateur
+        // Get the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie les permissions de lecture
+        // Check if the user has permission to read data
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readData) {
-            return res.status(403).json({ error: 'Accès refusé : lecture non autorisée' });
+            return res.status(403).json({ error: 'Access denied: reading not allowed' });
         }
 
-        // Requête Supabase pour récupérer toutes les données
+        // Query Supabase to get all data from ObjectData
         const { data, error } = await supabaseClient
             .from('ObjectData')
             .select('*');
 
         if (error) {
-            console.error('Erreur Supabase :', error.message);
+            console.error('Supabase error:', error.message);
             return res.status(500).json({
-                error: 'Erreur lors de la récupération des données',
+                error: 'Error fetching data',
                 details: error.message,
             });
         }
 
+        // Return the full list of object data
         return res.status(200).json({ objectData: data });
 
     } catch (err) {
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        // Handle unexpected server errors
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

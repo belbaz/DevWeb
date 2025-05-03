@@ -1,56 +1,59 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import {logAction} from "lib/logAction";
+import { logAction } from 'lib/logAction';
 
-// Handler pour traiter une requête DELETE (suppression d’un objet)
+// Handler to process a DELETE request (delete an object)
 export default async function handler(req, res) {
-    const { id } = req.query; // Récupération de l'ID de l'objet à supprimer
+    const { id } = req.query; // Get the object ID from the URL
 
-    // Refuse toute méthode autre que DELETE
+    // Reject any method other than DELETE
     if (req.method !== 'DELETE') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Vérifie que l'ID est présent
+    // Ensure object ID is provided
     if (!id) {
-        return res.status(400).json({ error: 'ID d’objet manquant dans l’URL' });
+        return res.status(400).json({ error: 'Missing object ID in the URL' });
     }
 
     try {
-        // Récupération de l'utilisateur à partir de la requête
+        // Get the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie si l'utilisateur a la permission de supprimer un objet
+        // Check if user has permission to delete the object
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.deleteObject) {
-            return res.status(403).json({ error: 'Accès refusé : suppression non autorisée' });
+            return res.status(403).json({ error: 'Access denied: deletion not allowed' });
         }
 
-        // Supprime l'objet correspondant dans Supabase
+        // Delete the object from the 'Object' table in Supabase
         const { data, error } = await supabaseClient
             .from('Object')
             .delete()
             .eq('id', id)
             .select();
 
-        // Gestion des erreurs de suppression
+        // Handle Supabase errors
         if (error) {
-            console.error('Erreur suppression objet :', error);
+            console.error('Error deleting object:', error);
             return res.status(500).json({
-                error: 'Erreur Supabase',
+                error: 'Supabase error',
                 details: error.message,
             });
         }
-        await logAction(idf,"deleteObject");
-        // Renvoie l'objet supprimé
+
+        // Log the action (⚠️ 'idf' is not defined in the code)
+        await logAction(idf, "deleteObject");
+
+        // Return the deleted object data
         return res.status(200).json({ deleted: data });
     } catch (err) {
-        // Gestion des erreurs inattendues
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        // Handle unexpected server-side errors
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

@@ -2,31 +2,35 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// CRÉE UNE NOUVELLE INSTANCE DE DONNÉE (ObjectData)
+// CREATE A NEW OBJECT DATA ENTRY
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        // Only POST method is allowed
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
+        // Get the user from the request (authentication)
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
+        // Check if the user has permission to add data
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.addData) {
-            return res.status(403).json({ error: 'Accès refusé : création non autorisée' });
+            return res.status(403).json({ error: 'Access denied: creation not allowed' });
         }
 
         const { data, type_Object } = req.body;
 
+        // Check if required fields are present
         if (!data || !type_Object) {
-            return res.status(400).json({ error: 'Champs requis manquants : data et type_Object' });
+            return res.status(400).json({ error: 'Missing required fields: data and type_Object' });
         }
 
-        // Récupère l’ID le plus élevé existant dans ObjectData
+        // Get the highest existing ID in ObjectData
         const { data: maxData, error: maxError } = await supabaseClient
             .from('ObjectData')
             .select('id')
@@ -34,14 +38,14 @@ export default async function handler(req, res) {
             .limit(1);
 
         if (maxError) {
-            console.error('Erreur récupération max ID :', maxError);
-            return res.status(500).json({ error: 'Erreur récupération ID', details: maxError.message });
+            console.error('Error getting max ID:', maxError);
+            return res.status(500).json({ error: 'Failed to get max ID', details: maxError.message });
         }
 
         const maxId = maxData?.[0]?.id || 0;
         const newId = maxId + 1;
 
-        // Insertion dans Supabase avec ID manuel
+        // Insert the new entry into Supabase with the manual ID
         const { data: insertedData, error } = await supabaseClient
             .from('ObjectData')
             .insert([{ id: newId, data, type_Object }])
@@ -49,17 +53,19 @@ export default async function handler(req, res) {
             .single();
 
         if (error) {
-            console.error('Erreur Supabase :', error.message);
+            console.error('Supabase error:', error.message);
             return res.status(500).json({
-                error: 'Erreur lors de la création de la donnée',
+                error: 'Error creating data',
                 details: error.message,
             });
         }
 
+        // Return the newly created data
         return res.status(201).json({ created: insertedData });
 
     } catch (err) {
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        // Catch any unexpected server errors
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

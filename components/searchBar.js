@@ -22,11 +22,11 @@ export default function SearchBar({ showFiltersButton = true }) {
     const fetchSuggestions = async (value) => {
         try {
             const res = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
-            if (!res.ok) throw new Error("Erreur API");
+            if (!res.ok) throw new Error("API error");
             const data = await res.json();
             setSuggestions(data);
         } catch (err) {
-            console.error("Erreur API :", err);
+            console.error("API error:", err);
             setSuggestions([]);
         }
     };
@@ -165,7 +165,7 @@ export default function SearchBar({ showFiltersButton = true }) {
                             },
                         }}
                     >
-                        + de filtres
+                        more filters
                     </Button>
                 )}
             </Box>
@@ -185,7 +185,6 @@ export default function SearchBar({ showFiltersButton = true }) {
                         maxHeight: "240px",
                         overflow: "hidden",
                         boxSizing: "border-box",
-                        // Dégradé visuel de bas de liste pour suggérer le scroll
                         maskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
                         WebkitMaskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
                     }}
@@ -195,7 +194,7 @@ export default function SearchBar({ showFiltersButton = true }) {
                         sx={{
                             overflowY: "auto",
                             maxHeight: "240px",
-                            pr: 1, // petit padding droit pour éviter le masquage par scrollbar
+                            pr: 1,
                         }}
                     >
                         {suggestions.map((item, index) => {
@@ -221,12 +220,12 @@ export default function SearchBar({ showFiltersButton = true }) {
                                 >
                                     {item.type === "Utilisateur" ? (
                                         <>
-                                <span style={{ fontWeight: "bold" }}>
-                                    {cleanedName}
-                                </span>
+                                            <span style={{ fontWeight: "bold" }}>
+                                                {cleanedName}
+                                            </span>
                                             <span style={{ fontSize: "0.75rem", fontStyle: "italic", color: "rgba(255,255,255,0.7)" }}>
-                                    {item.pseudo.replace(/[()]/g, "")}
-                                </span>
+                                                {item.pseudo.replace(/[()]/g, "")}
+                                            </span>
                                         </>
                                     ) : (
                                         <span>{cleanedName}</span>
@@ -237,7 +236,6 @@ export default function SearchBar({ showFiltersButton = true }) {
                     </Box>
                 </Box>
             )}
-
         </>
     );
 }

@@ -2,49 +2,49 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// RENVOIE LA LISTE DE TOUS LES TyPES D'OBJETS
+// RETURNS THE LIST OF ALL OBJECT TYPES
 
 export default async function handler(req, res) {
-    // Refus si la méthode n'est pas GET
+    // Reject if the method is not GET
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Récupération de l'utilisateur depuis la requête
+        // Retrieve the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérification des permissions
+        // Check user permissions
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
-            return res.status(403).json({ error: 'Accès refusé : lecture des objets non autorisée' });
+            return res.status(403).json({ error: 'Access denied: object reading not allowed' });
         }
 
-        // Lecture des objets dans la base Supabase
+        // Read objects from the Supabase database
         const { data, error } = await supabaseClient
             .from('Object')
             .select('*');
 
-        // Erreur côté Supabase
+        // Handle Supabase error
         if (error) {
-            console.error('Erreur Supabase :', error.message);
+            console.error('Supabase error:', error.message);
             return res.status(500).json({
-                error: 'Erreur lors de la récupération des objets',
+                error: 'Error while fetching objects',
                 details: error.message,
             });
         }
 
-        // On renvoie les objets récupérés
+        // Return the retrieved objects
         return res.status(200).json({ objects: data });
 
     } catch (err) {
-        // Erreurs serveur
-        console.error('Erreur serveur :', err);
+        // Server-side errors
+        console.error('Server error:', err);
         return res.status(500).json({
-            error: 'Erreur serveur inattendue',
+            error: 'Unexpected server error',
             details: err.message,
         });
     }

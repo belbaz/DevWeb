@@ -46,7 +46,6 @@ export default async function handler(req, res) {
             pseudo: u.pseudo
         }));
 
-
         results.push(...formattedUsers);
     }
 

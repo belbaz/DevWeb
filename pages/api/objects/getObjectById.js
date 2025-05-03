@@ -2,53 +2,53 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// RENVOIE QU'UN SEUL OBJET EN FONCTION DE SON ID
+// RETURNS A SINGLE OBJECT BASED ON ITS ID
 
-// Fonction handler pour traiter une requête GET
+// Handler function to process a GET request
 export default async function handler(req, res) {
-    // Refuse toute méthode autre que GET
+    // Reject any method other than GET
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        // Récupère l'utilisateur à partir de la requête
+        // Retrieve the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie si l'utilisateur a le droit de lire un objet
+        // Check if the user has permission to read an object
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
-            return res.status(403).json({ error: 'Accès refusé : lecture non autorisée' });
+            return res.status(403).json({ error: 'Access denied: reading not allowed' });
         }
 
-        // Vérifie que l'ID de l'objet est bien présent dans la requête
+        // Check that the object ID is present in the request
         const { id } = req.query;
         if (!id) {
-            return res.status(400).json({ error: 'ID manquant dans la requête' });
+            return res.status(400).json({ error: 'Missing ID in the request' });
         }
 
-        // Récupère l'objet correspondant dans la base de données Supabase
+        // Retrieve the object from the Supabase database
         const { data, error } = await supabaseClient
             .from('Object')
             .select('*')
             .eq('id', id)
             .single();
 
-        // Gestion des erreurs Supabase
+        // Handle Supabase errors
         if (error) {
-            console.error('Erreur Supabase :', error.message);
-            return res.status(500).json({ error: 'Erreur lors de la récupération', details: error.message });
+            console.error('Supabase error:', error.message);
+            return res.status(500).json({ error: 'Error retrieving object', details: error.message });
         }
 
-        // Renvoie l'objet trouvé
+        // Return the found object
         return res.status(200).json({ object: data });
 
     } catch (err) {
-        // Gestion des erreurs générales
-        console.error('Erreur serveur :', err.message);
-        return res.status(500).json({ error: 'Erreur serveur', details: err.message });
+        // Handle general server errors
+        console.error('Server error:', err.message);
+        return res.status(500).json({ error: 'Server error', details: err.message });
     }
 }
