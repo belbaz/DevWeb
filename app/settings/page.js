@@ -45,27 +45,27 @@ export default function Settings() {
                     method: "POST",
                     credentials: "include"
                 });
-                
+
                 if (!authCheck.ok) {
                     router.push("/login");
                     return;
                 }
-                
+
                 const authData = await authCheck.json();
-                
+
                 // 2. Récupérer les données complètes du profil avec getUserProfil (plus approprié pour la page profil)
                 const profilResponse = await fetch(`/api/user/getUserProfil?pseudo=${authData.pseudo}`, {
                     method: "GET",
                     credentials: "include"
                 });
-                
+
                 if (!profilResponse.ok) {
                     console.error("Error fetching user profile:", await profilResponse.text());
                     return;
                 }
-                
+
                 const profilData = await profilResponse.json();
-                
+
                 // Debug: Vérifions les données utilisateur reçues de getUserProfil
                 console.log("Données utilisateur reçues de getUserProfil:", {
                     data: profilData.data,
@@ -73,7 +73,7 @@ export default function Settings() {
                     level: profilData.data.level,
                     role: profilData.data.role
                 });
-                
+
                 // Utiliser les données du profil, avec fallback sur les données d'authentification si nécessaire
                 const userData = {
                     ...profilData.data,
@@ -84,13 +84,13 @@ export default function Settings() {
                     // Pour gérer le problème des points
                     point: profilData.data.points, // getUserProfil utilise 'points'
                 };
-                
+
                 setUserData(userData);
-                
+
                 // Récupérer les permissions en utilisant le niveau stocké en base de données
                 // et non plus en utilisant un calcul basé sur les points
                 const userLevel = userData.level || 'debutant'; // Fallback sur 'debutant' si pas de niveau
-                
+
                 const permissionsResponse = await fetch(`/api/user/getUserPermissions?level=${userLevel}`, {
                     method: "GET",
                     credentials: "include",
@@ -131,7 +131,7 @@ export default function Settings() {
             toast.error("Passwords do not match");
             return;
         }
-        
+
         if (newPassword.length < 8) {
             toast.error("Password must be at least 8 characters long");
             return;
@@ -215,9 +215,9 @@ export default function Settings() {
                 <div style={{ gridColumn: 'span 12' }}>
                     <div className="card settings-actions-card">
                         <h2 className="card-title">Account Actions</h2>
-                        
+
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <button 
+                            <button
                                 className="btn btn-primary"
                                 onClick={() => setOpenPasswordDialog(true)}
                             >
@@ -248,8 +248,8 @@ export default function Settings() {
             </div>
 
             {/* Password Change Dialog */}
-            <Dialog 
-                open={openPasswordDialog} 
+            <Dialog
+                open={openPasswordDialog}
                 onClose={() => setOpenPasswordDialog(false)}
                 PaperProps={{
                     className: 'modal',
@@ -270,7 +270,7 @@ export default function Settings() {
                         variant="filled"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        sx={{ 
+                        sx={{
                             mt: 2,
                             input: { color: 'white' },
                             label: { color: 'rgba(255, 255, 255, 0.7)' },
@@ -287,7 +287,7 @@ export default function Settings() {
                         variant="filled"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        sx={{ 
+                        sx={{
                             mt: 2,
                             input: { color: 'white' },
                             label: { color: 'rgba(255, 255, 255, 0.7)' },

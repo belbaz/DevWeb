@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -29,6 +29,7 @@ export default function Profile({ }) {
 	const [self, setSelf] = useState(null); // logged in user data
 
 	const [loading, setLoading] = useState(true);
+	const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 	const [editable, setEditable] = useState(false);
 	const [showPasswordInput, setShowPasswordInput] = useState(false);
 	const [password, setPassword] = useState(false);
@@ -43,32 +44,32 @@ export default function Profile({ }) {
 	}
 
 	useEffect(() => {
-		async function getProfile() {
-			try {
-				const response = await fetch(`/api/user/getUserProfil?pseudo=${encodeURIComponent(username)}`, {
-					method: "GET"
-				});
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Unknown error");
-				}
-
-				const data = await response.json();
-				setisUsernameValid(data.data !== null); // remains false if no data is returned and keeps showing the error message
-				setUserData(data.data); // set the user data to the state
-
-			} catch (error) {
-				toast.error("Error while fetching user data : " + error.message);
-			} finally {
-				setLoading(false);
-			}
-		}
-
 		getProfile();
 		getSelf();
 		getAvatar();
 	}, [username]);
+
+	async function getProfile() {
+		try {
+			const response = await fetch(`/api/user/getUserProfil?pseudo=${encodeURIComponent(username)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setisUsernameValid(data.data !== null); // remains false if no data is returned and keeps showing the error message
+			setUserData(data.data); // set the user data to the state
+
+		} catch (error) {
+			toast.error("Error while fetching user data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	// returns the current's user data
 	async function getSelf() {
@@ -117,7 +118,7 @@ export default function Profile({ }) {
 				setIsAvatarLoaded(true);
 			}
 		} catch (error) {
-			console.error("Error while fetching avatar:", error);
+			console.error("Error while fetching avatar : ", error);
 			setAvatarUrl("/images/avatar.svg");
 			setIsAvatarLoaded(true);
 		}
@@ -143,10 +144,51 @@ export default function Profile({ }) {
 				toast.error(data.error || "Error while changing password");
 			}
 		} catch (error) {
-			console.error("Error while changing password:", error);
+			console.error("Error while changing password : ", error);
 			toast.error("Error while changing password");
 		}
 	};
+
+	async function updateProfile() {
+		try {
+			const response = await fetch("/where/is/my/route", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ password: userData }),
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success("Profile updated successfully");
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while updating profile");
+			}
+		} catch (error) {
+			console.error("Error while updating profile : ", error);
+			toast.error("Error while updating profile");
+		} finally { getSelf(); getProfile(); }
+	};
+
+	async function deleteAccount() {
+		try {
+			const response = await fetch("/api/user/deleteAccount", {
+				method: "DELETE",
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success("Account deleted successfully");
+				router.push('/');
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while deleting account");
+			}
+		} catch (error) {
+			console.error("Error while deleting account : ", error);
+			toast.error("Error while deleting account");
+		} finally { setOpenConfirmDelete(false); }
+	}
 
 	return (
 		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
@@ -555,8 +597,8 @@ export default function Profile({ }) {
 													size="small"
 													disabled={!editable}
 													label="Level"
-													value={userData?.level}
 													select
+													value={userData?.level}
 													name='level'
 													onChange={(e) => setUserData({ ...userData, level: e.target.value })}
 													sx={{
@@ -605,11 +647,17 @@ export default function Profile({ }) {
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>
 													Activated :
 													<Checkbox
-														readOnly={!editable}
+														disabled={!editable}
+														value={userData?.isActive}
+														name='isActive'
+														onChange={(e) => setUserData({ ...userData, isActive: e.target.checked })}
 														checked={userData?.isActive}
 														sx={{
 															'&.Mui-checked': {
 																color: editable ? "#7FC7FF" : "grey",
+															},
+															'&:not(.Mui-checked)': {
+																color: 'white',
 															},
 															mb: 0.25,
 														}}
@@ -627,7 +675,7 @@ export default function Profile({ }) {
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>
 													Activated :
 													<Checkbox
-														readOnly={true}
+														disabled={true}
 														checked={userData?.isActive}
 														sx={{
 															'&.Mui-checked': {
@@ -683,6 +731,25 @@ export default function Profile({ }) {
 												)}
 											</Box>
 										) : null}
+										<Button variant='contained' onClick={() => setOpenConfirmDelete(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+											Delete account
+										</Button>
+										<Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
+											<DialogTitle>Confirm deletion</DialogTitle>
+											<DialogContent>
+												<Typography>
+													Are you sure you want to delete this account? This action cannot be undone.
+												</Typography>
+											</DialogContent>
+											<DialogActions>
+												<Button onClick={() => setOpenConfirmDelete(false)} color="primary" sx={{ transform: 'none !important' }}>
+													Cancel
+												</Button>
+												<Button onClick={deleteAccount} color="error" variant="contained" sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+													Confirm Delete
+												</Button>
+											</DialogActions>
+										</Dialog>
 									</Box>
 								</Box>
 
@@ -706,9 +773,6 @@ export default function Profile({ }) {
 										<Box>
 											{fieldName('Address', userData?.address)}
 										</Box>
-										<Box>
-											{fieldName('Activated', userData?.isActive ? 'yes' : 'no')}
-										</Box>
 									</Box>
 
 									<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'right' }}>
@@ -724,20 +788,20 @@ export default function Profile({ }) {
 							)}
 						</Box>
 					)}
-					{self?.pseudo === userData?.pseudo || self?.level == 'expert' ? ( // edit user info
 
+					{self?.pseudo === userData?.pseudo || self?.level == 'expert' ? ( // edit user info
 						<Box // editstate component only shown if the user is the owner of the profile or an admin
 							sx={{
 								width: '100%',
 								display: 'flex',
 								justifyContent: 'flex-end',
-							}}>
-							< EditState setEditable={(x) => { setEditable(x) }} />
+							}}
+						>
+							<EditState setEditable={(x) => { setEditable(x) }} onCancel={() => getProfile()} onConfirm={() => { updateProfile() }} />
 						</Box>
 					) : null}
 				</Box>
-			)
-			}
+			)}
 		</Box>
 	);
 }
