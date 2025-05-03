@@ -24,7 +24,8 @@ export default async function handler(req, res) {
         }
 
         // Extract the new object data from the request body
-        const newObject = req.body;
+        console.log("Received request body:", req.body);
+        const newObject = JSON.parse(req.body);
 
         // Find the highest existing ID to determine the new ID
         const { data: maxData, error: maxError } = await supabaseClient
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
         }
 
         // Log the action (missing variable 'idf' is assumed to be defined)
-        await logAction(idf, "addObject");
+        await logAction(user.pseudo, "addObject");
 
         // Return the created object
         return res.status(201).json({ created: data });

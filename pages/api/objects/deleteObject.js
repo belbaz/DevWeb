@@ -46,8 +46,8 @@ export default async function handler(req, res) {
             });
         }
 
-        // Log the action (⚠️ 'idf' is not defined in the code)
-        await logAction(idf, "deleteObject");
+        // Log the action
+        await logAction(user.pseudo, "deleteObject");
 
         // Return the deleted object data
         return res.status(200).json({ deleted: data });

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from '@mui/material';
+import { Button, TextareaAutosize } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -14,12 +15,14 @@ import { toast } from 'react-toastify';
 import Rolling from '../../../components/rolling'; // loading animation
 import EditState from '../../../components/editState'; // loading animation
 import { category, fieldName } from '../../../components/entityDisplay'; // display the user data
+import { desc } from 'framer-motion/client';
 
 
 
 export default function ObjectData({ }) {
 	const [isObjectValid, setisObjectValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
+	const [openConfirm, setOpenConfirm] = useState(false);
 	const [object, setObject] = useState(null); // to store the object data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
 	const [editable, setEditable] = useState(false);
@@ -34,31 +37,31 @@ export default function ObjectData({ }) {
 	}
 
 	useEffect(() => {
-		async function getObejct() {
-			try {
-				const response = await fetch(`/api/objects/getObjectById?id=${encodeURIComponent(objectID)}`, {
-					method: "GET"
-				});
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Unknown error");
-				}
-
-				const data = await response.json();
-				setisObjectValid(data.object != null); // remains false if no data is returned and keeps showing the error message
-				setObject(data.object); // set the object data to the state
-
-			} catch (error) {
-				toast.error("Error while fetching object data : " + error.message);
-			} finally {
-				setLoading(false);
-			}
-		}
-
-		getObejct();
+		getObject();
 		getSelf();
 	}, [objectID]);
+
+	async function getObject() {
+		try {
+			const response = await fetch(`/api/objects/getObjectById?id=${encodeURIComponent(objectID)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setisObjectValid(data.object != null); // remains false if no data is returned and keeps showing the error message
+			setObject(data.object); // set the object data to the state
+
+		} catch (error) {
+			toast.error("Error while fetching object data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	// returns the current's user data
 	async function getSelf() {
@@ -78,6 +81,51 @@ export default function ObjectData({ }) {
 		} catch (error) {
 			toast.error("Cannot get current user's data : " + error.message);
 		}
+	}
+
+	async function updateObject() {
+		try {
+			const response = await fetch(`/api/objects/updateObject?id=${encodeURIComponent(object.id)}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					brand: object.brand,
+					accessLevel: object.accessLevel,
+					room_id: object.room_id,
+					description: object.description,
+				}),
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success(" object type updated successfully");
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while updating object type");
+			}
+		} catch (error) {
+			toast.error("Error while updating  object type " + error);
+		} finally { getSelf(); getObject(); }
+	};
+
+	async function deleteObject() {
+		try {
+			const response = await fetch(`/api/objects/deleteObject?id=${object.id}`, {
+				method: "DELETE",
+				credentials: "include",
+			});
+
+			if (response.ok) {
+				toast.success("object deleted successfully");
+				router.push('/');
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while deleting object");
+			}
+		} catch (error) {
+			console.error("Error while deleting object : ", error);
+			toast.error("Error while deleting object");
+		} finally { setOpenConfirm(false); }
 	}
 
 	return (
@@ -132,7 +180,7 @@ export default function ObjectData({ }) {
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-									{self?.level == 'expert' ? ( // edit room info
+									{self?.level == 'avance' || self?.level == 'expert' ? ( // edit object info
 										<>{category('Object information')}
 											<TextField
 												size="small"
@@ -181,10 +229,10 @@ export default function ObjectData({ }) {
 												size="small"
 												disabled={!editable}
 												label="Level access"
-												value={object?.levelAcces}
+												value={object?.accessLevel}
 												select
-												name='levelAcces'
-												onChange={(e) => setObject({ ...object, levelAcces: e.target.value })}
+												name='accessLevel'
+												onChange={(e) => setObject({ ...object, accessLevel: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
 													backgroundColor: "#3a3a3a",
@@ -231,10 +279,10 @@ export default function ObjectData({ }) {
 											<TextField
 												size="small"
 												disabled={!editable}
-												label="Room type"
-												value={object?.roomtype}
-												select
-												name='roomtype'
+												label="Room ID"
+												value={object?.room_id}
+												type='number'
+												name='room_id'
 												onChange={(e) => setObject({ ...object, roomtype: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
@@ -278,8 +326,38 @@ export default function ObjectData({ }) {
 												<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
 												<MenuItem value={"réserve"}>réserve</MenuItem>
 											</TextField>
+											{category('Additional data')}
+											<TextareaAutosize
+												value={object?.description}
+												disabled={!editable}
+												onChange={(e) => { setObject({ ...object, description: e.target.value }); }}
+												style={{ resize: 'none', backgroundColor: "#3a3a3a", color: editable ? 'white' : '#9e9e9e', }}
+											/>
+											{self?.level == 'expert' ? (
+												<>
+													<Button variant='contained' onClick={() => setOpenConfirm(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+														Delete object type
+													</Button>
+													<Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+														<DialogTitle>Confirm deletion</DialogTitle>
+														<DialogContent>
+															<Typography>
+																Are you sure you want to delete this object type ? This action cannot be undone and will delete all the objects instahces of this type.
+															</Typography>
+														</DialogContent>
+														<DialogActions>
+															<Button onClick={() => setOpenConfirm(false)} color="primary" sx={{ transform: 'none !important' }}>
+																Cancel
+															</Button>
+															<Button onClick={deleteObject} color="error" variant="contained" sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+																Confirm Delete
+															</Button>
+														</DialogActions>
+													</Dialog>
+												</>
+											) : null}
 										</>
-									) : ( // if the user is not the owner of the profile or not an admin, display only the information
+									) : ( // if the user is not an admin, display only the information
 										<>
 											{category('Object information')}
 											<Box>
@@ -300,14 +378,14 @@ export default function ObjectData({ }) {
 							</Box>
 						</Box>
 					)}
-					{self?.level == 'expert' ? ( // edit room info
-						<Box // editstate component only shown if the user is the owner of the profile or an admin
+					{self?.level == 'expert' ? ( // edit object info
+						<Box // editstate component only shown if the user is an admin
 							sx={{
 								width: '100%',
 								display: 'flex',
 								justifyContent: 'flex-end',
 							}}>
-							< EditState setEditable={(x) => { setEditable(x) }} />
+							< EditState setEditable={(x) => { setEditable(x) }} onCancel={() => getObject()} onConfirm={() => { updateObject() }} />
 						</Box>
 					) : null}
 				</Box>

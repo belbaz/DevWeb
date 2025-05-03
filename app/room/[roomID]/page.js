@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
@@ -83,9 +83,9 @@ export default function Room({ }) {
 
 	async function deleteRoom() {
 		try {
-			const response = await fetch("/api/user/deleteAccount", {
+			const response = await fetch(`/api/rooms/deleteRoom?id=${roomData.id}`, {
 				method: "DELETE",
-				credentials: "include"
+				credentials: "include",
 			});
 
 			if (response.ok) {
@@ -103,7 +103,6 @@ export default function Room({ }) {
 
 	async function updateRoom() {
 		try {
-			console.log("updating room with data : ", roomData);
 			const response = await fetch("/api/rooms/updateRoom", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },

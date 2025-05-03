@@ -33,32 +33,32 @@ export default function ObjectInstance({ }) {
 	}
 
 	useEffect(() => {
-		async function getObjectInstance() {
-			try {
-				const response = await fetch(`/api/objectData/getDatasByInstance?id=${encodeURIComponent(objectInstanceID)}`, {
-					method: "GET"
-				});
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Unknown error");
-				}
-
-				const data = await response.json();
-				console.log("objectInstanceData", data);
-				setisObjectInstanceValid(data.instance !== null); // remains false if no data is returned and keeps showing the error message
-				setObjectInstanceData(data.instance); // set the object instance data to the state
-
-			} catch (error) {
-				toast.error("Error while fetching object instance data : " + error.message);
-			} finally {
-				setLoading(false);
-			}
-		}
-
 		getObjectInstance();
 		getSelf();
 	}, [objectInstanceID]);
+
+	async function getObjectInstance() {
+		try {
+			const response = await fetch(`/api/objectData/getDatasByInstance?id=${encodeURIComponent(objectInstanceID)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			console.log("objectInstanceData", data);
+			setisObjectInstanceValid(data.instance !== null); // remains false if no data is returned and keeps showing the error message
+			setObjectInstanceData(data.instance); // set the object instance data to the state
+
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	// returns the current's user data
 	async function getSelf() {
@@ -222,8 +222,9 @@ export default function ObjectInstance({ }) {
 										/>
 										{category('Additional data')}
 										<TextareaAutosize
-											value={JSON.stringify(objectInstanceData?.data, null, 2)}
+											value={JSON.stringify(objectInstanceData?.data || {}, null, 2)}
 											disabled={!editable}
+											onChange={(e) => { setObjectInstanceData(); }}
 											style={{ resize: 'none', backgroundColor: "#3a3a3a", color: editable ? 'white' : '#9e9e9e', }}
 										/>
 									</Box>

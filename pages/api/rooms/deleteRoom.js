@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         }
 
         // Log the action
-        await logAction(idf, "login");
+        await logAction(user.pseudo, "login");
 
         // Return deleted data
         return res.status(200).json({ deleted: data });

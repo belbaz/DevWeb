@@ -11,7 +11,6 @@ export default async function handler(req, res) {
     }
 
     // Parse and validate the room ID from the URL
-    console.log("Request body:", req.body);
     const { id } = req.body;
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {

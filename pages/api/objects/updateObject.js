@@ -21,12 +21,9 @@ export default async function handler(req, res) {
 
         // Check update permissions based on user's points
         const { permissions } = getUserPermissions(user.points || 0);
-        console.log("POINTS =", user.points);
-        console.log("PERMISSIONS =", permissions);
         if (!permissions.updateObject) {
             return res.status(403).json({ error: 'Access denied: update not allowed' });
         }
-        console.log("USER =", user);
 
         // Make sure the ID is provided
         if (!id) {
@@ -52,7 +49,7 @@ export default async function handler(req, res) {
             });
         }
 
-        await logAction(idf, "updateObject");
+        await logAction(user.pseudo, "updateObject");
 
         // Return the updated object
         return res.status(200).json({ updated: data });
