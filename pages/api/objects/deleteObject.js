@@ -30,14 +30,42 @@ export default async function handler(req, res) {
             return res.status(403).json({ error: 'Access denied: deletion not allowed' });
         }
 
-        // Delete the object from the 'Object' table in Supabase
+        // Step 1: Fetch the object type (needed to delete associated ObjectData)
+        const { data: objectToDelete, error: fetchError } = await supabaseClient
+            .from('Object')
+            .select('type')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) {
+            console.error('Error fetching object type:', fetchError);
+            return res.status(500).json({
+                error: 'Failed to fetch object type',
+                details: fetchError.message,
+            });
+        }
+
+        // Step 2: Delete all associated ObjectData entries manually
+        const { error: deleteDataError } = await supabaseClient
+            .from('ObjectData')
+            .delete()
+            .eq('type_Object', objectToDelete.type);
+
+        if (deleteDataError) {
+            console.error('Error deleting associated ObjectData:', deleteDataError);
+            return res.status(500).json({
+                error: 'Failed to delete associated ObjectData',
+                details: deleteDataError.message,
+            });
+        }
+
+        // Step 3: Delete the object itself
         const { data, error } = await supabaseClient
             .from('Object')
             .delete()
             .eq('id', id)
             .select();
 
-        // Handle Supabase errors
         if (error) {
             console.error('Error deleting object:', error);
             return res.status(500).json({
@@ -52,8 +80,10 @@ export default async function handler(req, res) {
         // Return the deleted object data
         return res.status(200).json({ deleted: data });
     } catch (err) {
-        // Handle unexpected server-side errors
         console.error('Server error:', err);
-        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
+        return res.status(500).json({
+            error: 'Unexpected server error',
+            details: err.message,
+        });
     }
 }
