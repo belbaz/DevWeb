@@ -209,6 +209,38 @@ body::before {
 }
 
 .content-overlay {
-  background: rgba(0, 0, 0, 0.4); /* Réduction de l'opacité de 0.5 à 0.4 */
-  /* Autres styles... */
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Custom classes for header layout */
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.left-zone {
+  flex: 0 0 auto;
+}
+
+.center-zone {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.right-zone {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .center-zone {
+    position: static;
+    flex: 0;
+  }
+  
+  .center-zone.centered-search {
+    flex: 1;
+  }
 }
