@@ -7,7 +7,6 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import Skeleton from '@mui/material/Skeleton';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
 import React, { useEffect, useState } from "react";
@@ -32,6 +31,7 @@ export default function Profile({ }) {
 	const [loading, setLoading] = useState(true);
 	const [editable, setEditable] = useState(false);
 	const [showPasswordInput, setShowPasswordInput] = useState(false);
+	const [password, setPassword] = useState(false);
 
 	const params = useParams();
 	const router = useRouter();
@@ -120,6 +120,31 @@ export default function Profile({ }) {
 			console.error("Error while fetching avatar:", error);
 			setAvatarUrl("/images/avatar.svg");
 			setIsAvatarLoaded(true);
+		}
+	};
+
+	async function changePassword() {
+		try {
+			if (password == null || password == "") {
+				return;
+			}
+
+			const response = await fetch("/api/user/setUserPassword", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ password: password }),
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success("Password changed successfully");
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while changing password");
+			}
+		} catch (error) {
+			console.error("Error while changing password:", error);
+			toast.error("Error while changing password");
 		}
 	};
 
@@ -438,8 +463,8 @@ export default function Profile({ }) {
 											size="small"
 											disabled={!editable}
 											label="Address"
-											value={userData?.address}
 											type="email"
+											value={userData?.address}
 											name='email'
 											onChange={(e) => setUserData({ ...userData, email: e.target.value })}
 											sx={{
@@ -617,6 +642,7 @@ export default function Profile({ }) {
 										{self?.pseudo === userData?.pseudo ? (
 											<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: { xs: "30vw", md: "20vw" } }}>
 												<Button
+													onClick={() => { setShowPasswordInput(!showPasswordInput); setPassword(''); showPasswordInput ? changePassword() : null }}
 													sx={{
 														width: '100%',
 														mt: 2,
@@ -629,10 +655,10 @@ export default function Profile({ }) {
 														outline: 'none',
 														fontSize: '0.85rem',
 														fontFamily: 'var(--font-roboto)',
+														transform: 'none !important',
 													}}
-													onClick={() => setShowPasswordInput(!showPasswordInput)}
 												>
-													Change password
+													{showPasswordInput ? "Submit password" : "Change password"}
 												</Button>
 
 												{showPasswordInput && (
@@ -640,7 +666,19 @@ export default function Profile({ }) {
 														label="New Password"
 														type="password"
 														size="small"
-														sx={{ width: '100%' }}
+														value={password}
+														onChange={(e) => setPassword(e.target.value)}
+														sx={{
+															cursor: 'text',
+															backgroundColor: "#3a3a3a",
+															borderRadius: 1,
+															'&& .MuiInputBase-input': {
+																color: 'white',
+															},
+															'&& .MuiInputLabel-root': {
+																color: '#9e9e9e',
+															},
+														}}
 													/>
 												)}
 											</Box>
@@ -700,6 +738,6 @@ export default function Profile({ }) {
 				</Box>
 			)
 			}
-		</Box >
+		</Box>
 	);
 }
