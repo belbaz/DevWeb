@@ -8,18 +8,43 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
 import Rolling from '../../../components/rolling';
+import { get } from 'js-cookie';
 
 
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
 	const [object, setObject] = useState(null);
+	const [rooms, setRooms] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const router = useRouter();
+
+	useEffect(() => {
+		getObjects();
+	}, []);
+
+	async function getObjects() {
+		try {
+			const response = await fetch(`/api/rooms/getRooms`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			console.log(data);
+			setRooms(data.rooms);
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		}
+	}
 
 	async function insertObject() {
 		setIsLoading(true);
@@ -150,9 +175,9 @@ export default function Room({ }) {
 							</TextField>
 							<TextField
 								size="small"
-								label="Room ID"
+								label="Room"
 								value={object?.room_id}
-								type="number"
+								select
 								name='room_id'
 								onChange={(e) => setObject({ ...object, room_id: e.target.value })}
 								sx={{
@@ -170,7 +195,13 @@ export default function Room({ }) {
 										color: '#9e9e9e',
 									},
 								}}
-							/>
+							>
+								{Array.isArray(rooms) && rooms.map((rooms) => (
+									<MenuItem key={rooms.id} value={rooms.id}>
+										{rooms.name}
+									</MenuItem>
+								))}
+							</TextField>
 							{category('Additional data')}
 							<TextareaAutosize
 								value={object?.description}
