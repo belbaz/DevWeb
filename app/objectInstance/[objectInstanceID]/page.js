@@ -43,7 +43,9 @@ export default function ObjectInstance({ }) {
 				const { objectData } = await all.json();
 
 				if (objectInstanceData?.id && objectData?.length > 0) {
-					const index = objectData.findIndex(o => o.id === objectInstanceData.id);
+					// ✅ Filtrer par type_Object avant calcul
+					const sameTypeObjects = objectData.filter(o => o.type_Object === objectInstanceData.type_Object);
+					const index = sameTypeObjects.findIndex(o => o.id === objectInstanceData.id);
 					setInstanceIndex(index + 1);
 				}
 			} catch (error) {
@@ -54,6 +56,7 @@ export default function ObjectInstance({ }) {
 			fetchAndFindIndex();
 		}
 	}, [objectInstanceData]);
+
 
 	async function getObjectData() {
 		try {
