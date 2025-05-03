@@ -1,6 +1,11 @@
 {
-  "name": "MuseHome",
-  "short_name": "MuseHome",
+  "name": "MUSEHOME",
+  "short_name": "MUSEHOME",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/favicon/android-chrome-192x192.png",
@@ -11,9 +16,17 @@
       "src": "/favicon/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/favicon/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon/favicon.ico",
+      "sizes": "256x256 128x128 64x64 48x48 32x32 16x16",
+      "type": "image/x-icon"
     }
-  ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  ]
 }
