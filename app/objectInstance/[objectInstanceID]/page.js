@@ -130,61 +130,18 @@ export default function ObjectInstance({ }) {
 							</Typography>
 
 
-							{['intermediaire', 'avance', 'expert'].includes(self?.level) ? ( // edit object instance info
+							{['avance', 'expert'].includes(self?.level) ? ( // edit object instance info
 								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
 										{category('Information')}
 										<TextField
 											size="small"
 											disabled={!editable}
-											label="Affectation"
-											value={objectInstanceData?.data.Affectation}
-											type="text"
-											name='Affectation'
-											onChange={(e) => setObjectInstanceData({ ...objectInstanceData, Affectation: e.target.value })}
-											sx={{
-												cursor: editable ? 'text' : 'not-allowed',
-												backgroundColor: "#3a3a3a",
-												borderRadius: 1,
-												'&& .MuiInputBase-input': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .MuiInputLabel-root': {
-													color: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .Mui-disabled': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												}
-											}}
-											slotProps={{
-												input: {
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e',
-															WebkitTextFillColor: '#9e9e9e',
-														}
-													}
-												},
-												inputLabel: {
-													shrink: true,
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e !important',
-														}
-													}
-												}
-											}}
-										/>
-										<TextField
-											size="small"
-											disabled={!editable}
-											label="Battery level"
-											value={objectInstanceData?.data.Batterie}
-											type="text"
-											name='Batterie'
-											onChange={(e) => setObjectInstanceData({ ...objectInstanceData, Batterie: e.target.value })}
+											label="Object Type"
+											value={objectInstanceData?.type_Object}
+											select
+											name='type_Object'
+											onChange={(e) => setObjectInstanceData({ ...objectInstanceData, type_Object: e.target.value })}
 											sx={{
 												cursor: editable ? 'text' : 'not-allowed',
 												backgroundColor: "#3a3a3a",
@@ -235,23 +192,22 @@ export default function ObjectInstance({ }) {
 									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
 										{category('Information')}
 										<Box>
-											{fieldName('Affectation', objectInstanceData?.data.Affectation)}
+											{fieldName('Battery level', objectInstanceData?.type_Object)}
 										</Box>
-										<Box>
-											{fieldName('Battery level', objectInstanceData?.data.Batterie)}
-										</Box>
-										<Box>
-											{category('Additional data')}
-											{Object.entries(objectInstanceData.data).map(([key, value]) => (
-												<Box>{fieldName(key, value)}</Box>
-											))}
-										</Box>
+										{['intermediaire', 'avance', 'expert'].includes(self?.level) ? (
+											<Box>
+												{category('Additional data')}
+												{Object.entries(objectInstanceData.data).map(([key, value]) => (
+													<Box>{fieldName(key, value)}</Box>
+												))}
+											</Box>
+										) : null}
 									</Box>
 								</Box>
 							)}
 						</Box>
 					)}
-					{['intermediaire', 'avance', 'expert'].includes(self?.level) ? ( // edit user info
+					{['avance', 'expert'].includes(self?.level) ? ( // edit user info
 
 						<Box // editstate component only shown if the user is the owner of the profile or an admin
 							sx={{

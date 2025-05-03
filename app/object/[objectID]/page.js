@@ -283,7 +283,7 @@ export default function ObjectData({ }) {
 												value={object?.room_id}
 												type='number'
 												name='room_id'
-												onChange={(e) => setObject({ ...object, roomtype: e.target.value })}
+												onChange={(e) => setObject({ ...object, room_id: e.target.value })}
 												sx={{
 													cursor: editable ? 'text' : 'not-allowed',
 													backgroundColor: "#3a3a3a",
@@ -342,7 +342,7 @@ export default function ObjectData({ }) {
 														<DialogTitle>Confirm deletion</DialogTitle>
 														<DialogContent>
 															<Typography>
-																Are you sure you want to delete this object type ? This action cannot be undone and will delete all the objects instahces of this type.
+																Are you sure you want to delete this object type ? This action cannot be undone and will delete all the objects instances of this type.
 															</Typography>
 														</DialogContent>
 														<DialogActions>
