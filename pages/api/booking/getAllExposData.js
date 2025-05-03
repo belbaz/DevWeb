@@ -20,7 +20,9 @@ export default async function handler(req, res) {
         description: expo.description,
         dates: [expo.day1, expo.day2, expo.day3],
         priceAdult: expo.priceAdult,
-        priceChild: expo.priceChild
+        priceChild: expo.priceChild,
+        banner: expo.banner || null,
+        poster: expo.poster || null
     }));
 
     return res.status(200).json(result);

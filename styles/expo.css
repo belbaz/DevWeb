@@ -1,0 +1,49 @@
+.expo-banner {
+    position: relative;
+    width: 100%;
+    max-width: 1536px;
+    padding-top: 26.04%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    transition: background-image 0.8s ease-in-out;
+}
+
+.expo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.expo-banner:hover .expo-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.expo-more-button {
+    color: white;
+    font-size: 2rem;
+    background: transparent;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Cinzel', serif;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.expo-banner:hover .expo-more-button {
+    opacity: 1;
+}
