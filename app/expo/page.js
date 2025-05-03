@@ -16,7 +16,7 @@ export default function ExpoPage() {
     }, []);
 
     const handleClick = (expoId) => {
-        router.push(`/seeMore?expoId=${expoId}`);
+        router.push(`/expoInstance/${expo.id}`);
     };
 
     return (
@@ -31,7 +31,7 @@ export default function ExpoPage() {
                     >
                         <div
                             className="expo-overlay"
-                            onClick={() => handleClick(expo.id)}
+                            onClick={() => router.push(`/expoInstance/${expo.id}`)}
                         >
                             <span className="expo-more-button">See More</span>
                         </div>

@@ -31,7 +31,7 @@ export default function Home() {
     }, [expos]);
 
     const handleClick = (expoId) => {
-        router.push(`/seeMore?expoId=${expoId}`);
+        router.push(`/expoInstance/${expoId}`);
     };
 
     return (
