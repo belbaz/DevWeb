@@ -154,7 +154,7 @@ export default function Profile({ }) {
 			const response = await fetch("/where/is/my/route", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ password: userData }),
+				body: JSON.stringify({ data: userData }),
 				credentials: "include"
 			});
 

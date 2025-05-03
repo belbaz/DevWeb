@@ -11,7 +11,8 @@ export default async function handler(req, res) {
     }
 
     // Parse and validate the room ID from the URL
-    const { id } = req.query;
+    console.log("Request body:", req.body);
+    const { id } = req.body;
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
         return res.status(400).json({ error: 'Invalid or missing room ID in URL' });
@@ -53,7 +54,7 @@ export default async function handler(req, res) {
         }
 
         // Log the update action
-        await logAction(idf, "updateRoom");
+        await logAction(user?.pseudo, "updateRoom");
 
         // Return updated room data
         return res.status(200).json({ updated: data });

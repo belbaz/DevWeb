@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
-import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
+import { useParams, useRouter } from 'next/navigation'; // get /room/:id
 import React, { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 
@@ -36,32 +36,31 @@ export default function Room({ }) {
 	}
 
 	useEffect(() => {
-		async function getRoom() {
-			try {
-				const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
-					method: "GET"
-				});
-
-				if (!response.ok) {
-					const errorData = await response.json();
-					throw new Error(errorData.error || "Unknown error");
-				}
-
-				const data = await response.json();
-				setisRoomValid(data.room != null); // remains false if no data is returned and keeps showing the error message
-				setRoomData(data.room); // set the room data to the state
-
-			} catch (error) {
-				toast.error("Error while fetching room data : " + error.message);
-			} finally {
-				setLoading(false);
-			}
-		}
-
 		getRoom();
 		getSelf();
 	}, [roomID]);
 
+	async function getRoom() {
+		try {
+			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setisRoomValid(data.room != null); // remains false if no data is returned and keeps showing the error message
+			setRoomData(data.room); // set the room data to the state
+
+		} catch (error) {
+			toast.error("Error while fetching room data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
 	// returns the current's user data
 	async function getSelf() {
 		try {
@@ -101,6 +100,34 @@ export default function Room({ }) {
 			toast.error("Error while deleting room");
 		} finally { setOpenConfirmDelete(false); }
 	}
+
+	async function updateRoom() {
+		try {
+			console.log("updating room with data : ", roomData);
+			const response = await fetch("/api/rooms/updateRoom", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					id: roomData.id,
+					floor: roomData.floor,
+					levelAcces: roomData.levelAcces,
+					roomtype: roomData.roomtype,
+					name: roomData.name,
+				}),
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success("Room updated successfully");
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while updating room");
+			}
+		} catch (error) {
+			console.error("Error while updating room : ", error);
+			toast.error("Error while updating room");
+		} finally { getSelf(); getRoom(); }
+	};
 
 	return (
 		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
@@ -300,6 +327,49 @@ export default function Room({ }) {
 												<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
 												<MenuItem value={"réserve"}>réserve</MenuItem>
 											</TextField>
+											<TextField
+												size="small"
+												disabled={!editable}
+												label="Name"
+												value={roomData?.name}
+												type="text"
+												name='name'
+												onChange={(e) => setRoomData({ ...roomData, name: e.target.value })}
+												sx={{
+													cursor: editable ? 'text' : 'not-allowed',
+													backgroundColor: "#3a3a3a",
+													borderRadius: 1,
+													'&& .MuiInputBase-input': {
+														color: editable ? 'white' : '#9e9e9e',
+														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+													},
+													'&& .MuiInputLabel-root': {
+														color: editable ? 'white' : '#9e9e9e',
+													},
+													'&& .Mui-disabled': {
+														color: editable ? 'white' : '#9e9e9e',
+														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+													}
+												}}
+												slotProps={{
+													input: {
+														sx: {
+															'&&.Mui-disabled': {
+																color: '#9e9e9e',
+																WebkitTextFillColor: '#9e9e9e',
+															}
+														}
+													},
+													inputLabel: {
+														shrink: true,
+														sx: {
+															'&&.Mui-disabled': {
+																color: '#9e9e9e !important',
+															}
+														}
+													}
+												}}
+											/>
 											{self?.level == 'expert' ? (
 												<>
 													<Button variant='contained' onClick={() => setOpenConfirmDelete(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
@@ -324,7 +394,7 @@ export default function Room({ }) {
 												</>
 											) : null}
 										</>
-									) : ( // if the user is not the owner of the profile or not an admin, display only the information
+									) : ( // if the user is not an admin, display only the information
 										<>
 											{category('Room information')}
 											<Box>
@@ -344,13 +414,13 @@ export default function Room({ }) {
 						</Box>
 					)}
 					{self?.level == 'expert' ? ( // edit room info
-						<Box // editstate component only shown if the user is the owner of the profile or an admin
+						<Box // editstate component only shown if the user is an admin
 							sx={{
 								width: '100%',
 								display: 'flex',
 								justifyContent: 'flex-end',
 							}}>
-							< EditState setEditable={(x) => { setEditable(x) }} />
+							< EditState setEditable={(x) => { setEditable(x); }} onCancel={() => getRoom()} onConfirm={() => { updateRoom() }} />
 						</Box>
 					) : null}
 				</Box>
