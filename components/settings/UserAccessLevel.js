@@ -4,6 +4,65 @@ import { useState, useEffect } from 'react';
 import { Box, Paper, Typography, Grid, Card, CardContent, CircularProgress, Tooltip } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 
+// Définition du dictionnaire de traduction des niveaux
+const levelMap = {
+  debutant: 'Beginner',
+  intermediaire: 'Intermediate',
+  avance: 'Advanced',
+  expert: 'Expert'
+};
+
+// Fonction pour récupérer les points de l'utilisateur
+const getUserPoints = (user) => {
+  return user?.points || 0;
+};
+
+// Fonction pour obtenir le niveau de l'utilisateur
+const getUserLevel = (user) => {
+  const points = getUserPoints(user);
+  if (points >= 2000) return "expert";
+  if (points >= 1000) return "avance";
+  if (points >= 250) return "intermediaire";
+  return "debutant";
+};
+
+// Fonction pour calculer la progression de l'utilisateur
+const calculateProgress = (user) => {
+  const points = getUserPoints(user);
+  const currentLevel = user?.level || getUserLevel(user);
+  
+  let nextLevel = null;
+  let pointsNeeded = 0;
+  let progress = 100;
+  
+  // Calculer le niveau suivant et les points nécessaires
+  if (currentLevel === 'debutant') {
+    nextLevel = 'intermediaire';
+    pointsNeeded = 250 - points;
+    progress = (points / 250) * 100;
+  } else if (currentLevel === 'intermediaire') {
+    nextLevel = 'avance';
+    pointsNeeded = 1000 - points;
+    progress = ((points - 250) / 750) * 100;
+  } else if (currentLevel === 'avance') {
+    nextLevel = 'expert';
+    pointsNeeded = 2000 - points;
+    progress = ((points - 1000) / 1000) * 100;
+  } else {
+    // Déjà expert
+    nextLevel = null;
+    pointsNeeded = 0;
+    progress = 100;
+  }
+  
+  return {
+    level: currentLevel,
+    nextLevel,
+    pointsNeeded,
+    progress: Math.min(Math.max(progress, 0), 100) // Limiter entre 0 et 100
+  };
+};
+
 const UserAccessLevel = ({ userData }) => {
   const [accessLevelStats, setAccessLevelStats] = useState({
     byAccessLevel: {

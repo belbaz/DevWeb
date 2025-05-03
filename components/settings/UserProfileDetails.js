@@ -9,6 +9,14 @@ import LockIcon from '@mui/icons-material/Lock';
 import Skeleton from '@mui/material/Skeleton';
 import '../../styles/dashboard.css';
 
+// Définition du dictionnaire de traduction des niveaux
+const levelMap = {
+  debutant: 'Beginner',
+  intermediaire: 'Intermediate',
+  avance: 'Advanced',
+  expert: 'Expert'
+};
+
 const UserProfileDetails = ({ user, permissions }) => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
@@ -18,18 +26,15 @@ const UserProfileDetails = ({ user, permissions }) => {
     if (user) {
       console.log("UserProfileDetails - Données utilisateur:", {
         points: user.points,
-        calculatedPoints: getUserPoints(user),
-        calculatedLevel: getUserLevel(user),
         dbLevel: user.level,
         allUserKeys: Object.keys(user)
       });
     }
   }, [user]);
   
-  // Obtenir le niveau actuel et les points de l'utilisateur
-  // Utiliser le niveau de la base de données plutôt que de le calculer
-  const userLevel = user.level || getUserLevel(user); // Fallback sur le calcul si level n'existe pas
-  const userPoints = getUserPoints(user);
+  // Utiliser le niveau de la base de données
+  const userLevel = user.level || 'debutant'; // Fallback sur débutant si level n'existe pas
+  const userPoints = user.points || 0; // Utilisez directement les points stockés dans user
   
   useEffect(() => {
     const fetchAvatar = async () => {
