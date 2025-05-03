@@ -44,10 +44,6 @@ export default async function DeleteAccount(req, res) {
                 .filter(file => file.name.startsWith(`${username}_avatar`))
                 .map(file => file.name);
 
-            if (filesToDelete.length === 0) {
-                return res.status(200).json({ message: 'no avatar to delete.' });
-            }
-
             // effectively delete avatars
             const { data: deleteData, error: deleteError } = await supabase
                 .storage
