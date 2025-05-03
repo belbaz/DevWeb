@@ -4,6 +4,22 @@ import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
 // CREATE A NEW OBJECT DATA ENTRY
 
+/**
+ * API Route Handler (POST only) for inserting a new object data entry.
+ *
+ * Workflow:
+ * 1. Verify HTTP method is POST
+ * 2. Authenticate user from request
+ * 3. Check if user has permission to add data
+ * 4. Validate presence of required fields (data, type_Object)
+ * 5. Get the current maximum ID in ObjectData
+ * 6. Insert new record with incremented ID
+ * 7. Return created data or appropriate error message
+ *
+ * @param {Object} req - HTTPS request object
+ * @param {Object} res - HTTPS response object
+ * @returns {Object} - JSON response with status and result or error
+ */
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         // Only POST method is allowed

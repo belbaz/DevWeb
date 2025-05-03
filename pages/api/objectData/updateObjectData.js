@@ -24,12 +24,21 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing object ID in URL' });
         }
 
-        const { data: jsonData } = req.body;
+        let { data: jsonData } = req.body;
+
+        // Si jsonData est une chaîne, on tente de la parser
+        if (typeof jsonData === 'string') {
+            try {
+                jsonData = JSON.parse(jsonData);
+            } catch (err) {
+                return res.status(400).json({ error: 'Invalid JSON string in "data"' });
+            }
+        }
+
         if (!jsonData || typeof jsonData !== 'object') {
             return res.status(400).json({ error: 'Missing or invalid JSON payload' });
         }
 
-        // Récupération de l'état précédent
         const { data: oldState, error: fetchError } = await supabaseClient
             .from('ObjectData')
             .select('data')
@@ -40,7 +49,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Error fetching current data', details: fetchError.message });
         }
 
-        // Historisation dans ObjectDataHistory
         const updatedByValue = user.id ?? user.pseudo;
         if (!updatedByValue) {
             return res.status(500).json({ error: 'Cannot determine updatedBy value' });
@@ -59,7 +67,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Error inserting into history', details: insertError.message });
         }
 
-        // Mise à jour de l'objet
         const { data: updatedData, error: updateError } = await supabaseClient
             .from('ObjectData')
             .update({ data: jsonData, updated_at: new Date().toISOString() })
