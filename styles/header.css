@@ -135,6 +135,92 @@
   width: 100%;
 }
 
+/* Styles pour l'icône utilisateur et son menu */
+.right-zone {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Styles pour les éléments Material UI */
+.MuiIconButton-root {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.3s ease !important;
+  margin-left: var(--spacing-sm) !important;
+}
+
+.MuiIconButton-root:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Style pour l'Avatar uniquement lorsque l'utilisateur est connecté */
+.MuiAvatar-root {
+  background-color: rgba(65, 105, 225, 0.2) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+  width: 36px !important; 
+  height: 36px !important;
+}
+
+/* Style pour l'icône utilisateur non connecté */
+.MuiIconButton-root .MuiSvgIcon-root {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.3s ease !important;
+}
+
+.MuiIconButton-root:hover .MuiSvgIcon-root {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Style minimaliste et luxueux pour le menu déroulant */
+.MuiMenu-paper {
+  background-color: rgba(12, 12, 14, 0.98) !important;
+  backdrop-filter: blur(12px) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+.MuiMenuItem-root {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 1px !important;
+  transition: all 0.2s ease !important;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.MuiListItemIcon-root {
+  color: rgba(255, 255, 255, 0.6) !important;
+  min-width: 40px !important;
+}
+
+/* Style du texte dans le menu */
+.MuiMenu-paper .MuiTypography-root {
+  font-family: var(--font-cinzel) !important;
+  letter-spacing: 1px !important;
+}
+
+.MuiMenu-paper .MuiTypography-subtitle1 {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 400 !important;
+}
+
+.MuiMenu-paper .MuiTypography-body2 {
+  color: rgba(255, 255, 255, 0.5) !important;
+  letter-spacing: 0.5px !important;
+}
+
+.MuiDivider-root {
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  margin: 4px 0 !important;
+}
+
 @media (max-width: 768px) {
   .hamburger {
     display: block;
@@ -185,4 +271,34 @@
   .header-nav a:nth-child(3) { transition-delay: 0.3s; }
   .header-nav a:nth-child(4) { transition-delay: 0.4s; }
   .header-nav a:nth-child(5) { transition-delay: 0.5s; }
+
+  .right-zone {
+    gap: var(--spacing-sm);
+  }
+  
+  /* S'assurer que l'icône utilisateur et le hamburger sont bien alignés */
+  .MuiBox-root {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+  
+  /* Ajuster la taille de l'avatar en mode mobile */
+  .MuiAvatar-root {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.85rem !important;
+  }
+  
+  /* S'assurer que le menu est bien positionné en bas de l'écran en mode mobile */
+  .MuiMenu-paper.MuiPaper-root[data-position="bottom"] {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    max-height: 80vh !important;
+  }
 }

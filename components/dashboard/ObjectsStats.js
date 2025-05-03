@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Grid, Card, CardContent, CircularProgress, Tooltip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Paper, Typography, Grid, Card, CardContent, CircularProgress, Tooltip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { toast } from 'react-toastify';
@@ -16,6 +16,29 @@ const ObjectsStats = ({ permissions }) => {
     byType: {},
     byRoom: {}
   });
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  });
+
+  // Fonction pour gérer le redimensionnement de la fenêtre
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -282,16 +305,39 @@ const ObjectsStats = ({ permissions }) => {
           <Paper sx={{ p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', height: '100%' }}>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>Distribution by Type</Typography>
             {canRenderPieChart(objectTypeChartData) ? (
-              <Box sx={{ height: 300, position: 'relative' }}>
+              <Box sx={{ 
+                height: isMobile ? 240 : 300, 
+                width: '100%', 
+                position: 'relative',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
                 <PieChart
+                  key={`pie-chart-1-${windowSize.width}`}
                   series={[{ 
                     data: objectTypeChartData, 
-                    innerRadius: 30, 
+                    innerRadius: isMobile ? 20 : 30, 
                     paddingAngle: 2, 
-                    cornerRadius: 4
+                    cornerRadius: 4,
+                    highlightScope: { faded: 'global', highlighted: 'item' },
+                    faded: { innerRadius: 0, additionalRadius: -30, color: 'gray' },
+                    arcLabel: isMobile ? null : (item) => `${item.value}`
                   }]}
-                  height={300}
-                  margin={{ right: 120 }}
+                  height={isMobile ? 240 : 300}
+                  width={windowSize.width > 0 ? Math.min(windowSize.width - 40, 900) : undefined}
+                  margin={{ 
+                    top: 10, 
+                    bottom: 10, 
+                    left: 10, 
+                    right: isMobile ? 10 : 120 
+                  }}
+                  slotProps={{
+                    legend: { 
+                      hidden: isMobile,
+                      position: { vertical: 'middle', horizontal: 'right' }
+                    }
+                  }}
                   sx={{
                     '--ChartsLegend-rootSpacing': '10px',
                     '--ChartsLegend-itemWidth': '120px',
@@ -344,15 +390,39 @@ const ObjectsStats = ({ permissions }) => {
               <Box sx={{ height: 300 }}>
                 <Typography variant="body2" gutterBottom>Distribution by Type</Typography>
                 {canRenderPieChart(objectDataChartData) ? (
-                  <Box sx={{ position: 'relative', height: 250 }}>
+                  <Box sx={{ 
+                    position: 'relative', 
+                    height: isMobile ? 200 : 250, 
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
                     <PieChart
+                      key={`pie-chart-2-${windowSize.width}`}
                       series={[{
                         data: objectDataChartData,
-                        innerRadius: 30,
+                        innerRadius: isMobile ? 15 : 30,
                         paddingAngle: 2,
-                        cornerRadius: 4
+                        cornerRadius: 4,
+                        highlightScope: { faded: 'global', highlighted: 'item' },
+                        faded: { innerRadius: 0, additionalRadius: -20, color: 'gray' },
+                        arcLabel: isMobile ? null : (item) => `${item.value}`
                       }]}
-                      height={250}
+                      height={isMobile ? 200 : 250}
+                      width={windowSize.width > 0 ? Math.min(windowSize.width / (isMobile ? 1.3 : 2.2), 500) : undefined}
+                      margin={{ 
+                        top: 10, 
+                        bottom: 10, 
+                        left: 10, 
+                        right: isMobile ? 10 : 80 
+                      }}
+                      slotProps={{
+                        legend: { 
+                          hidden: isMobile,
+                          position: { vertical: 'top', horizontal: 'right' }
+                        }
+                      }}
                     />
                   </Box>
                 ) : (

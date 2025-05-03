@@ -505,6 +505,25 @@
   background-color: rgba(220, 53, 69, 0.5);
 }
 
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
 .tabs {
   display: flex;
   margin-bottom: var(--spacing-md);
