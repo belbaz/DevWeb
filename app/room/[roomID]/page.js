@@ -61,6 +61,7 @@ export default function Room({ }) {
 			setLoading(false);
 		}
 	}
+
 	// returns the current's user data
 	async function getSelf() {
 		try {

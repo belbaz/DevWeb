@@ -25,6 +25,7 @@ export default function ObjectData({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
 	const [object, setObject] = useState(null); // to store the object data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
+	const [room, setRoom] = useState(null);
 	const [editable, setEditable] = useState(false);
 
 	const params = useParams();
@@ -40,6 +41,10 @@ export default function ObjectData({ }) {
 		getObject();
 		getSelf();
 	}, [objectID]);
+
+	useEffect(() => {
+		object?.room_id ? getRoom(object?.room_id) : null;
+	}, [object?.room_id]);
 
 	async function getObject() {
 		try {
@@ -58,6 +63,27 @@ export default function ObjectData({ }) {
 
 		} catch (error) {
 			toast.error("Error while fetching object data : " + error.message);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	async function getRoom(roomID = object?.room_id) {
+		try {
+			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setRoom(data.room); // set the room data to the state
+
+		} catch (error) {
+			toast.error("Error while fetching room data : " + error.message);
 		} finally {
 			setLoading(false);
 		}
@@ -276,56 +302,9 @@ export default function ObjectData({ }) {
 												<MenuItem value={"avance"}>avancé</MenuItem>
 												<MenuItem value={"expert"}>expert</MenuItem>
 											</TextField>
-											<TextField
-												size="small"
-												disabled={!editable}
-												label="Room ID"
-												value={object?.room_id}
-												type='number'
-												name='room_id'
-												onChange={(e) => setObject({ ...object, room_id: e.target.value })}
-												sx={{
-													cursor: editable ? 'text' : 'not-allowed',
-													backgroundColor: "#3a3a3a",
-													borderRadius: 1,
-													'&& .MuiSelect-icon': {
-														color: editable ? 'white' : '#9e9e9e !important',
-													},
-													'&& .MuiInputBase-input': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .MuiInputLabel-root': {
-														color: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .Mui-disabled': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													}
-												}}
-												slotProps={{
-													input: {
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e',
-																WebkitTextFillColor: '#9e9e9e',
-															}
-														}
-													},
-													inputLabel: {
-														shrink: true,
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e !important',
-															}
-														}
-													}
-												}}
-											>
-												<MenuItem value={"hall"}>Hall</MenuItem>
-												<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
-												<MenuItem value={"réserve"}>réserve</MenuItem>
-											</TextField>
+											<Link onClick={() => { router.push("/room/" + object?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
+												{fieldName('Room', room?.name)}
+											</Link>
 											{category('Additional data')}
 											<TextareaAutosize
 												value={object?.description}
@@ -367,7 +346,7 @@ export default function ObjectData({ }) {
 												{fieldName('Access level', object?.accessLevel)}
 											</Box>
 											<Link onClick={() => { router.push("/room/" + object?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
-												{fieldName('Room', object?.room_id)}
+												{fieldName('Room', room?.name)}
 											</Link>
 											<Box>
 												{fieldName('Description', object?.description)}
