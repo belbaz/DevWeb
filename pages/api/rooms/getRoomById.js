@@ -2,54 +2,59 @@ import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
 
-// RENVOIE UNE PIÈCE SPÉCIFIQUE SELON SON ID
+// Handler to return a specific room by its ID
 export default async function handler(req, res) {
-    // Refus si la méthode n’est pas GET
+    // Allow only GET method
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
-    console.log("test")
+
+    console.log("test");
+
     try {
-        // Récupération de l’utilisateur
+        // Get the user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérification des permissions
+        // Check if the user has permission to read room data
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.readObject) {
-            return res.status(403).json({ error: 'Accès refusé : lecture des pièces non autorisée' });
+            return res.status(403).json({ error: 'Access denied: reading rooms not allowed' });
         }
 
-        // Vérification de la présence et validité de l’ID
+        // Validate the room ID from the query
         const { id } = req.query;
         const parsedId = parseInt(id, 10);
         if (isNaN(parsedId)) {
-            return res.status(400).json({ error: 'ID de pièce invalide ou manquant dans la requête' });
+            return res.status(400).json({ error: 'Invalid or missing room ID in the request' });
         }
 
-        // Lecture de la pièce correspondante
+        // Fetch the room from Supabase
         const { data, error } = await supabaseClient
             .from('Room')
             .select('*')
             .eq('id', parsedId)
             .single();
 
+        // Handle Supabase error
         if (error) {
-            console.error('Erreur Supabase :', error.message);
+            console.error('Supabase error:', error.message);
             return res.status(500).json({
-                error: 'Erreur lors de la récupération de la pièce',
+                error: 'Error retrieving the room',
                 details: error.message,
             });
         }
 
+        // Return the found room
         return res.status(200).json({ room: data });
 
     } catch (err) {
-        console.error('Erreur serveur :', err);
+        // Catch unexpected server error
+        console.error('Server error:', err);
         return res.status(500).json({
-            error: 'Erreur serveur inattendue',
+            error: 'Unexpected server error',
             details: err.message,
         });
     }

@@ -1,53 +1,59 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import {logAction} from "lib/logAction";
+import { logAction } from "lib/logAction";
 
-// Handler pour traiter une requête DELETE (suppression d’une pièce)
+// Handler to process a DELETE request (deleting a room)
 export default async function handler(req, res) {
-    // Refuse toute méthode autre que DELETE
+    // Only allow DELETE method
     if (req.method !== 'DELETE') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Vérifie que l'ID est bien fourni et est un nombre entier
+    // Validate and parse the ID from the URL
     const { id } = req.query;
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-        return res.status(400).json({ error: 'ID de pièce invalide ou manquant' });
+        return res.status(400).json({ error: 'Invalid or missing room ID' });
     }
 
     try {
-        // Récupération de l'utilisateur
+        // Get the authenticated user
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie si l'utilisateur a la permission de supprimer une pièce
+        // Check if user has permission to delete a room
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.deleteObject) {
-            return res.status(403).json({ error: 'Accès refusé : suppression non autorisée' });
+            return res.status(403).json({ error: 'Access denied: deletion not allowed' });
         }
 
-        // Suppression dans Supabase
+        // Perform deletion in Supabase
         const { data, error } = await supabaseClient
             .from('Room')
             .delete()
             .eq('id', parsedId)
             .select();
 
+        // Handle Supabase errors
         if (error) {
-            console.error('Erreur suppression pièce :', error);
+            console.error('Room deletion error:', error);
             return res.status(500).json({
-                error: 'Erreur Supabase',
+                error: 'Supabase error',
                 details: error.message,
             });
         }
-        await logAction(idf,"login");
+
+        // Log the action
+        await logAction(idf, "login");
+
+        // Return deleted data
         return res.status(200).json({ deleted: data });
     } catch (err) {
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        // Catch unexpected server errors
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

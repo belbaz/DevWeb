@@ -1,41 +1,46 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import {logAction} from "lib/logAction";
+import { logAction } from "lib/logAction";
 
-// Handler pour traiter les requêtes PUT (mise à jour d’une pièce)
+// Handler to process PUT requests (update a room)
 export default async function handler(req, res) {
+    // Only allow PUT method
     if (req.method !== 'PUT') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // Parse and validate the room ID from the URL
     const { id } = req.query;
     const parsedId = parseInt(id, 10);
     if (isNaN(parsedId)) {
-        return res.status(400).json({ error: 'ID de pièce invalide ou manquant dans l’URL' });
+        return res.status(400).json({ error: 'Invalid or missing room ID in URL' });
     }
 
     try {
+        // Get user from the request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérification des permissions de mise à jour
+        // Check update permissions
         const { permissions } = getUserPermissions(user.points || 0);
         console.log("POINTS =", user.points);
         console.log("PERMISSIONS =", permissions);
         if (!permissions.updateObject) {
-            return res.status(403).json({ error: 'Accès refusé : modification non autorisée' });
+            return res.status(403).json({ error: 'Access denied: update not allowed' });
         }
 
+        // Get fields to update from request body
         const fieldsToUpdate = req.body;
 
-        // Vérifie que roomtype est bien présent s'il est mis à jour
+        // Ensure 'roomtype' is not empty if present
         if (fieldsToUpdate.hasOwnProperty('roomtype') && !fieldsToUpdate.roomtype) {
-            return res.status(400).json({ error: 'Le champ roomtype ne peut pas être vide' });
+            return res.status(400).json({ error: 'Field "roomtype" cannot be empty' });
         }
 
+        // Update the room in Supabase
         const { data, error } = await supabaseClient
             .from('Room')
             .update(fieldsToUpdate)
@@ -43,14 +48,18 @@ export default async function handler(req, res) {
             .select();
 
         if (error) {
-            console.error('Erreur mise à jour pièce :', error);
-            return res.status(500).json({ error: 'Erreur Supabase', details: error.message });
+            console.error('Room update error:', error);
+            return res.status(500).json({ error: 'Supabase error', details: error.message });
         }
-        await logAction(idf,"updateRoom");
+
+        // Log the update action
+        await logAction(idf, "updateRoom");
+
+        // Return updated room data
         return res.status(200).json({ updated: data });
 
     } catch (err) {
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }

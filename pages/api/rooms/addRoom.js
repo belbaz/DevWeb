@@ -1,34 +1,37 @@
 import supabaseClient from 'lib/supabaseClient.js';
 import { getUserPermissions } from 'lib/getUserPermissions.js';
 import { getUserFromRequest } from 'lib/getUserFromRequest.js';
-import {logAction} from "lib/logAction";
+import { logAction } from "lib/logAction";
 
-// Handler pour traiter une requête POST (création d’une nouvelle pièce)
+// Handler to process a POST request (create a new room)
 export default async function handler(req, res) {
+    // Allow only POST method
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Méthode non autorisée' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
+        // Get user from request
         const user = await getUserFromRequest(req);
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non authentifié' });
+            return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        // Vérifie si l'utilisateur a le droit de créer une pièce
+        // Check if user has permission to create a room
         const { permissions } = getUserPermissions(user.points || 0);
         if (!permissions.addObject) {
-            return res.status(403).json({ error: 'Accès refusé : création de pièce non autorisée' });
+            return res.status(403).json({ error: 'Access denied: room creation not allowed' });
         }
 
+        // Extract data from request body
         const { name, floor, levelAcces = 'debutant', roomtype } = req.body;
 
-        // Vérification des champs obligatoires
+        // Validate required fields
         if (!name || typeof floor !== 'number' || !roomtype) {
-            return res.status(400).json({ error: 'Champs requis manquants : name, floor, roomtype' });
+            return res.status(400).json({ error: 'Missing required fields: name, floor, roomtype' });
         }
 
-        // Récupération du plus grand ID existant
+        // Get the highest existing ID to generate a new one
         const { data: maxData, error: maxError } = await supabaseClient
             .from('Room')
             .select('id')
@@ -36,14 +39,14 @@ export default async function handler(req, res) {
             .limit(1);
 
         if (maxError) {
-            console.error('Erreur récupération max ID :', maxError);
-            return res.status(500).json({ error: 'Erreur récupération ID', details: maxError.message });
+            console.error('Error retrieving max ID:', maxError);
+            return res.status(500).json({ error: 'Error retrieving ID', details: maxError.message });
         }
 
         const maxId = maxData?.[0]?.id || 0;
         const newId = maxId + 1;
 
-        // Insertion de la nouvelle salle
+        // Insert new room in Supabase
         const { data, error } = await supabaseClient
             .from('Room')
             .insert([{
@@ -56,15 +59,18 @@ export default async function handler(req, res) {
             .select();
 
         if (error) {
-            console.error('Erreur création pièce :', error);
-            return res.status(500).json({ error: 'Erreur Supabase', details: error.message });
+            console.error('Room creation error:', error);
+            return res.status(500).json({ error: 'Supabase error', details: error.message });
         }
 
-        await logAction(idf,"addRoom");
+        // Log the creation action
+        await logAction(idf, "addRoom");
+
+        // Return created room
         return res.status(201).json({ created: data });
 
     } catch (err) {
-        console.error('Erreur serveur :', err);
-        return res.status(500).json({ error: 'Erreur serveur inattendue', details: err.message });
+        console.error('Server error:', err);
+        return res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }
 }
