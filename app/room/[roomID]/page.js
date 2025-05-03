@@ -1,10 +1,9 @@
 "use client";
 
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 
 import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
@@ -20,9 +19,12 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 export default function Room({ }) {
 	const [isRoomValid, setisRoomValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
+	const [editable, setEditable] = useState(false);
+	const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+
 	const [roomData, setRoomData] = useState(null); // to store the room data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
-	const [editable, setEditable] = useState(false);
+
 
 	const params = useParams();
 	const router = useRouter();
@@ -80,6 +82,26 @@ export default function Room({ }) {
 		}
 	}
 
+	async function deleteRoom() {
+		try {
+			const response = await fetch("/api/user/deleteAccount", {
+				method: "DELETE",
+				credentials: "include"
+			});
+
+			if (response.ok) {
+				toast.success("room deleted successfully");
+				router.push('/');
+			} else {
+				const data = await response.json();
+				toast.error(data.error || "Error while deleting room");
+			}
+		} catch (error) {
+			console.error("Error while deleting room : ", error);
+			toast.error("Error while deleting room");
+		} finally { setOpenConfirmDelete(false); }
+	}
+
 	return (
 		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
 
@@ -132,7 +154,7 @@ export default function Room({ }) {
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-									{self?.level == 'expert' ? ( // edit room info
+									{self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? ( // edit room info
 										<>{category('Room information')}
 											<TextField
 												size="small"
@@ -278,6 +300,29 @@ export default function Room({ }) {
 												<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
 												<MenuItem value={"réserve"}>réserve</MenuItem>
 											</TextField>
+											{self?.level == 'expert' ? (
+												<>
+													<Button variant='contained' onClick={() => setOpenConfirmDelete(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+														Delete room
+													</Button>
+													<Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
+														<DialogTitle>Confirm deletion</DialogTitle>
+														<DialogContent>
+															<Typography>
+																Are you sure you want to delete this room? This action cannot be undone.
+															</Typography>
+														</DialogContent>
+														<DialogActions>
+															<Button onClick={() => setOpenConfirmDelete(false)} color="primary" sx={{ transform: 'none !important' }}>
+																Cancel
+															</Button>
+															<Button onClick={deleteRoom} color="error" variant="contained" sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
+																Confirm Delete
+															</Button>
+														</DialogActions>
+													</Dialog>
+												</>
+											) : null}
 										</>
 									) : ( // if the user is not the owner of the profile or not an admin, display only the information
 										<>
@@ -310,6 +355,6 @@ export default function Room({ }) {
 					) : null}
 				</Box>
 			)}
-		</Box >
+		</Box>
 	);
 }
