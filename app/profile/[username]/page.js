@@ -463,49 +463,9 @@ export default function Profile({ }) {
 										</TextField>
 
 										{category('Additional information')}
-										<TextField
-											size="small"
-											disabled={!editable}
-											label="Email address"
-											value={userData?.email}
-											type="email"
-											name='email'
-											onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-											sx={{
-												cursor: editable ? 'text' : 'not-allowed',
-												backgroundColor: "#3a3a3a",
-												borderRadius: 1,
-												'&& .MuiInputBase-input': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .MuiInputLabel-root': {
-													color: editable ? 'white' : '#9e9e9e',
-												},
-												'&& .Mui-disabled': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-												}
-											}}
-											slotProps={{
-												input: {
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e',
-															WebkitTextFillColor: '#9e9e9e',
-														}
-													}
-												},
-												inputLabel: {
-													shrink: true,
-													sx: {
-														'&&.Mui-disabled': {
-															color: '#9e9e9e !important',
-														}
-													}
-												}
-											}}
-										/>
+										<Box>
+											{fieldName('Mail', userData?.email)}
+										</Box>
 										<TextField
 											size="small"
 											disabled={!editable}
