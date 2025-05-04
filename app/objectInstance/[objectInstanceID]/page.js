@@ -41,7 +41,6 @@ export default function ObjectInstance({ }) {
 	};
 
 
-
 	const params = useParams();
 	const router = useRouter();
 
@@ -66,38 +65,8 @@ export default function ObjectInstance({ }) {
 	useEffect(() => {
 		async function fetchAndFindIndex() {
 			try {
-				try {
-					const response = await fetch('/api/objectData/listAllDatas', {
-						method: 'GET',
-						headers: { 'Content-Type': 'application/json' },
-					});
-
-					console.log('response status:', response.status);
-
-					const text = await response.text();
-					console.log('raw response text:', text);
-
-					const json = JSON.parse(text);
-
-					if (!json || !Array.isArray(json.objectData)) {
-						console.error('Invalid response format:', json);
-						return;
-					}
-
-					const allData = json.objectData;
-
-					const indexMap = {};
-					objects?.forEach(obj => {
-						const sameType = allData.filter(o => o.type_Object === obj.type_Object);
-						const index = sameType.findIndex(o => o.id === obj.id);
-						if (index >= 0) indexMap[obj.id] = index + 1;
-					});
-					setGlobalIndexMap(indexMap);
-
-				} catch (error) {
-					console.error("Erreur index global :", error);
-				}
-
+				const all = await fetch('/api/objectData/listAllDatas');
+				const { objectData } = await all.json();
 				if (objectInstanceData?.id && objectData?.length > 0) {
 					const sameTypeObjects = objectData
 						.filter(o => o.type_Object === objectInstanceData.type_Object)
@@ -272,7 +241,7 @@ export default function ObjectInstance({ }) {
 
 
 									{category('Datas')}
-									{['advanced', 'expert'].includes(self?.level) ? (
+									{['avance', 'expert'].includes(self?.level) ? (
 										<ObjectDataJsonEditor
 											object={objectInstanceData?.data}
 											setObject={(param) => setObjectInstanceData({ ...objectInstanceData, data: param })}
@@ -290,7 +259,7 @@ export default function ObjectInstance({ }) {
 							</Box>
 						</Box>
 					)}
-					{['advanced', 'expert'].includes(self?.level) && (
+					{['avance', 'expert'].includes(self?.level) && (
 						<Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 							<EditState setEditable={setEditable} onCancel={getObjectData} onConfirm={updateObjectData} />
 						</Box>

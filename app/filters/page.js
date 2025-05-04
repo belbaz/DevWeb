@@ -22,8 +22,8 @@ export default function FiltersPage() {
 
     const availableFloors = [0, 1, 2, 3];
     const baseRoomTypes = [
-        { value: "hall", label: "HALL" },
-        { value: "réserve", label: " Réserve" },
+        { value: "hall", label: "Lobby" },
+        { value: "réserve", label: " Reserve" },
     ];
     const toggleFloor = (floor) => {
         setSelectedFloors((prev) =>
