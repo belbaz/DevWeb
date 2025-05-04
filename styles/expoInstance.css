@@ -78,8 +78,6 @@
     white-space: pre-line;
 }
 
-
-
 .purchase-button-wrapper {
     flex: 1;
     display: flex;
@@ -96,6 +94,70 @@
     padding : 1rem;
     border-radius: 0px;
     font-weight: bold;
+}
+
+
+.customDialogContent {
+    background-color: black;
+    color: white;
+    font-family: 'Cinzel', serif;
+    padding: 20px;
+    text-align: center;
+    border: none;
+}
+
+.customDialogText {
+    font-weight: bold;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.customDialogButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.customDialogButtons button {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    padding: 10px 12px;
+    border: 1px solid white;
+    background-color: black;
+    color: white;
+    text-transform: uppercase;
+    cursor: pointer;
+    flex: 1 1 100px;
+    max-width: 100%;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 80px;
+}
+
+.customDialogButtons .dialogCancelBtn {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: black;
+}
+
+.customDialogButtons button:hover {
+    background-color: white;
+    color: black;
+}
+
+@media (max-width: 600px) {
+    .customDialogButtons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .customDialogButtons button {
+        width: 60%;
+        max-width: none;
+    }
 }
 
 

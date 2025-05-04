@@ -7,7 +7,8 @@ export default async function handler(req, res) {
 
     const { data: expos, error } = await supabase
         .from('Expo')
-        .select('*');
+        .select('*')
+        .order('day1', { ascending: false });
 
     if (error) {
         return res.status(500).json({ error: 'Failed to fetch expositions' });

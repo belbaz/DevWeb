@@ -2,23 +2,28 @@
 
 import 'styles/expoInstance.css';
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 
 export default function ExpoInstancePage() {
     const { expoInstanceId } = useParams();
+    const router = useRouter();
     const [expo, setExpo] = useState(null);
     const [selectedDate, setSelectedDate] = useState("");
     const [availability, setAvailability] = useState("");
+    const [showLoginDialog, setShowLoginDialog] = useState(false);
 
     useEffect(() => {
-        // Fetch data for the specific expo
         fetch("/api/booking/getAllExposData")
             .then((res) => res.json())
             .then((data) => {
                 const foundExpo = data.find((e) => e.id === parseInt(expoInstanceId));
                 if (foundExpo) {
                     setExpo(foundExpo);
-                    setSelectedDate(foundExpo.dates[0]); // default to first date
+                    setSelectedDate(foundExpo.dates[0]);
                 }
             });
     }, [expoInstanceId]);
@@ -33,11 +38,19 @@ export default function ExpoInstancePage() {
         })
             .then((res) => res.text())
             .then(setAvailability)
-            .catch((err) => {
-                console.error("Error checking availability:", err);
-                setAvailability("Error checking availability");
-            });
+            .catch(() => setAvailability("Error checking availability"));
     }, [selectedDate, expo]);
+
+    const checkUserAndPurchase = async () => {
+        const res = await fetch("/api/user/checkUser", { method: "POST" });
+        const data = await res.json();
+
+        if (data?.pseudo) {
+            router.push(`/expoBooking?title=${encodeURIComponent(expo.name)}`);
+        } else {
+            setShowLoginDialog(true);
+        }
+    };
 
     if (!expo) return <p>Loading...</p>;
 
@@ -61,7 +74,9 @@ export default function ExpoInstancePage() {
 
                 {availability.includes("tickets available") && (
                     <div className="purchase-button-wrapper">
-                        <button className="purchase-button">Purchase</button>
+                        <button className="purchase-button" onClick={checkUserAndPurchase}>
+                            Purchase
+                        </button>
                     </div>
                 )}
 
@@ -69,8 +84,6 @@ export default function ExpoInstancePage() {
                     Status : <strong>{availability}</strong>
                 </div>
             </div>
-
-
 
             <div className="expo-instance-details-vertical">
                 <div className="expo-poster-centered">
@@ -82,7 +95,18 @@ export default function ExpoInstancePage() {
                 </div>
             </div>
 
-
+            <Dialog open={showLoginDialog} onClose={() => setShowLoginDialog(false)}>
+                <DialogContent className="customDialogContent">
+                    <p className="customDialogText">
+                        Please log in or sign up to purchase tickets.
+                    </p>
+                    <div className="customDialogButtons">
+                        <button className="dialogCancelBtn" onClick={() => setShowLoginDialog(false)}>Cancel</button>
+                        <button className="dialogPayBtn" onClick={() => router.push('/login')}>Login</button>
+                        <button className="dialogPayBtn" onClick={() => router.push('/signup')}>Sign Up</button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }
