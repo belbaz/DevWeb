@@ -5,8 +5,6 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import MenuItem from '@mui/material/MenuItem';
 
 import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
 import React, { useEffect, useState } from "react";
@@ -24,7 +22,6 @@ export default function Object({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
 	const [object, setObject] = useState(null); // to store the object data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
-	const [room, setRoom] = useState(null);
 	const [editable, setEditable] = useState(false);
 
 	const params = useParams();
@@ -40,10 +37,6 @@ export default function Object({ }) {
 		getObject();
 		getSelf();
 	}, [objectID]);
-
-	useEffect(() => {
-		object?.room_id ? getRoom(object?.room_id) : null;
-	}, [object?.room_id]);
 
 	async function getObject() {
 		try {
@@ -62,27 +55,6 @@ export default function Object({ }) {
 
 		} catch (error) {
 			toast.error("Error while fetching object data : " + error.message);
-		} finally {
-			setLoading(false);
-		}
-	}
-
-	async function getRoom(roomID = object?.room_id) {
-		try {
-			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
-				method: "GET"
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Unknown error");
-			}
-
-			const data = await response.json();
-			setRoom(data.room); // set the room data to the state
-
-		} catch (error) {
-			toast.error("Error while fetching room data : " + error.message);
 		} finally {
 			setLoading(false);
 		}
@@ -115,8 +87,6 @@ export default function Object({ }) {
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					brand: object.brand,
-					accessLevel: object.accessLevel,
-					room_id: object.room_id,
 					description: object.description,
 				}),
 				credentials: "include"
@@ -202,7 +172,6 @@ export default function Object({ }) {
 								Type : {object?.type}
 							</Typography>
 
-
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
 									{self?.level == 'avance' || self?.level == 'expert' ? ( // edit object info
@@ -250,61 +219,7 @@ export default function Object({ }) {
 													}
 												}}
 											/>
-											<TextField
-												size="small"
-												disabled={!editable}
-												label="Level access"
-												value={object?.accessLevel}
-												select
-												name='accessLevel'
-												onChange={(e) => setObject({ ...object, accessLevel: e.target.value })}
-												sx={{
-													cursor: editable ? 'text' : 'not-allowed',
-													backgroundColor: "#3a3a3a",
-													borderRadius: 1,
-													'&& .MuiSelect-icon': {
-														color: editable ? 'white' : '#9e9e9e !important',
-													},
-													'&& .MuiInputBase-input': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .MuiInputLabel-root': {
-														color: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .Mui-disabled': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													}
-												}}
-												slotProps={{
-													input: {
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e',
-																WebkitTextFillColor: '#9e9e9e',
-															}
-														}
-													},
-													inputLabel: {
-														shrink: true,
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e !important',
-															}
-														}
-													}
-												}}
-											>
-												<MenuItem value={"debutant"}>débutant</MenuItem>
-												<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-												<MenuItem value={"avance"}>avancé</MenuItem>
-												<MenuItem value={"expert"}>expert</MenuItem>
-											</TextField>
-											<Link onClick={() => { router.push("/room/" + object?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
-												{fieldName('Room', room?.name)}
-											</Link>
-											{category('Additional data')}
+											{category('Description')}
 											<TextareaAutosize
 												value={object?.description}
 												disabled={!editable}
@@ -341,12 +256,6 @@ export default function Object({ }) {
 											<Box>
 												{fieldName('Brand', String(object?.brand))}
 											</Box>
-											<Box>
-												{fieldName('Access level', object?.accessLevel)}
-											</Box>
-											<Link onClick={() => { router.push("/room/" + object?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
-												{fieldName('Room', room?.name)}
-											</Link>
 											<Box>
 												{fieldName('Description', object?.description)}
 											</Box>
