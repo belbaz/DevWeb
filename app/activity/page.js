@@ -19,6 +19,7 @@ import {IoAnalyticsOutline, IoCalendarOutline, IoStatsChartOutline} from "react-
 import Rolling from "../../components/rolling";
 import {saveAs} from 'file-saver';
 import ExcelJS from 'exceljs';
+import {toast} from "react-toastify";
 
 // Register all necessary elements for different chart types
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend, Title, Filler);
@@ -39,6 +40,44 @@ export default function UserActivityDashboard() {
     const [activeUsers, setActiveUsers] = useState(0);
     const [mostActiveUser, setMostActiveUser] = useState({pseudo: null, count: 0});
     const [data, setData] = useState([]);
+
+    useEffect(() => {
+        setIsLoading(true);
+
+        const checkAuthAndFetch = async () => {
+            try {
+                const authCheck = await fetch("/api/user/checkUser", {
+                    method: "POST",
+                    credentials: "include",
+                });
+
+                const data = await authCheck.json();
+
+                if (!data.level || data.level !== "expert") {
+                    console.log(data.level);
+                }
+
+                // L'utilisateur est autorisé, on peut continuer ici
+                const activityRes = await fetch("/api/user/getActivity", {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                const activityData = await activityRes.json();
+                console.log("Activity data:", activityData);
+
+                // Tu peux setState ici pour afficher les données
+            } catch (error) {
+                toast.error("An error occurred.");
+                console.error("Error:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkAuthAndFetch();
+    }, []);
+
 
     useEffect(() => {
         setIsLoading(true);

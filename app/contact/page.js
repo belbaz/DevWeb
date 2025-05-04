@@ -29,7 +29,7 @@ export default function Contact() {
 
             } catch (error) {
                 console.error("Error fetching user data:", error);
-                toast.error("Unable to load user data. Please try again later.");
+                toast.error("Error when fetching user data:", error);
             }
         };
 

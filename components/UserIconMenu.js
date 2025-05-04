@@ -166,14 +166,17 @@ export default function UserIconMenu({user}) {
                     </ListItemIcon>
                     Profile
                 </MenuItem>,
-                <MenuItem key="message" onClick={() => handleMenuItemClick('message')}>
-                    <ListItemIcon>
-                        <Badge badgeContent={unreadCount} color="error" invisible={unreadCount === 0}>
-                            <MessageIcon fontSize="small" />
-                        </Badge>
-                    </ListItemIcon>
-                    Messages
-                </MenuItem>,
+                // Afficher l'élément de menu des messages uniquement pour les experts
+                ...(user?.level === "expert" ? [
+                    <MenuItem key="message" onClick={() => handleMenuItemClick('message')}>
+                        <ListItemIcon>
+                            <Badge badgeContent={unreadCount} color="error" invisible={unreadCount === 0}>
+                                <MessageIcon fontSize="small"/>
+                            </Badge>
+                        </ListItemIcon>
+                        Messages
+                    </MenuItem>
+                ] : []),
                 <MenuItem key="activity" onClick={() => handleMenuItemClick('activity')}>
                     <ListItemIcon>
                         <ActivityIcon fontSize="small"/>

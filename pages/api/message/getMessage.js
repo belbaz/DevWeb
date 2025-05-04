@@ -16,6 +16,7 @@ export default async function getMessage(req, res) {
                 const {data, error} = await supabase
                     .from('Message')
                     .select('*')
+                    .order('createdAt', { ascending: false });
 
                 if (error) {
                     return res.status(500).json({message: error.message});
