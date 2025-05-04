@@ -490,20 +490,34 @@ export default function Room({ }) {
 								))}
 							</TextField>
 
-							{category('Object information')}
-							<Box>{fieldName('Type', currentObject?.type_Object)}</Box>
-							{currentObject?.data && Object.entries(typeof currentObject.data === 'string' ? JSON.parse(currentObject.data) : currentObject.data).map(([key, value]) => (
-								<Box key={key}>{fieldName(key, String(value))}</Box>
-							))}
+							{currentObject ? (
+								<>
+									{category('Object information')}
+									<Box>{fieldName('Type', currentObject?.type_Object)}</Box>
+									{Object.entries(typeof currentObject.data === 'string' ?
+										JSON.parse(currentObject.data)
+										:
+										currentObject.data).map(([key, value]) => (
+											<Box key={key}>
+												{fieldName(key, String(value))}
+											</Box>
+										))
+									}
 
-							{['avance', 'expert'].includes(self?.level) && currentObject?.id && (
-								<Button
-									variant="contained"
-									sx={{ mt: 2, width: 'fit-content' }}
-									onClick={() => router.push(`/objectInstance/${currentObject.id}`)}
-								>
-									Edit object
-								</Button>
+									{['avance', 'expert'].includes(self?.level) && currentObject?.id && (
+										<Button
+											variant="contained"
+											sx={{ mt: 2, width: 'fit-content' }}
+											onClick={() => router.push(`/objectInstance/${currentObject.id}`)}
+										>
+											Edit object
+										</Button>
+									)}
+								</>
+							) : (
+								<Box sx={{ mt: 2, color: 'white' }}>
+									<Typography variant="h6">No object selected</Typography>
+								</Box>
 							)}
 						</Box>
 					)}
