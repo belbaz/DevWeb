@@ -8,7 +8,7 @@
 
 :root {
   --header-height: 80px;
-  --footer-height: 60px;
+  --footer-height: 10vh;
   --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
@@ -212,12 +212,14 @@ body::before {
 /* Styles pour les éléments qui utilisent des couleurs de fond */
 
 .navbar {
-  background: rgba(0, 0, 0, 0.6); /* Réduction de l'opacité de 0.75 à 0.6 */
+  background: rgba(0, 0, 0, 0.6);
+  /* Réduction de l'opacité de 0.75 à 0.6 */
   /* Autres styles... */
 }
 
 .nav-backdrop {
-  background: rgba(0, 0, 0, 0.4); /* Réduction de l'opacité de 0.5 à 0.4 */
+  background: rgba(0, 0, 0, 0.4);
+  /* Réduction de l'opacité de 0.5 à 0.4 */
   /* Autres styles... */
 }
 
@@ -252,7 +254,7 @@ body::before {
     position: static;
     flex: 0;
   }
-  
+
   .center-zone.centered-search {
     flex: 1;
   }
