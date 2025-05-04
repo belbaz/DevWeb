@@ -2,6 +2,7 @@
 
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
 import Box from '@mui/material/Box';
+import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
@@ -176,10 +177,10 @@ export default function Profile({ }) {
 			const response = await fetch("/api/user/deleteAccount", {
 				method: "DELETE",
 				credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ userToDelete: username })
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ userToDelete: username })
 			});
 
 			if (response.ok) {
@@ -253,14 +254,13 @@ export default function Profile({ }) {
 									alignItems: 'center',
 									flexDirection: 'column'
 								}}>
-								<Box
-									sx={{ position: 'relative', width: '30vw', aspectRatio: '1', maxWidth: '120px' }}>
+								<Box sx={{ scale: '220%', mb: 4 }}>
 									{isAvatarLoaded ? (
-										<img
-											src={avatarUrl}
-											alt={username.pseudo}
-											style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-										/>
+										avatarUrl ? (
+											<Avatar src={avatarUrl} alt={username.pseudo} />
+										) : (
+											<Avatar>{username.pseudo ? username.pseudo.charAt(0).toUpperCase() : 'U'}</Avatar>
+										)
 									) : (
 										<Skeleton
 											variant="circular"
@@ -739,15 +739,6 @@ export default function Profile({ }) {
 										<Button variant='contained' onClick={() => setOpenConfirmDelete(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
 											Delete account
 										</Button>
-
-                                        <Box // editstate component only shown if the user is an admin
-                                            sx={{
-                                                width: '100%',
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                            }}>
-                                            < EditState setEditable={(x) => { setEditable(x) ; if (self.level === 'expert') {setEditableAdmin(x)} }} onConfirm={() => { updateProfile() }} />
-                                        </Box>
 
 										<Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
 											<DialogTitle>Confirm deletion</DialogTitle>
