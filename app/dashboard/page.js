@@ -32,7 +32,6 @@ export default function Dashboard() {
   const [permissions, setPermissions] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
-  const [dashboardView, setDashboardView] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   
@@ -43,9 +42,6 @@ export default function Dashboard() {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedType, setSelectedType] = useState(null);
   const [showLegacyDashboard, setShowLegacyDashboard] = useState(false);
-  const [sensorData, setSensorData] = useState([]);
-  const [historyActions, setHistoryActions] = useState([]);
-  const [objectDataHistory, setObjectDataHistory] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState(null);
   
   const router = useRouter();
@@ -159,33 +155,6 @@ export default function Dashboard() {
           console.error('Invalid data format for rooms or objects');
           toast.error('Data format error - please contact support');
         }
-        
-        // Continue with non-critical data loading
-        try {
-          // Fetch history actions
-          const historyResponse = await fetch('/api/dashboard/getHistory', {
-            credentials: 'include'
-          });
-          
-          if (historyResponse.ok) {
-            const historyData = await historyResponse.json();
-            setHistoryActions(historyData.historyActions || []);
-          }
-          
-          // Fetch object data history
-          const objectHistoryResponse = await fetch('/api/objectData/getHistory', {
-            credentials: 'include'
-          });
-          
-          if (objectHistoryResponse.ok) {
-            const historyData = await objectHistoryResponse.json();
-            setObjectDataHistory(historyData.history || []);
-          }
-        } catch (error) {
-          // Log but don't disrupt the main flow for non-critical data
-          console.error('Error fetching secondary dashboard data:', error);
-        }
-        
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         toast.error('Failed to load dashboard data');
@@ -200,10 +169,6 @@ export default function Dashboard() {
   const handleTabChange = (index) => {
     setActiveTab(index);
   };
-
-  const handleDashboardViewChange = (event, newValue) => {
-    setDashboardView(newValue);
-  };
   
   const handleRoomSelect = (roomId) => {
     setSelectedRoom(roomId);
@@ -215,11 +180,6 @@ export default function Dashboard() {
   
   const handleTypeSelect = (type) => {
     setSelectedType(type);
-  };
-  
-  const handleClearFilters = () => {
-    setSelectedRoom(null);
-    setSelectedType(null);
   };
   
   const toggleDashboardView = () => {
