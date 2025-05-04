@@ -506,10 +506,10 @@ export default function Room({ }) {
 										JSON.parse(currentObject.data)
 										:
 										currentObject.data).map(([key, value]) => (
-											<Box key={key}>
-												{fieldName(key, String(value))}
-											</Box>
-										))
+										<Box key={key}>
+											{fieldName(key, String(value))}
+										</Box>
+									))
 									}
 
 									{['advanced', 'expert'].includes(self?.level) && currentObject?.id && (

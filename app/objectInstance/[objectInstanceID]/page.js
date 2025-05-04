@@ -26,19 +26,20 @@ export default function ObjectInstance({ }) {
 	const [objectType, setObjectType] = useState(null);
 	const [historyData, setHistoryData] = useState([]);
 	const objectFieldMap = {
-		GuideAudio: ['Mode', 'État', 'Opacité'],
-		CapteurClimat: ['État', 'Batterie', 'Affectation', 'Dernière syncro'],
-		CompteurVisiteurs: ['Alerte', 'Humidité', 'Température', 'Dernière Mesure'],
-		EclairageIntelligent: ['Nb actuel', 'Pic du jour', 'Capacité max'],
-		AmbianceSonore: ['Mode', 'État', 'Allumé', 'Intensité', 'Présence détectée'],
-		SerrureConnectee: ['Zone', 'Piste', 'Volume', 'Lecture'],
-		CameraIntelligente: ['État', 'Dernier accès', 'Tentative refusée'],
-		EtiquetteNFC: ['État', 'Connexion', 'Dernier mouvement'],
-		PriseConnectee: ['Nb scans', 'Dernier scan', 'Lien accédé'],
-		DetecteurFumee: ['État', 'Consommation', 'Programmation'],
-		VitreElectrochrome: ['État', 'Dernier test', 'Niveau batterie'],
-		TrainAutonome: ['Statut', 'Batterie', 'Trajet prévu', 'Audio en cours', 'Position actuelle', 'Dernier arrêt effectué'],
+		ElectrochromicGlass: ['State', 'Last test', 'Battery level'],
+		ClimateMonitor: ['state', 'Battery level', 'Affectation', 'Last sync'],
+		VisitorCounter: ['Alert', 'Humidity', 'Temperature', 'Last measurement'],
+		SmartLighting: ['Current number', 'Daily max', 'Max capacity'],
+		AudioAtmosphere: ['Mode', 'State', 'Turned on', 'Intensity', 'Detected presence'],
+		SmartLock: ['Area', 'Track', 'Volume', 'Playback'],
+		SmartCamera: ['State', 'Last access', 'Failed attempts'],
+		NFCTag: ['State', 'Connexion', 'Last movement'],
+		SmartPlug: ['Scans', 'Last scan', 'Accessed link'],
+		SmokeDetector: ['State', 'Power', 'Time slot'],
+		AudioGuide: ['Mode', 'State', 'Opacity', 'Last test', 'Battery level'],
+		AutonomousTrain: ['State', 'Battery', 'Route', 'Current audio', 'Current location', 'Last stop made', 'Current passengers'],
 	};
+
 
 
 	const params = useParams();
@@ -65,8 +66,38 @@ export default function ObjectInstance({ }) {
 	useEffect(() => {
 		async function fetchAndFindIndex() {
 			try {
-				const all = await fetch('/api/objectData/listAllDatas');
-				const { objectData } = await all.json();
+				try {
+					const response = await fetch('/api/objectData/listAllDatas', {
+						method: 'GET',
+						headers: { 'Content-Type': 'application/json' },
+					});
+
+					console.log('response status:', response.status);
+
+					const text = await response.text();
+					console.log('raw response text:', text);
+
+					const json = JSON.parse(text);
+
+					if (!json || !Array.isArray(json.objectData)) {
+						console.error('Invalid response format:', json);
+						return;
+					}
+
+					const allData = json.objectData;
+
+					const indexMap = {};
+					objects?.forEach(obj => {
+						const sameType = allData.filter(o => o.type_Object === obj.type_Object);
+						const index = sameType.findIndex(o => o.id === obj.id);
+						if (index >= 0) indexMap[obj.id] = index + 1;
+					});
+					setGlobalIndexMap(indexMap);
+
+				} catch (error) {
+					console.error("Erreur index global :", error);
+				}
+
 				if (objectInstanceData?.id && objectData?.length > 0) {
 					const sameTypeObjects = objectData
 						.filter(o => o.type_Object === objectInstanceData.type_Object)

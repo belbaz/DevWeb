@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
         // 3. Check if the user has permission to read object data
         const { permissions } = getUserPermissions(user.points || 0);
-        if (!permissions.readData) {
+        if (!permissions.readObject) {
             return res.status(403).json({ error: 'Access denied: reading not allowed' });
         }
 
