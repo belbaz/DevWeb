@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
-import { useParams, useRouter } from 'next/navigation'; // get /profile/:username
+import { useParams, useRouter, useSearchParams } from 'next/navigation'; // get /profile/:username
 import React, { useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
@@ -29,6 +29,7 @@ export default function Room({ }) {
 	const [expoList, setExpoList] = useState([]);
 
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	useEffect(() => {
 	}, []);

@@ -38,6 +38,14 @@ export default function Room({ }) {
 
 			const data = await response.json();
 			setRooms(data.rooms);
+			
+			// Si des rooms sont disponibles, sélectionner la première par défaut
+			if (data.rooms && data.rooms.length > 0) {
+				setObject(prev => ({
+					...prev,
+					room_id: data.rooms[0].id
+				}));
+			}
 		} catch (error) {
 			toast.error("Error while fetching object instance data : " + error.message);
 		}

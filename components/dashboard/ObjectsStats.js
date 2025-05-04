@@ -6,7 +6,7 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { toast } from 'react-toastify';
 
-const ObjectsStats = ({ permissions }) => {
+const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
   const [objects, setObjects] = useState([]);
   const [objectData, setObjectData] = useState([]);
   const [rooms, setRooms] = useState([]);
@@ -83,9 +83,6 @@ const ObjectsStats = ({ permissions }) => {
           const roomsData = await roomsResponse.json();
           setRooms(roomsData.rooms || []);
         }
-
-        // Calculer les statistiques
-        calculateStats(fetchedObjects);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to load dashboard data');
@@ -97,32 +94,55 @@ const ObjectsStats = ({ permissions }) => {
     fetchData();
   }, []);
 
-  const calculateStats = (objects) => {
+  // Recalculate stats when filters or data change
+  useEffect(() => {
+    calculateStats(objects);
+  }, [objects, selectedRoom, selectedType]);
+
+  const calculateStats = (allObjects) => {
+    if (!Array.isArray(allObjects)) {
+      setStats({
+        totalObjects: 0,
+        byType: {},
+        byRoom: {}
+      });
+      return;
+    }
+
+    // Filter objects based on selections
+    let filteredObjects = [...allObjects];
+    
+    if (selectedRoom) {
+      filteredObjects = filteredObjects.filter(obj => obj.room_id === selectedRoom);
+    }
+    
+    if (selectedType) {
+      filteredObjects = filteredObjects.filter(obj => obj.type === selectedType);
+    }
+
     const newStats = {
-      totalObjects: Array.isArray(objects) ? objects.length : 0,
+      totalObjects: filteredObjects.length,
       byType: {},
       byRoom: {}
     };
 
-    // Compter les objets par type
-    if (Array.isArray(objects)) {
-      objects.forEach(obj => {
-        if (!obj) return;
-        
-        // Par type
-        if (obj.type) {
-          newStats.byType[obj.type] = (newStats.byType[obj.type] || 0) + 1;
-        }
-        
-        // Par salle
-        if (obj.room_id) {
-          const roomId = String(obj.room_id);
-          newStats.byRoom[roomId] = (newStats.byRoom[roomId] || 0) + 1;
-        } else {
-          newStats.byRoom['unassigned'] = (newStats.byRoom['unassigned'] || 0) + 1;
-        }
-      });
-    }
+    // Count objects by type and room
+    filteredObjects.forEach(obj => {
+      if (!obj) return;
+      
+      // By type
+      if (obj.type) {
+        newStats.byType[obj.type] = (newStats.byType[obj.type] || 0) + 1;
+      }
+      
+      // By room
+      if (obj.room_id) {
+        const roomId = String(obj.room_id);
+        newStats.byRoom[roomId] = (newStats.byRoom[roomId] || 0) + 1;
+      } else {
+        newStats.byRoom['unassigned'] = (newStats.byRoom['unassigned'] || 0) + 1;
+      }
+    });
 
     setStats(newStats);
   };
@@ -138,7 +158,8 @@ const ObjectsStats = ({ permissions }) => {
         .map(([type, count], index) => ({
           id: index,
           value: count,
-          label: type
+          label: type,
+          color: `hsl(${(index * 137) % 360}, 80%, 65%)`
         }))
         .filter(item => item.value > 0)
         .sort((a, b) => b.value - a.value)
@@ -202,41 +223,135 @@ const ObjectsStats = ({ permissions }) => {
     }
   };
 
-  // Count instances by type
+  // Count active/inactive objects and prepare data for pie chart
   const countObjectDataByType = () => {
-    try {
-      const counts = {};
-      if (!objectData || !Array.isArray(objectData) || objectData.length === 0) return {};
-      
-      objectData.forEach(obj => {
-        if (obj && obj.type_Object) {
-          counts[obj.type_Object] = (counts[obj.type_Object] || 0) + 1;
-        }
-      });
-      return counts;
-    } catch (error) {
-      console.error('Error counting object data by type:', error);
-      return {};
+    if (!Array.isArray(objectData) || objectData.length === 0) {
+      return [{ id: 0, value: 1, label: 'No Data', color: 'hsl(0, 0%, 60%)' }];
     }
+    
+    // Determine which objects to count based on current filters
+    let filteredObjectIds = [];
+    let filteredObjects = [...objects];
+    
+    if (selectedRoom) {
+      filteredObjects = filteredObjects.filter(obj => obj.room_id === selectedRoom);
+    }
+    
+    if (selectedType) {
+      filteredObjects = filteredObjects.filter(obj => obj.type === selectedType);
+    }
+    
+    filteredObjectIds = filteredObjects.map(obj => obj.id);
+    
+    // Now count how many have data and their active status
+    const objectsWithData = objectData.filter(data => filteredObjectIds.includes(data.id));
+    
+    // If no objects have data, show objects count vs. available data
+    if (objectsWithData.length === 0) {
+      return [
+        { id: 0, value: filteredObjects.length, label: 'No Data', color: 'hsl(0, 0%, 60%)' },
+      ];
+    }
+    
+    let activeCount = 0;
+    let inactiveCount = 0;
+    let unknownCount = 0;
+    
+    objectsWithData.forEach(data => {
+      if (!data.data) {
+        unknownCount++;
+        return;
+      }
+      
+      // Try to determine if the object is active
+      let dataObject;
+      try {
+        dataObject = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+      } catch (e) {
+        unknownCount++;
+        return;
+      }
+      
+      // Check various fields that might indicate active status
+      const stateValue = 
+        dataObject.État || 
+        dataObject.Etat || 
+        dataObject.Status || 
+        dataObject.Statut;
+        
+      const modeValue = dataObject.Mode;
+      
+      // Determine if the device is active based on its state value
+      if (stateValue === 'On' || 
+          stateValue === 'Actif' || 
+          stateValue === 'OK' || 
+          stateValue === 'Allumé' ||
+          stateValue === 'En marche' || 
+          stateValue === 'En déplacement' ||
+          modeValue === 'Auto') {
+        activeCount++;
+      } else if (stateValue === 'Off' || 
+                stateValue === 'Inactif' || 
+                stateValue === 'Veille') {
+        inactiveCount++;
+      } else {
+        unknownCount++;
+      }
+    });
+    
+    // Calculate objects without data
+    const noDataCount = filteredObjects.length - objectsWithData.length;
+    
+    // Prepare chart data
+    const chartData = [];
+    
+    // Only include categories with values
+    if (activeCount > 0) {
+      chartData.push({ id: 0, value: activeCount, label: 'Active', color: 'hsl(120, 80%, 60%)' });
+    }
+    
+    if (inactiveCount > 0) {
+      chartData.push({ id: chartData.length, value: inactiveCount, label: 'Inactive', color: 'hsl(0, 80%, 60%)' });
+    }
+    
+    if (unknownCount > 0) {
+      chartData.push({ id: chartData.length, value: unknownCount, label: 'Unknown Status', color: 'hsl(45, 80%, 60%)' });
+    }
+    
+    if (noDataCount > 0) {
+      chartData.push({ id: chartData.length, value: noDataCount, label: 'No Data', color: 'hsl(0, 0%, 60%)' });
+    }
+    
+    return chartData.length > 0 ? chartData : [{ id: 0, value: 1, label: 'No Data', color: 'hsl(0, 0%, 60%)' }];
   };
 
-  // Safe preparation of pie chart data
+  // Get active objects count
+  const getActiveObjectsCount = () => {
+    const activeData = countObjectDataByType().find(item => item.label === 'Active');
+    return activeData ? activeData.value : 0;
+  };
+
+  // Prepare data for Room pie chart
   const prepareObjectDataChartData = () => {
     try {
-      const typeData = countObjectDataByType();
-      if (!typeData || Object.keys(typeData).length === 0) return [];
+      if (!stats || !stats.byRoom || Object.keys(stats.byRoom).length === 0) {
+        return [];
+      }
       
-      const chartData = Object.entries(typeData)
-        .map(([type, count], index) => ({
+      const data = Object.entries(stats.byRoom)
+        .map(([roomId, count], index) => ({
           id: index,
           value: count,
-          label: type
+          label: formatRoomName(roomId),
+          color: `hsl(${(index * 137) % 360}, 80%, 65%)`
         }))
-        .filter(item => item && item.value > 0); // Ensure no zero values
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 8); // Limiter à 8 salles pour la lisibilité
       
-      return chartData;
+      return data.length > 0 ? data : [];
     } catch (error) {
-      console.error('Error preparing object data chart:', error);
+      console.error('Error preparing room chart data:', error);
       return [];
     }
   };
@@ -255,258 +370,230 @@ const ObjectsStats = ({ permissions }) => {
     );
   }
 
-  const objectTypeChartData = prepareTypeChartData();
-  const objectDataChartData = prepareObjectDataChartData();
-  
   return (
-    <Box sx={{ mb: 4 }}>
-      <Typography variant="h6" sx={{ mb: 3 }}>Objects Dashboard</Typography>
-      
-      {/* Résumé en chiffres */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
+    <Box 
+      sx={{ 
+        p: 2, 
+        width: '100%', // Make sure it takes full width
+        maxWidth: '100%',
+        boxSizing: 'border-box', // Ensure padding is included in width calculation
+      }}
+    >
+      {/* Show simple stat cards in the first responsive row */}
+      <Grid container spacing={2} mb={isMobile ? 2 : 3}>
+        <Grid item xs={6} md={3}>
+          <Card sx={{ 
+            height: '100%', 
+            bgcolor: 'rgba(33, 150, 243, 0.15)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+          }}>
             <CardContent>
-              <Typography variant="h3" align="center">{stats.totalObjects}</Typography>
-              <Typography variant="body2" align="center">Total Objects</Typography>
+              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
+                Total Objects
+              </Typography>
+              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
+                {stats.totalObjects}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
+                {selectedRoom || selectedType ? 'Filtered view' : 'All objects'}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
+        <Grid item xs={6} md={3}>
+          <Card sx={{ 
+            height: '100%', 
+            bgcolor: 'rgba(76, 175, 80, 0.15)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+          }}>
             <CardContent>
-              <Typography variant="h3" align="center">{Object.keys(stats.byType || {}).length}</Typography>
-              <Typography variant="body2" align="center">Object Types</Typography>
+              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
+                Active Objects
+              </Typography>
+              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
+                {getActiveObjectsCount()}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
+                {stats.totalObjects > 0 ? 
+                  `${((getActiveObjectsCount() / stats.totalObjects) * 100).toFixed(0)}% of total` : 
+                  'No data available'}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
+        <Grid item xs={6} md={3}>
+          <Card sx={{ 
+            height: '100%', 
+            bgcolor: 'rgba(255, 152, 0, 0.15)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+          }}>
             <CardContent>
-              <Typography variant="h3" align="center">{Array.isArray(rooms) ? rooms.length : 0}</Typography>
-              <Typography variant="body2" align="center">Rooms</Typography>
+              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
+                Object Types
+              </Typography>
+              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
+                {Object.keys(stats.byType).length}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
+                Unique types 
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
+        <Grid item xs={6} md={3}>
+          <Card sx={{ 
+            height: '100%', 
+            bgcolor: 'rgba(156, 39, 176, 0.15)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+          }}>
             <CardContent>
-              <Typography variant="h3" align="center">{Array.isArray(objectData) ? objectData.length : 0}</Typography>
-              <Typography variant="body2" align="center">Active Instances</Typography>
+              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
+                Rooms with Objects
+              </Typography>
+              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
+                {Object.keys(stats.byRoom).length}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
+                With at least 1 object
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Graphiques */}
-      <Grid container spacing={3}>
-        {/* Distribution par type */}
-        <Grid item xs={12} md={12}>
-          <Paper sx={{ p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white', height: '100%' }}>
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>Distribution by Type</Typography>
-            {canRenderPieChart(objectTypeChartData) ? (
-              <Box sx={{ 
-                height: isMobile ? 240 : 300, 
-                width: '100%', 
-                position: 'relative',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
+      {/* Chart section */}
+      <Grid container spacing={2} sx={{ height: isMobile ? 'auto' : 'calc(100% - 115px)', mt: 0 }}>
+        <Grid item xs={12} md={6} sx={{ height: isMobile ? '300px' : '100%' }}>
+          <Box sx={{ 
+            height: '100%', 
+            p: { xs: 0, sm: 1 }, 
+            bgcolor: 'rgba(50, 50, 70, 0.4)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%', // Ensure full width
+          }}>
+            <Typography variant="body2" sx={{ mb: 0.5, px: 1, pt: 1, color: 'white' }}>
+              Objects by Room
+            </Typography>
+            <Box sx={{ flexGrow: 1, width: '100%', height: 'calc(100% - 24px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {canRenderPieChart(prepareObjectDataChartData()) ? (
                 <PieChart
-                  key={`pie-chart-1-${windowSize.width}`}
-                  series={[{ 
-                    data: objectTypeChartData, 
-                    innerRadius: isMobile ? 20 : 30, 
-                    paddingAngle: 2, 
-                    cornerRadius: 4,
-                    highlightScope: { faded: 'global', highlighted: 'item' },
-                    faded: { innerRadius: 0, additionalRadius: -30, color: 'gray' },
-                    arcLabel: isMobile ? null : (item) => `${item.value}`
-                  }]}
-                  height={isMobile ? 240 : 300}
-                  width={windowSize.width > 0 ? Math.min(windowSize.width * 0.80, 1200) : undefined}
-                  margin={{ 
-                    top: 10, 
-                    bottom: 10, 
-                    left: 10, 
-                    right: isMobile ? 10 : 120 
+                  series={[
+                    {
+                      data: prepareObjectDataChartData(),
+                      highlightScope: { faded: 'global', highlighted: 'item' },
+                      faded: { innerRadius: 30, color: 'gray' },
+                      innerRadius: 0,
+                      paddingAngle: 1,
+                      cornerRadius: 0,
+                      startAngle: -90,
+                      endAngle: 270
+                    },
+                  ]}
+                  height={isMobile ? 250 : windowSize.height * 0.28}
+                  width="100%" // Use full width
+                  margin={{ top: 10, bottom: 10, left: 0, right: isMobile ? 0 : 110 }}
+                  legend={{ 
+                    position: isMobile ? 'bottom' : 'right',
+                    itemMarkWidth: 10,
+                    itemMarkHeight: 10,
+                    markGap: 5,
+                    itemGap: 5,
+                    labelStyle: {
+                      fontSize: 11,
+                      fill: 'white',
+                    },
                   }}
+                  colors={prepareObjectDataChartData().map(item => item.color)}
                   slotProps={{
-                    legend: { 
-                      hidden: isMobile,
-                      position: { vertical: 'middle', horizontal: 'right' }
-                    }
-                  }}
-                  sx={{
-                    '--ChartsLegend-rootSpacing': '10px',
-                    '--ChartsLegend-itemWidth': '120px',
-                    '--ChartsLegend-itemMarkSize': '8px',
-                    '--ChartsLegend-labelColor': 'white',
-                    '--ChartsLegend-labelFontSize': '12px',
+                    legend: {
+                      labelStyle: {
+                        fill: 'white',
+                      },
+                    },
                   }}
                 />
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
-                <Typography align="center">No data available</Typography>
-              </Box>
-            )}
-          </Paper>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <Typography sx={{ color: 'white', opacity: 0.7 }}>No data to display</Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ height: isMobile ? '300px' : '100%' }}>
+          <Box sx={{ 
+            height: '100%', 
+            p: { xs: 0, sm: 1 }, 
+            bgcolor: 'rgba(50, 50, 70, 0.4)', 
+            borderRadius: 0,
+            backdropFilter: 'blur(5px)',
+            '-webkit-backdrop-filter': 'blur(5px)',
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%', // Ensure full width
+          }}>
+            <Typography variant="body2" sx={{ mb: 0.5, px: 1, pt: 1, color: 'white' }}>
+              Object Status
+            </Typography>
+            <Box sx={{ flexGrow: 1, width: '100%', height: 'calc(100% - 24px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {canRenderPieChart(countObjectDataByType()) ? (
+                <PieChart
+                  series={[
+                    {
+                      data: countObjectDataByType(),
+                      highlightScope: { faded: 'global', highlighted: 'item' },
+                      faded: { innerRadius: 30, color: 'gray' },
+                      innerRadius: 0,
+                      paddingAngle: 1,
+                      cornerRadius: 0,
+                      startAngle: -90,
+                      endAngle: 270,
+                    },
+                  ]}
+                  height={isMobile ? 250 : windowSize.height * 0.28}
+                  width="100%" // Use full width
+                  margin={{ top: 10, bottom: 10, left: 0, right: isMobile ? 0 : 110 }}
+                  legend={{ 
+                    position: isMobile ? 'bottom' : 'right',
+                    itemMarkWidth: 10,
+                    itemMarkHeight: 10,
+                    markGap: 5,
+                    itemGap: 5,
+                    labelStyle: {
+                      fontSize: 11,
+                      fill: 'white',
+                    },
+                  }}
+                  colors={countObjectDataByType().map(item => item.color)}
+                  slotProps={{
+                    legend: {
+                      labelStyle: {
+                        fill: 'white',
+                      },
+                    },
+                  }}
+                />
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <Typography sx={{ color: 'white', opacity: 0.7 }}>No data to display</Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Grid>
       </Grid>
-
-      {/* Liste des types */}
-      <Paper sx={{ mt: 3, p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
-        <Typography variant="subtitle1" sx={{ mb: 2 }}>Main Object Types</Typography>
-        <Grid container spacing={2}>
-          {Object.entries(stats.byType || {})
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 12)
-            .map(([type, count], index) => (
-              <Grid item xs={6} sm={4} md={3} key={index}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderLeft: '3px solid', 
-                  borderColor: `hsl(${index * 30}, 70%, 50%)`,
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
-                }}>
-                  <Typography variant="body2" noWrap>{type}</Typography>
-                  <Typography variant="h6">{count}</Typography>
-                </Box>
-              </Grid>
-            ))}
-        </Grid>
-      </Paper>
-
-      {/* NEW SECTION: Object Instances */}
-      {Array.isArray(objectData) && objectData.length > 0 && (
-        <Paper sx={{ mt: 3, p: 2, bgcolor: 'rgba(0, 0, 0, 0.6)', color: 'white' }}>
-          <Typography variant="subtitle1" sx={{ mb: 2 }}>Active Object Instances</Typography>
-          
-          {/* Pie chart of object instances by type */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ height: 300 }}>
-                <Typography variant="body2" gutterBottom>Distribution by Type</Typography>
-                {canRenderPieChart(objectDataChartData) ? (
-                  <Box sx={{ 
-                    position: 'relative', 
-                    height: isMobile ? 200 : 250, 
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                    <PieChart
-                      key={`pie-chart-2-${windowSize.width}`}
-                      series={[{
-                        data: objectDataChartData,
-                        innerRadius: isMobile ? 15 : 30,
-                        paddingAngle: 2,
-                        cornerRadius: 4,
-                        highlightScope: { faded: 'global', highlighted: 'item' },
-                        faded: { innerRadius: 0, additionalRadius: -20, color: 'gray' },
-                        arcLabel: isMobile ? null : (item) => `${item.value}`
-                      }]}
-                      height={isMobile ? 200 : 250}
-                      width={windowSize.width > 0 ? Math.min(windowSize.width * 0.40, 600) : undefined}
-                      margin={{ 
-                        top: 10, 
-                        bottom: 10, 
-                        left: 10, 
-                        right: isMobile ? 10 : 80 
-                      }}
-                      slotProps={{
-                        legend: { 
-                          hidden: isMobile,
-                          position: { vertical: 'top', horizontal: 'right' }
-                        }
-                      }}
-                    />
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 250 }}>
-                    <Typography align="center">No data available</Typography>
-                  </Box>
-                )}
-              </Box>
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <Typography variant="body2" gutterBottom>Instances by Type</Typography>
-              <TableContainer sx={{ maxHeight: 250 }}>
-                <Table size="small" stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }}>Type</TableCell>
-                      <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }} align="right">Count</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Object.entries(countObjectDataByType())
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([type, count], index) => (
-                        <TableRow key={index} sx={{ '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' } }}>
-                          <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>{type}</TableCell>
-                          <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }} align="right">{count}</TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-          </Grid>
-          
-          {/* Table of recent object instances */}
-          <Typography variant="body2" gutterBottom>Recent Object Data</Typography>
-          <TableContainer sx={{ maxHeight: 300 }}>
-            <Table size="small" stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }}>ID</TableCell>
-                  <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }}>Type</TableCell>
-                  <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }}>Last Updated</TableCell>
-                  <TableCell sx={{ color: 'white', bgcolor: 'rgba(0, 0, 0, 0.8)' }}>Data</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {objectData
-                  .filter(obj => obj && obj.id) // Ensure valid objects
-                  .sort((a, b) => {
-                    try {
-                      return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
-                    } catch (e) {
-                      return 0;
-                    }
-                  })
-                  .slice(0, 10)
-                  .map((obj) => (
-                    <TableRow key={obj.id} sx={{ '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' } }}>
-                      <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>{obj.id}</TableCell>
-                      <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>{obj.type_Object || 'Unknown'}</TableCell>
-                      <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        {obj.updated_at ? new Date(obj.updated_at).toLocaleString() : 'Unknown'}
-                      </TableCell>
-                      <TableCell sx={{ color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        <Tooltip title={formatObjectData(obj)} arrow placement="top">
-                          <Box sx={{ 
-                            maxWidth: 300, 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis', 
-                            whiteSpace: 'nowrap' 
-                          }}>
-                            {formatObjectData(obj)}
-                          </Box>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      )}
     </Box>
   );
 };
