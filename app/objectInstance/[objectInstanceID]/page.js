@@ -3,7 +3,7 @@
 import { Button, MenuItem } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
+import Link from '@mui/material/Link';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -22,6 +22,7 @@ export default function ObjectInstance({ }) {
 	const [self, setSelf] = useState(null);
 	const [editable, setEditable] = useState(false);
 	const [instanceIndex, setInstanceIndex] = useState(null);
+	const [objectType, setObjectType] = useState(null);
 
 	const params = useParams();
 	const router = useRouter();
@@ -53,8 +54,28 @@ export default function ObjectInstance({ }) {
 		}
 		if (objectInstanceData?.id) {
 			fetchAndFindIndex();
+			getObjects();
 		}
 	}, [objectInstanceData]);
+
+	async function getObjects() { // missing route to get a single object from object type name (only id !!)
+		try {
+			const response = await fetch(`/api/objects/getObjects`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			const matchingObjectType = data.objects.find(obj => obj.type === objectInstanceData?.type_Object); // find the matching object type
+			setObjectType(matchingObjectType); // set the filtered object instance data to the state
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		}
+	}
 
 	async function getObjectData() {
 		try {
@@ -143,33 +164,31 @@ export default function ObjectInstance({ }) {
 							<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
 								{instanceIndex ? `${objectInstanceData?.type_Object} n°${instanceIndex}` : "Loading..."}
 							</Typography>
-							{['avance', 'expert'].includes(self?.level) ? (
-								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
-									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
-										{category('Information')}
-										<Box>{fieldName('Object type', objectInstanceData?.type_Object)}</Box>
-										{category('Datas')}
+
+							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
+								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
+									{category('Information')}
+									<Link onClick={() => { router.push("/object/" + objectType?.id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
+										{fieldName('Object type', objectInstanceData?.type_Object)}
+									</Link>
+									{category('Datas')}
+
+									{['avance', 'expert'].includes(self?.level) ? (
 										<TextareaAutosize
 											value={editable ? rawJsonInput : JSON.stringify(objectInstanceData?.data || {}, null, 2)}
 											disabled={!editable}
 											onChange={(e) => setRawJsonInput(e.target.value)}
 											style={{ resize: 'none', backgroundColor: "#3a3a3a", color: editable ? 'white' : '#9e9e9e' }}
 										/>
-									</Box>
-								</Box>
-							) : (
-								<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
-									<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
-										{category('Information')}
+									) : (
 										<Box>
-											{category('Datas')}
 											{Object.entries(objectInstanceData.data).map(([key, value]) => (
 												<Box key={key}>{fieldName(key, value)}</Box>
 											))}
 										</Box>
-									</Box>
+									)}
 								</Box>
-							)}
+							</Box>
 						</Box>
 					)}
 					{['avance', 'expert'].includes(self?.level) && (

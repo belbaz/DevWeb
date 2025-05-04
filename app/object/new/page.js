@@ -24,10 +24,10 @@ export default function Room({ }) {
 	const router = useRouter();
 
 	useEffect(() => {
-		getObjects();
+		getRooms();
 	}, []);
 
-	async function getObjects() {
+	async function getRooms() {
 		try {
 			const response = await fetch(`/api/rooms/getRooms`, {
 				method: "GET"
