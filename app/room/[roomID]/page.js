@@ -175,7 +175,7 @@ export default function Room({ }) {
 	};
 
 	return (
-		<Box sx={{ background: 'none', height: '100vh', margin: 0 }} >
+		<Box sx={{ background: 'none', height: 'auto', margin: 0 }} >
 
 			{loading ? (
 				<Box>
@@ -531,8 +531,6 @@ export default function Room({ }) {
 					)}
 				</Box>
 			) : null}
-
-
 
 		</Box>
 	);

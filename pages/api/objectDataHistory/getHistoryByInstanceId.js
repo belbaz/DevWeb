@@ -50,9 +50,10 @@ export default async function handler(req, res) {
         // 5. Fetch the full history for the given object ID from ObjectDataHistory
         const { data, error } = await supabaseClient
             .from('ObjectDataHistory')
-            .select('*')
+            .select('old_data, updated_at, updatedBy, User(pseudo)')
             .eq('object_data_id', id)
             .order('updated_at', { ascending: false });
+
 
         if (error) {
             // Handle Supabase query error
