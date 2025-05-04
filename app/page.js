@@ -1,12 +1,16 @@
 "use client";
 
+import 'styles/home.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
 
 export default function Home() {
     const [expos, setExpos] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const router = useRouter();
+    const [showLoginDialog, setShowLoginDialog] = useState(false);
 
     useEffect(() => {
         fetch("/api/booking/getAllExposData")
@@ -34,6 +38,17 @@ export default function Home() {
         router.push(`/expoInstance/${expoId}`);
     };
 
+    const checkUserAndPurchase = async () => {
+        const res = await fetch("/api/user/checkUser", { method: "POST" });
+        const data = await res.json();
+
+        if (data?.pseudo) {
+            router.push("/visitBooking");
+        } else {
+            setShowLoginDialog(true);
+        }
+    };
+
     return (
         <>
         <main>
@@ -58,9 +73,22 @@ export default function Home() {
 
         <main>
             <div className="section-bar">
-                <button onClick={() => router.push("/visitBooking")}>Visits</button>
+                <button className="purchase-button" onClick={checkUserAndPurchase}>Visits</button>
                 <button onClick={() => router.push("/expo")}>Expos</button>
             </div>
+
+            <Dialog open={showLoginDialog} onClose={() => setShowLoginDialog(false)}>
+                <DialogContent className="customDialogContent">
+                    <p className="customDialogText">
+                        Please log in or sign up to purchase tickets.
+                    </p>
+                    <div className="customDialogButtons">
+                        <button className="dialogCancelBtn" onClick={() => setShowLoginDialog(false)}>Cancel</button>
+                        <button className="dialogPayBtn" onClick={() => router.push('/login')}>Login</button>
+                        <button className="dialogPayBtn" onClick={() => router.push('/signup')}>Sign Up</button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </main>
         </>
     );

@@ -254,11 +254,11 @@ export default function ExpoBookingPage() {
                 <DialogContent className="dialogContent">
                     <div className="dialogRow">
                         <span>Adult Tickets :</span>
-                        <span>{adultCount} × {expo.priceAdult} = {adultCount * expo.priceAdult}€</span>
+                        <span>{adultCount} × {expo.priceAdult} = {adultCount * expo.priceAdult} €</span>
                     </div>
                     <div className="dialogRow">
                         <span>Children Tickets :</span>
-                        <span>{childCount} × {expo.priceChild} = {childCount * expo.priceChild}€</span>
+                        <span>{childCount} × {expo.priceChild} = {childCount * expo.priceChild} €</span>
                     </div>
                     <div className="dialogTotal">
                         TOTAL : {totalTickets} ticket(s) — {totalPrice} €
