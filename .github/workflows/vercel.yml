@@ -1,25 +1,25 @@
-name: Deploy to Vercel
-
-on:
-  push:
-    branches:
-      - master  # Remplace par ta branche principale si nécessaire
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: npm install
-
-#      - name: Build the project (using Webpack)
-#        run: npm run build  # Utilise la commande build classique de Next.js avec Webpack
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Deploy to Vercel
-        run: vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+#name: Deploy to Vercel
+#
+#on:
+#  push:
+#    branches:
+#      - master  # Remplace par ta branche principale si nécessaire
+#
+#jobs:
+#  deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Install dependencies
+#        run: npm install
+#
+##      - name: Build the project (using Webpack)
+##        run: npm run build  # Utilise la commande build classique de Next.js avec Webpack
+#
+#      - name: Install Vercel CLI
+#        run: npm install -g vercel
+#
+#      - name: Deploy to Vercel
+#        run: vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
