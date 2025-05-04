@@ -12,29 +12,9 @@ export default async function getActivity(req, res) {
     }
     // console.log(user.pseudo);
     try {
-        // Admin (expert) user can see all activity of all users
+        //you are admin so you can see all activity of all user
         if (user.level === "expert") {
-            console.log("expert user - fetching all activity");
-
-            // Fetch all activity records for all users
-            let {data: HistoryActions, error} = await supabase
-                .from('HistoryActions')
-                .select('*')
-
-            if (error) {
-                console.error("Database error:", error);
-                return res.status(400).json({error: "Failed to fetch activity data"});
-            }
-
-            if (HistoryActions.length === 0) {
-                return res.status(200).json({data: HistoryActions});
-            }
-
-            return res.status(200).json({data: HistoryActions});
-        }
-        // Regular user can only see their own activity
-        else {
-            console.log("regular user - fetching personal activity");
+            console.log("expert")
 
             let {data: HistoryActions, error} = await supabase
                 .from('HistoryActions')
@@ -42,15 +22,33 @@ export default async function getActivity(req, res) {
                 .eq("pseudo", user.pseudo)
 
             if (error) {
-                console.error("Database error:", error);
-                return res.status(400).json({error: "Failed to fetch activity data"});
+                console.error("user error :", error);
+                return res.status(400).json({error: "user not found"});
             }
-
-            if (HistoryActions.length === 0) {
+            if(HistoryActions.length === 0) {
                 return res.status(200).json({data: HistoryActions});
             }
 
             return res.status(200).json({data: HistoryActions});
+        }
+        // 2. you simple user
+        else {
+
+            let {data: HistoryActions, error} = await supabase
+                .from('HistoryActions')
+                .select('*')
+                .eq("pseudo", user.pseudo)
+
+            if (error) {
+                console.error("user error :", error);
+                return res.status(400).json({error: "user not found"});
+            }
+            if(HistoryActions.length === 0) {
+                return res.status(200).json({data: HistoryActions});
+            }
+
+            return res.status(200).json({data: HistoryActions});
+
         }
 
     } catch (err) {
