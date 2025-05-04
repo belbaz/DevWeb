@@ -30,6 +30,7 @@
 }
 
 .fieldGroup input,
+.fieldGroup textarea,
 .fieldGroup select{
     font-family: 'Cinzel', serif;
     font-size: 1rem;
