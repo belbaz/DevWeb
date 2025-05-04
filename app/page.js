@@ -58,7 +58,7 @@ export default function Home() {
 
         <main>
             <div className="section-bar">
-                <button onClick={() => router.push("/visits")}>Visits</button>
+                <button onClick={() => router.push("/visitBooking")}>Visits</button>
                 <button onClick={() => router.push("/expo")}>Expos</button>
             </div>
         </main>

@@ -76,7 +76,6 @@ export default async function handler(req, res) {
 
             await logAction(pseudo, 'expoVisit');
 
-
             const pdfBuffer = await pdfExpoTicketBuffer({
                 expoTitle: title,
                 date,
