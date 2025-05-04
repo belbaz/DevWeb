@@ -12,6 +12,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
 import Rolling from '../../../components/rolling';
+import ObjectDataJsonEditor from '../../../components/ObjectDataJsonEditor';
 
 
 export default function Room({ }) {
@@ -186,12 +187,12 @@ export default function Room({ }) {
 
 
 							{category('Datas')}
-							<TextareaAutosize
-								value={objectInstance?.data}
-								onChange={(e) => { setObjectInstance({ ...objectInstance, data: e.target.value }); }}
-								style={{ resize: 'none', backgroundColor: "#3a3a3a", color: 'white', }}
+							<ObjectDataJsonEditor
+								object={objectInstance?.data}
+								setObject={(param) => setObjectInstance({ ...objectInstance, data: param })}
+								objectType={objectInstance?.type_Object}
+								editable={true}
 							/>
-
 							<>
 								{isLoading ? (
 									Rolling(40, 40, "#fff")

@@ -7,7 +7,7 @@ export const fieldName = (label, value) => {
 			<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959' }}>
 				{label + " "}
 			</Typography>
-			: {value || 'unknown'}
+			: {value === undefined || value === null || value === "" ? 'unknown' : value}
 		</Box>
 	)
 };

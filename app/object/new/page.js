@@ -21,6 +21,28 @@ export default function Room({ }) {
 
 	const router = useRouter();
 
+	useEffect(() => {
+		getRooms();
+	}, []);
+
+	async function getRooms() {
+		try {
+			const response = await fetch(`/api/rooms/getRooms`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setRooms(data.rooms);
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
+		}
+	}
+
 	async function insertObject() {
 		setIsLoading(true);
 		try {
@@ -41,8 +63,7 @@ export default function Room({ }) {
 				const data = await response.json();
 
 				toast.success("object inserted successfully");
-				console.log(data);
-				router.push('/object/' + data?.created[0]?.id); // redirect to the new object page with returned id
+				router.push('/object/' + data?.created[0]?.id); // redirect to the new room page with returned id
 			} else {
 				const data = await response.json();
 				throw new Error(data.error || "Unknown error while inserting object");
@@ -130,12 +151,12 @@ export default function Room({ }) {
 									Rolling(40, 40, "#fff")
 								) : (
 									<Button variant='contained' onClick={() => setOpenConfirm(true)} color="success"
-											sx={{
-												transform: 'none !important',
-												'&:hover': {
-													backgroundColor: '#4caf50',
-												},
-											}}>
+										sx={{
+											transform: 'none !important',
+											'&:hover': {
+												backgroundColor: '#4caf50',
+											},
+										}}>
 										Insert Object
 									</Button>
 								)}

@@ -4,7 +4,6 @@ import { Button, MenuItem } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import { toast } from 'react-toastify';
 
 import Rolling from '../../../components/rolling';
 import EditState from '../../../components/editState';
+import ObjectDataJsonEditor from '../../../components/ObjectDataJsonEditor';
 import { category, fieldName } from '../../../components/entityDisplay';
 
 export default function ObjectInstance({ }) {
@@ -95,7 +95,6 @@ export default function ObjectInstance({ }) {
 			const data = await response.json();
 			setisObjectInstanceValid(data.instance !== null);
 			setObjectInstanceData(data.instance);
-			setRawJsonInput(JSON.stringify(data.instance?.data || {}, null, 2));
 		} catch (error) {
 			toast.error("Error while fetching object instance data : " + error.message);
 		} finally {
@@ -141,21 +140,10 @@ export default function ObjectInstance({ }) {
 
 	async function updateObjectData() {
 		try {
-			let parsed;
-			try {
-				parsed = JSON.parse(rawJsonInput);
-			} catch {
-				toast.error("Format JSON invalide");
-				return;
-			}
-
 			const response = await fetch(`/api/objectData/updateObjectData?id=${encodeURIComponent(objectInstanceData.id)}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					data: parsed,
-					type_Object: objectInstanceData.type_Object
-				}),
+				body: JSON.stringify(objectInstanceData.data),
 				credentials: "include"
 			});
 			if (response.ok) {
@@ -195,7 +183,7 @@ export default function ObjectInstance({ }) {
 							</Typography>
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'center', flexDirection: 'row' }}>
-								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '70%', maxWidth: '1000px' }}>
+								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column', width: '100%', maxWidth: '1000px' }}>
 									{category('Information')}
 									<Link onClick={() => { router.push("/object/" + objectType?.id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
 										{fieldName('Object type', objectInstanceData?.type_Object)}
@@ -212,13 +200,12 @@ export default function ObjectInstance({ }) {
 
 
 									{category('Datas')}
-
 									{['avance', 'expert'].includes(self?.level) ? (
-										<TextareaAutosize
-											value={editable ? rawJsonInput : JSON.stringify(objectInstanceData?.data || {}, null, 2)}
-											disabled={!editable}
-											onChange={(e) => setRawJsonInput(e.target.value)}
-											style={{ resize: 'none', backgroundColor: "#3a3a3a", color: editable ? 'white' : '#9e9e9e' }}
+										<ObjectDataJsonEditor
+											object={objectInstanceData?.data}
+											setObject={(param) => setObjectInstanceData({ ...objectInstanceData, data: param })}
+											objectType={objectInstanceData?.type_Object}
+											editable={editable}
 										/>
 									) : (
 										<Box>

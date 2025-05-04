@@ -61,27 +61,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing object ID in URL' });
         }
 
-        // Parse JSON body (can be stringified or direct JSON)
-        // 4. Parse and validate JSON body (supports stringified or direct object)
-        let parsedBody;
-        try {
-            parsedBody = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-        } catch {
-            return res.status(400).json({ error: 'Invalid JSON format in body' });
-        }
-
-        const jsonData = safeParseJson(parsedBody.data ?? parsedBody);
+        const jsonData = req.body;
 
         if (!jsonData || typeof jsonData !== 'object' || Array.isArray(jsonData)) {
-            return res.status(400).json({ error: 'Missing or invalid JSON payload' });
-        }
-
-
-        if (!jsonData || typeof jsonData !== 'object') {
-            return res.status(400).json({ error: 'Missing or invalid JSON payload' });
-        }
-
-        if (!jsonData || typeof jsonData !== 'object') {
             return res.status(400).json({ error: 'Missing or invalid JSON payload' });
         }
 
