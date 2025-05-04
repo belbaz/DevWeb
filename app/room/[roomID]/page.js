@@ -454,14 +454,34 @@ export default function Room({ }) {
 			{self?.level == 'debutant' || self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? (
 				<Box sx={{ background: 'none', height: '100vh', margin: 0 }}>
 					{self?.level && (
-						<Box component="main" sx={{ width: { xs: '100vw', sm: '80vw' }, maxWidth: '1000px', bgcolor: 'black', borderRadius: 0, boxShadow: 6, p: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
+						<Box
+							component="main"
+							sx={{
+								width: { xs: '100vw', sm: '80vw' },
+								maxWidth: '1000px',
+								bgcolor: 'black',
+								borderRadius: 0,
+								boxShadow: 6,
+								p: 5,
+								display: 'flex',
+								flexDirection: 'column',
+								gap: 3,
+							}}
+						>
 							<TextField
 								size="small"
 								label="Object"
 								value={objectID}
 								select
 								onChange={(e) => setObjectID(Number(e.target.value))}
-								sx={{ cursor: 'text', backgroundColor: "#3a3a3a", borderRadius: 1, '&& .MuiSelect-icon': { color: 'white' }, '&& .MuiInputBase-input': { color: 'white' }, '&& .MuiInputLabel-root': { color: '#9e9e9e' } }}
+								sx={{
+									cursor: 'text',
+									backgroundColor: "#3a3a3a",
+									borderRadius: 1,
+									'&& .MuiSelect-icon': { color: 'white' },
+									'&& .MuiInputBase-input': { color: 'white' },
+									'&& .MuiInputLabel-root': { color: '#9e9e9e' }
+								}}
 							>
 								{Array.isArray(objects) && objects.map((object) => (
 									<MenuItem key={object.id} value={object.id}>
@@ -475,10 +495,21 @@ export default function Room({ }) {
 							{currentObject?.data && Object.entries(typeof currentObject.data === 'string' ? JSON.parse(currentObject.data) : currentObject.data).map(([key, value]) => (
 								<Box key={key}>{fieldName(key, String(value))}</Box>
 							))}
+
+							{['avance', 'expert'].includes(self?.level) && currentObject?.id && (
+								<Button
+									variant="contained"
+									sx={{ mt: 2, width: 'fit-content' }}
+									onClick={() => router.push(`/objectInstance/${currentObject.id}`)}
+								>
+									Edit object
+								</Button>
+							)}
 						</Box>
 					)}
 				</Box>
 			) : null}
+
 
 
 		</Box>

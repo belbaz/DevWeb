@@ -1,3 +1,4 @@
+// app/objectInstance/[id]
 "use client";
 
 import { Button, MenuItem } from '@mui/material';
