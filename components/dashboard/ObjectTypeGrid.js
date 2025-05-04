@@ -289,29 +289,29 @@ const getObjectTypeIcon = (type) => {
   if (!type) return <CategoryIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
   
   switch (type) {
-    case 'DetecteurFumee':
+    case 'SmokeDetector':
       return <SensorsIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'VitreElectrochrome':
+    case 'ElectrochromicGlass':
       return <CountertopsIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'EtiquetteNFC':
+    case 'NFCTag':
       return <CastConnectedIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'CompteurVisiteurs':
+    case 'VisitorCounter':
       return <AccessibilityIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'SerrureConnectee':
+    case 'SmartLock':
       return <DoorSlidingIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'CapteurClimat':
+    case 'ClimateMonitor':
       return <ThermostatIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'EclairageIntelligent':
+    case 'SmartLighting':
       return <WbSunnyIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'CameraIntelligente':
+    case 'SmartCamera':
       return <VideocamIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'TrainAutonome':
+    case 'AutonomousTrain':
       return <SettingsRemoteIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'AmbianceSonore':
+    case 'AudioAtmosphere':
       return <MusicNoteIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'PriseConnectee':
+    case 'SmartPlug':
       return <ElectricMeterIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
-    case 'GuideAudio':
+    case 'AudioGuide':
       return <MusicNoteIcon sx={{ fontSize: '1.5rem', opacity: 0.9 }} />;
     default:
       // Utiliser DevicesIcon comme icône par défaut pour tous les nouveaux types d'objets

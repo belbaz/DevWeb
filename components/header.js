@@ -46,7 +46,7 @@ const Header = () => {
         fetchUserData();
     }, [isAuthenticated]);
 
-    const rawIsMobile = useMediaQuery('(max-width:768px)');
+    const rawIsMobile = useMediaQuery('(max-width:1440px)');
     const isMobile = hydrated && rawIsMobile;
 
     const toggleMenu = useCallback(() => {

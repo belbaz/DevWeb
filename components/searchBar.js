@@ -18,7 +18,7 @@ export default function SearchBar({ showFiltersButton = true, searchActive, setS
     const [suggestions, setSuggestions] = useState([]);
     const [hovered, setHovered] = useState(false);
     const debounceRef = useRef(null);
-    const isMobile = useMediaQuery("(max-width:768px)");
+    const isMobile = useMediaQuery("(max-width:1440px)");
     const router = useRouter();
 
     const fetchSuggestions = async (value) => {
