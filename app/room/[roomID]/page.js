@@ -18,17 +18,17 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 
 
 export default function Room({ }) {
-	const [isRoomValid, setisRoomValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
+	const [isRoomValid, setisRoomValid] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [editable, setEditable] = useState(false);
 	const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 
-	const [roomData, setRoomData] = useState(null); // to store the room data from the API call
-	const [self, setSelf] = useState(null); // logged in user data
+	const [roomData, setRoomData] = useState(null);
+	const [self, setSelf] = useState(null);
 	const [objectID, setObjectID] = useState(null);
 	const [objects, setObjects] = useState(null);
 	const [currentObject, setCurrentObject] = useState(null);
-
+	const [globalIndexMap, setGlobalIndexMap] = useState({});
 
 	const params = useParams();
 	const router = useRouter();
@@ -36,7 +36,7 @@ export default function Room({ }) {
 	const { roomID } = params;
 	if (!roomID || isNaN(roomID)) {
 		router.push('/');
-		return null; // avoid render for forbidden pages
+		return null;
 	}
 
 	useEffect(() => {
@@ -52,21 +52,32 @@ export default function Room({ }) {
 		}
 	}, [objectID]);
 
+	useEffect(() => {
+		async function fetchGlobalIndexes() {
+			try {
+				const response = await fetch('/api/objectData/listAllDatas');
+				const { objectData: allData } = await response.json();
+				const indexMap = {};
+				objects?.forEach(obj => {
+					const sameType = allData.filter(o => o.type_Object === obj.type_Object);
+					const index = sameType.findIndex(o => o.id === obj.id);
+					if (index >= 0) indexMap[obj.id] = index + 1;
+				});
+				setGlobalIndexMap(indexMap);
+			} catch (error) {
+				console.error("Erreur index global :", error);
+			}
+		}
+		if (objects?.length > 0) fetchGlobalIndexes();
+	}, [objects]);
+
 	async function getRoom() {
 		try {
-			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`, {
-				method: "GET"
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Unknown error");
-			}
-
+			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomID)}`);
+			if (!response.ok) throw new Error((await response.json()).error || "Unknown error");
 			const data = await response.json();
-			setisRoomValid(data.room != null); // remains false if no data is returned and keeps showing the error message
-			setRoomData(data.room); // set the room data to the state
-
+			setisRoomValid(data.room != null);
+			setRoomData(data.room);
 		} catch (error) {
 			toast.error("Error while fetching room data : " + error.message);
 		} finally {
@@ -76,37 +87,21 @@ export default function Room({ }) {
 
 	async function getObjectsByRoom() {
 		try {
-			const response = await fetch(`/api/objects/getObjectsByRoom?id=${encodeURIComponent(roomID)}`, {
-				method: "GET"
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(errorData.error || "Unknown error");
-			}
-
+			const response = await fetch(`/api/objectData/getObjectDataByRoom?id=${encodeURIComponent(roomID)}`);
+			if (!response.ok) throw new Error((await response.json()).error || "Unknown error");
 			const data = await response.json();
-			setObjects(data.objects);
+			setObjects(data.objectData);
 		} catch (error) {
 			toast.error("Error while fetching object instance data : " + error.message);
 		}
 	}
 
-	// returns the current's user data
 	async function getSelf() {
 		try {
-			const response = await fetch("/api/user/checkUser", {
-				method: "POST"
-			});
+			const response = await fetch("/api/user/checkUser", { method: "POST" });
 			const data = await response.json();
-			if (response.ok) {
-				setSelf(data);
-			} else {
-				if (data.invalidToken) console.log("invalid token");
-				else if (data.noToken) console.log("No token provided");
-				else console.log("Unknown error");
-				throw new Error("API error : " + data.error);
-			}
+			if (response.ok) setSelf(data);
+			else throw new Error("API error : " + data.error);
 		} catch (error) {
 			toast.error("Cannot get current user's data : " + error.message);
 		}
@@ -457,81 +452,35 @@ export default function Room({ }) {
 			)}
 
 			{self?.level == 'debutant' || self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? (
-				<Box
-					component="main"
-					sx={{
-						width: { xs: '100vw', sm: '80vw' },
-						maxWidth: '1000px',
-						bgcolor: 'black',
-						borderRadius: 0,
-						boxShadow: 6,
-						p: 5,
-						display: 'flex',
-						flexDirection: 'column',
-						gap: 3,
-					}}
-				>
-					<TextField
-						size="small"
-						label="Object"
-						value={objectID}
-						select
-						onChange={(e) => setObjectID(e.target.value)}
-						sx={{
-							cursor: editable ? 'text' : 'not-allowed',
-							backgroundColor: "#3a3a3a",
-							borderRadius: 1,
-							'&& .MuiSelect-icon': {
-								color: 'white',
-							},
-							'&& .MuiInputBase-input': {
-								color: 'white',
-							},
-							'&& .MuiInputLabel-root': {
-								color: '#9e9e9e',
-							},
-						}}
-						slotProps={{
-							input: {
-								sx: {
-									'&&.Mui-disabled': {
-										color: '#9e9e9e',
-										WebkitTextFillColor: '#9e9e9e',
-									}
-								}
-							},
-							inputLabel: {
-								shrink: true,
-								sx: {
-									'&&.Mui-disabled': {
-										color: '#9e9e9e !important',
-									}
-								}
-							}
-						}}
-					>
-						{Array.isArray(objects) && objects.map((object) => (
-							<MenuItem key={object.id} value={object.id}>
-								{object.type}
-							</MenuItem>
-						))}
-					</TextField>
+				<Box sx={{ background: 'none', height: '100vh', margin: 0 }}>
+					{self?.level && (
+						<Box component="main" sx={{ width: { xs: '100vw', sm: '80vw' }, maxWidth: '1000px', bgcolor: 'black', borderRadius: 0, boxShadow: 6, p: 5, display: 'flex', flexDirection: 'column', gap: 3 }}>
+							<TextField
+								size="small"
+								label="Object"
+								value={objectID}
+								select
+								onChange={(e) => setObjectID(Number(e.target.value))}
+								sx={{ cursor: 'text', backgroundColor: "#3a3a3a", borderRadius: 1, '&& .MuiSelect-icon': { color: 'white' }, '&& .MuiInputBase-input': { color: 'white' }, '&& .MuiInputLabel-root': { color: '#9e9e9e' } }}
+							>
+								{Array.isArray(objects) && objects.map((object) => (
+									<MenuItem key={object.id} value={object.id}>
+										{`${object.type_Object} n°${globalIndexMap[object.id] || '?'}`}
+									</MenuItem>
+								))}
+							</TextField>
 
-					{category('Object information')}
-					<Box>
-						{fieldName('Brand', String(currentObject?.brand))}
-					</Box>
-					<Box>
-						{fieldName('Access level', currentObject?.accessLevel)}
-					</Box>
-					<Link onClick={() => { router.push("/room/" + currentObject?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
-						{fieldName('Room', roomData?.name)}
-					</Link>
-					<Box>
-						{fieldName('Description', currentObject?.description)}
-					</Box>
+							{category('Object information')}
+							<Box>{fieldName('Type', currentObject?.type_Object)}</Box>
+							{currentObject?.data && Object.entries(typeof currentObject.data === 'string' ? JSON.parse(currentObject.data) : currentObject.data).map(([key, value]) => (
+								<Box key={key}>{fieldName(key, String(value))}</Box>
+							))}
+						</Box>
+					)}
 				</Box>
 			) : null}
+
+
 		</Box>
 	);
 }
