@@ -60,12 +60,15 @@ export default function SearchBar({ showFiltersButton = true, searchActive, setS
             router.push(`/room/${item.id}`);
         } else if (item.type === "Objet") {
             router.push(`/objectInstance/${item.id}`);
+        } else if (item.type === "Exposition") {
+            router.push(`/expoInstance/${item.id}`);
         }
 
         setQuery("");
         setSuggestions([]);
         if (isMobile && setSearchActive) setSearchActive(false);
     };
+
 
 
     const handleKeyDown = (e) => {
