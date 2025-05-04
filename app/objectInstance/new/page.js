@@ -17,14 +17,33 @@ import Rolling from '../../../components/rolling';
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
 	const [objectInstance, setObjectInstance] = useState(null);
+	const [rooms, setRooms] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [objectTypes, setObjectTypes] = useState(null);
 
 	useEffect(() => {
 		getObjects();
+		getRooms();
 	}, []);
 
 	const router = useRouter();
+
+	async function getRooms() {
+		try {
+			const response = await fetch(`/api/rooms/getRooms`, { method: "GET" });
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setRooms(data.rooms); // suppose que le backend retourne { rooms: [...] }
+		} catch (error) {
+			toast.error("Error while fetching rooms : " + error.message);
+		}
+	}
+
 
 	async function insertObject() {
 		setIsLoading(true);
@@ -89,7 +108,7 @@ export default function Room({ }) {
 					gap: 3,
 				}}>
 				<Typography variant="h3" align="center" sx={{ mb: 2, fontFamily: 'Cinzel, serif', fontWeight: 400, letterSpacing: 3, color: 'white', fontSize: { xs: '2.2rem', sm: '2.5rem', md: '2.8rem' } }}>
-					Insert new object type
+					New object instance
 				</Typography>
 
 				<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
@@ -139,7 +158,34 @@ export default function Room({ }) {
 								))}
 							</TextField>
 
-							{category('Additional data')}
+							<TextField
+								size="small"
+								label="Room"
+								value={objectInstance?.room_id || ''}
+								select
+								name="room_id"
+								onChange={(e) => setObjectInstance({ ...objectInstance, room_id: e.target.value })}
+								sx={{
+									backgroundColor: "#3a3a3a",
+									borderRadius: 1,
+									'&& .MuiInputBase-input': {
+										color: 'white',
+										WebkitTextFillColor: 'white',
+									},
+									'&& .MuiInputLabel-root': {
+										color: 'white',
+									},
+								}}
+							>
+								{rooms.map((room) => (
+									<MenuItem key={room.id} value={room.id}>
+										{room.name} (Floor {room.floor})
+									</MenuItem>
+								))}
+							</TextField>
+
+
+							{category('Datas')}
 							<TextareaAutosize
 								value={objectInstance?.data}
 								onChange={(e) => { setObjectInstance({ ...objectInstance, data: e.target.value }); }}

@@ -1,4 +1,3 @@
-// app/objectInstance/[id]
 "use client";
 
 import { Button, MenuItem } from '@mui/material';
@@ -19,6 +18,7 @@ export default function ObjectInstance({ }) {
 	const [isObjectInstanceValid, setisObjectInstanceValid] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [objectInstanceData, setObjectInstanceData] = useState(null);
+	const [roomData, setRoomData] = useState(null);
 	const [rawJsonInput, setRawJsonInput] = useState('');
 	const [self, setSelf] = useState(null);
 	const [editable, setEditable] = useState(false);
@@ -38,6 +38,13 @@ export default function ObjectInstance({ }) {
 		getObjectData();
 		getSelf();
 	}, [objectInstanceID]);
+
+	useEffect(() => {
+		if (objectInstanceData?.room_id) {
+			getRoomData(objectInstanceData.room_id);
+		}
+	}, [objectInstanceData?.room_id]);
+
 
 	useEffect(() => {
 		async function fetchAndFindIndex() {
@@ -111,6 +118,27 @@ export default function ObjectInstance({ }) {
 		}
 	}
 
+	async function getRoomData(roomId) {
+		console.log("Fetching room with ID:", roomId); // DEBUG
+		if (!roomId || isNaN(Number(roomId))) {
+			console.warn("Invalid roomId:", roomId);
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/rooms/getRoomById?id=${encodeURIComponent(roomId)}`);
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+			const data = await response.json();
+			setRoomData(data.room);
+		} catch (error) {
+			console.error("Error fetching room data: ", error);
+			toast.error("Error while fetching room data: " + error.message);
+		}
+	}
+
 	async function updateObjectData() {
 		try {
 			let parsed;
@@ -172,6 +200,17 @@ export default function ObjectInstance({ }) {
 									<Link onClick={() => { router.push("/object/" + objectType?.id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
 										{fieldName('Object type', objectInstanceData?.type_Object)}
 									</Link>
+
+									{objectInstanceData?.room_id && roomData && (
+										<Link
+											onClick={() => router.push("/room/" + objectInstanceData.room_id)}
+											sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}
+										>
+											{fieldName('Room', roomData.name)}
+										</Link>
+									)}
+
+
 									{category('Datas')}
 
 									{['avance', 'expert'].includes(self?.level) ? (
