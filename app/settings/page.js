@@ -20,6 +20,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LogoutIcon from '@mui/icons-material/Logout';
+import BackupIcon from '@mui/icons-material/CloudDownload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UserProfileDetails from '../../components/settings/UserProfileDetails';
 import UserAccessLevel from '../../components/settings/UserAccessLevel';
@@ -34,6 +35,7 @@ export default function Settings() {
     const [isLoading, setIsLoading] = useState(true);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+    const [openBackupDialog, setOpenBackupDialog] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -125,6 +127,35 @@ export default function Settings() {
             console.error("Error while disconnecting:", error);
         }
     };
+
+    const handleDownload = async (format) => {
+        try {
+            const response = await fetch(`/api/user/backupDBAdmin?format=${format}`, {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Failed to download backup:", errorText);
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const dateStr = new Date().toISOString().split("T")[0];
+            a.href = url;
+            a.download = `backup-${dateStr}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setOpenBackupDialog(false);
+        } catch (error) {
+            console.error("An error occurred during the backup:", error);
+        }
+    }
 
     const handlePasswordChange = async () => {
         if (newPassword !== confirmPassword) {
@@ -221,6 +252,18 @@ export default function Settings() {
                         <h2 className="card-title">Account Actions</h2>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {userData?.level === "expert" && (
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setOpenBackupDialog(true)}
+                                >
+                                    <BackupIcon style={{ fontSize: '1.2rem' }} />
+
+                                    Backup Database
+                                </button>
+
+                            )}
+
                             <button
                                 className="btn btn-primary"
                                 onClick={() => setOpenPasswordDialog(true)}
@@ -250,6 +293,34 @@ export default function Settings() {
                     </div>
                 </div>
             </div>
+
+            {/*backup DB file .sql or .csv*/}
+            <Dialog
+                open={openBackupDialog}
+                onClose={()=>setOpenBackupDialog(false)}
+                PaperProps={{
+                    className: 'modal',
+                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                }}
+            >
+                <DialogTitle className="modal-title" style={{ color: 'rgba(255, 255, 255, 0.7)'}}>Database Backup</DialogTitle>
+                <DialogContent className="modal-content">
+                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
+                        Choose the format you want to export your database:
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions className="modal-actions">
+                    <Button onClick={()=>setOpenBackupDialog(false)} sx={{ color: 'white' }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={() => handleDownload('csv')} variant="outlined" color="info">
+                        Export CSV
+                    </Button>
+                    <Button onClick={() => handleDownload('sql')} variant="contained" color="primary">
+                        Export SQL
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Password Change Dialog */}
             <Dialog
