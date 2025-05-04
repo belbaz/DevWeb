@@ -58,12 +58,15 @@ export default function SearchBar({ showFiltersButton = true, searchActive, setS
             router.push(`/profile/${item.pseudo}`);
         } else if (item.type === "Pièce") {
             router.push(`/room/${item.id}`);
+        } else if (item.type === "Objet") {
+            router.push(`/objectInstance/${item.id}`);
         }
 
         setQuery("");
         setSuggestions([]);
         if (isMobile && setSearchActive) setSearchActive(false);
     };
+
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && suggestions.length === 1) {
@@ -271,7 +274,7 @@ export default function SearchBar({ showFiltersButton = true, searchActive, setS
                           </span>
                                                 </>
                                             ) : (
-                                                <span>{cleanedName}</span>
+                                                <span style={{ fontWeight: item.type === "Objet" ? "bold" : "normal" }}>{cleanedName}</span>
                                             )}
                                         </Box>
                                     );

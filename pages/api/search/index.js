@@ -75,6 +75,42 @@ export default async function handler(req, res) {
         results.push(...formattedUsers);
     }
 
+    // --- OBJECTDATA QUERY (uniquement pour utilisateurs de niveau suffisant) ---
+    if (user?.level && ["intermediaire", "avance", "expert"].includes(user.level) && q) {
+        const { data: objectData, error: objectError } = await supabase
+            .from("ObjectData")
+            .select("id, type_Object");
+
+        if (objectError) {
+            return res.status(500).json({ error: "Supabase ObjectData error" });
+        }
+
+        // Regrouper par type_Object pour générer les indices
+        const typeCounters = {};
+        const formattedObjects = [];
+
+        for (const obj of objectData) {
+            if (!typeCounters[obj.type_Object]) typeCounters[obj.type_Object] = [];
+            typeCounters[obj.type_Object].push(obj);
+        }
+
+        for (const [type, objs] of Object.entries(typeCounters)) {
+            objs.sort((a, b) => a.id - b.id);
+            objs.forEach((obj, idx) => {
+                const fullName = `${type} n°${idx + 1}`;
+                if (fullName.toLowerCase().includes(q.toLowerCase())) {
+                    formattedObjects.push({
+                        type: "Objet",
+                        name: fullName,
+                        id: obj.id,
+                    });
+                }
+            });
+        }
+
+        results.push(...formattedObjects);
+    }
+
     // Final response: all results (rooms and users)
     return res.status(200).json(results);
 }
