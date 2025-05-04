@@ -57,7 +57,7 @@ export default function FiltersPage() {
                 const roomsOnly = data.filter(item => item.type === "Pièce");
                 setFilteredRooms(roomsOnly);
             } catch (err) {
-                console.error("Fetch error:", err); // <-- Message d'erreur traduit
+                console.error("Fetch error:", err);
                 setFilteredRooms([]);
             }
         };
@@ -66,7 +66,19 @@ export default function FiltersPage() {
     }, [selectedFloors, selectedRoomTypes]);
 
     return (
-        <Box component="main" sx={{ px: 3, py: 4, maxWidth: 800, mx: "auto" }}>
+        <Box
+            sx={{
+                background: 'none',
+                minHeight: '100vh',
+                margin: 0,
+                // Add padding to account for header height
+                pt: '80px', // Adjust this value based on your header height
+                // Add padding at the bottom for the footer if needed
+                pb: '20px',
+                // Make sure content doesn't overflow
+                overflow: 'auto'
+            }}
+        >
             <Typography variant="h3" sx={{
                 fontFamily: 'var(--font-cinzel)',
                 color: 'rgba(255, 255, 255, 0.95)',
@@ -78,109 +90,121 @@ export default function FiltersPage() {
                 Advanced Search
             </Typography>
 
-            <Box textAlign="center" sx={{ mb: 3 }}>
-                <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
-                    Floor
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
-                    {availableFloors.map((floor) => (
-                        <FormControlLabel
-                            key={floor}
-                            control={
-                                <Checkbox
-                                    checked={selectedFloors.includes(floor)}
-                                    onChange={() => toggleFloor(floor)}
-                                    sx={{
-                                        color: 'white',
-                                        '&.Mui-checked': {
-                                            color: 'white',
-                                        },
-                                    }}
-                                />
-                            }
-                            label={floor === 0 ? "Ground floor" : `Floor ${floor}`}
-                            sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
-                        />
-                    ))}
-                </Box>
-            </Box>
-
-            <Box textAlign="center" sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
-                    Room Type
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
-                    {availableRoomTypes.map((type) => (
-                        <FormControlLabel
-                            key={type}
-                            control={
-                                <Checkbox
-                                    checked={selectedRoomTypes.includes(type)}
-                                    onChange={() => toggleRoomType(type)}
-                                    sx={{
-                                        color: 'white',
-                                        '&.Mui-checked': {
-                                            color: 'white',
-                                        },
-                                    }}
-                                />
-                            }
-                            label={type}
-                            sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
-                        />
-                    ))}
-                </Box>
-            </Box>
-
-            <Button
-                variant="text"
-                onClick={resetFilters}
-                sx={{
-                    textTransform: "none",
-                    display: "block",
-                    mx: "auto",
-                    mb: 4,
-                    fontFamily: 'var(--font-roboto)'
-                }}
-            >
-                Reset all filters
-            </Button>
-
-            <Box>
-                <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                    Results
-                </Typography>
-                {filteredRooms.length === 0 ? (
-                    <Typography sx={{ mt: 2, fontStyle: 'italic', fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                        No matching room found.
+            <Box component="main" sx={{
+                px: 3,
+                py: 4,
+                maxWidth: 800,
+                mx: "auto",
+                // Add space between content and navigation elements
+                position: 'relative',
+                zIndex: 1
+            }}>
+                <Box textAlign="center" sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
+                        Floor
                     </Typography>
-                ) : (
-                    <List>
-                        {filteredRooms.map((room, index) => (
-                            <ListItem
-                                key={index}
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    py: 1
-                                }}
-                            >
-                                <Typography sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                                    {room.name}
-                                </Typography>
-                                <Button
-                                    variant="outlined"
-                                    size="small"
-                                    href={`/room/${room.id}`}
-                                    sx={{ fontFamily: 'var(--font-roboto)' }}
-                                >
-                                    See more
-                                </Button>
-                            </ListItem>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                        {availableFloors.map((floor) => (
+                            <FormControlLabel
+                                key={floor}
+                                control={
+                                    <Checkbox
+                                        checked={selectedFloors.includes(floor)}
+                                        onChange={() => toggleFloor(floor)}
+                                        sx={{
+                                            color: 'white',
+                                            '&.Mui-checked': {
+                                                color: 'white',
+                                            },
+                                        }}
+                                    />
+                                }
+                                label={floor === 0 ? "Ground floor" : `Floor ${floor}`}
+                                sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
+                            />
                         ))}
-                    </List>
-                )}
+                    </Box>
+                </Box>
+
+                <Box textAlign="center" sx={{ mb: 4 }}>
+                    <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
+                        Room Type
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+                        {availableRoomTypes.map((type) => (
+                            <FormControlLabel
+                                key={type}
+                                control={
+                                    <Checkbox
+                                        checked={selectedRoomTypes.includes(type)}
+                                        onChange={() => toggleRoomType(type)}
+                                        sx={{
+                                            color: 'white',
+                                            '&.Mui-checked': {
+                                                color: 'white',
+                                            },
+                                        }}
+                                    />
+                                }
+                                label={type}
+                                sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
+                            />
+                        ))}
+                    </Box>
+                </Box>
+
+                <Button
+                    variant="text"
+                    onClick={resetFilters}
+                    sx={{
+                        textTransform: "none",
+                        display: "block",
+                        mx: "auto",
+                        mb: 4,
+                        fontFamily: 'var(--font-roboto)'
+                    }}
+                >
+                    Reset all filters
+                </Button>
+            </Box>
+
+            <Box component="main" sx={{ px: 3, py: 2, maxWidth: 800, mx: "auto" }}>
+                <Box>
+                    <Typography variant="h6" gutterBottom sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
+                        Results
+                    </Typography>
+                    {filteredRooms.length === 0 ? (
+                        <Typography sx={{ mt: 2, fontStyle: 'italic', fontFamily: 'var(--font-roboto)', color: 'white' }}>
+                            No matching room found.
+                        </Typography>
+                    ) : (
+                        <List>
+                            {filteredRooms.map((room, index) => (
+                                <ListItem
+                                    key={index}
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        py: 1
+                                    }}
+                                >
+                                    <Typography sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
+                                        {room.name}
+                                    </Typography>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        href={`/room/${room.id}`}
+                                        sx={{ fontFamily: 'var(--font-roboto)' }}
+                                    >
+                                        See more
+                                    </Button>
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
+                </Box>
             </Box>
         </Box>
     );
