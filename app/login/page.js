@@ -132,6 +132,13 @@ export default function Login() {
                   borderRadius: 0,
                 },
               }}
+              sx={{
+                '& input:-webkit-autofill': {
+                  WebkitBoxShadow: '0 0 0 1000px rgb(20, 20, 20) inset !important',
+                  WebkitTextFillColor: 'white !important',
+                  caretColor: 'white'
+                }
+              }}
               onFocus={() => setMsgError(null)}
               required
             />
@@ -144,13 +151,24 @@ export default function Login() {
               variant="outlined"
               fullWidth
               autoComplete="current-password"
-              InputLabelProps={{ style: { color: 'rgba(255,255,255,0.8)' } }}
-              InputProps={{
-                style: {
-                  color: 'white',
-                  background: 'rgba(255,255,255,0.08)',
-                  borderRadius: 0,
+              slotProps={{
+                inputLabel: {
+                  style: { color: 'rgba(255,255,255,0.8)' }
                 },
+                input: {
+                  style: {
+                    color: 'white',
+                    background: 'rgba(255,255,255,0.08)',
+                    borderRadius: 0,
+                  }
+                }
+              }}
+              sx={{
+                '& input:-webkit-autofill': {
+                  WebkitBoxShadow: '0 0 0 1000px rgb(20, 20, 20) inset !important',
+                  WebkitTextFillColor: 'white !important',
+                  caretColor: 'white'
+                }
               }}
               onFocus={() => setMsgError(null)}
               required
