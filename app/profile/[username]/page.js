@@ -31,6 +31,7 @@ export default function Profile({ }) {
 	const [loading, setLoading] = useState(true);
 	const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 	const [editable, setEditable] = useState(false);
+	const [editableAdmin, setEditableAdmin] = useState(false);
 	const [showPasswordInput, setShowPasswordInput] = useState(false);
 	const [password, setPassword] = useState(false);
 
@@ -151,7 +152,7 @@ export default function Profile({ }) {
 
 	async function updateProfile() {
 		try {
-			const response = await fetch("/where/is/my/route", {
+			const response = await fetch("/api/user/setProfil", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ data: userData }),
@@ -509,10 +510,10 @@ export default function Profile({ }) {
 											size="small"
 											disabled={!editable}
 											label="Address"
-											type="email"
+											type="text"
 											value={userData?.address}
-											name='email'
-											onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+											name='address'
+											onChange={(e) => setUserData({ ...userData, address: e.target.value })}
 											sx={{
 												cursor: editable ? 'text' : 'not-allowed',
 												backgroundColor: "#3a3a3a",
@@ -556,26 +557,26 @@ export default function Profile({ }) {
 											<>
 												<TextField
 													size="small"
-													disabled={!editable}
+													disabled={!editableAdmin}
 													label="Points"
 													value={userData?.points}
 													type="number"
 													name='points'
 													onChange={(e) => setUserData({ ...userData, points: e.target.value })}
 													sx={{
-														cursor: editable ? 'text' : 'not-allowed',
+														cursor: editableAdmin ? 'text' : 'not-allowed',
 														backgroundColor: "#3a3a3a",
 														borderRadius: 1,
 														'&& .MuiInputBase-input': {
-															color: editable ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
 														},
 														'&& .MuiInputLabel-root': {
-															color: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
 														},
 														'&& .Mui-disabled': {
-															color: editable ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
 														}
 													}}
 													slotProps={{
@@ -599,29 +600,29 @@ export default function Profile({ }) {
 												/>
 												<TextField
 													size="small"
-													disabled={!editable}
+													disabled={!editableAdmin}
 													label="Level"
 													select
 													value={userData?.level}
 													name='level'
 													onChange={(e) => setUserData({ ...userData, level: e.target.value })}
 													sx={{
-														cursor: editable ? 'text' : 'not-allowed',
+														cursor: editableAdmin ? 'text' : 'not-allowed',
 														backgroundColor: "#3a3a3a",
 														borderRadius: 1,
 														'&& .MuiSelect-icon': {
-															color: editable ? 'white' : '#9e9e9e !important',
+															color: editableAdmin ? 'white' : '#9e9e9e !important',
 														},
 														'&& .MuiInputBase-input': {
-															color: editable ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
 														},
 														'&& .MuiInputLabel-root': {
-															color: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
 														},
 														'&& .Mui-disabled': {
-															color: editable ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+															color: editableAdmin ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
 														}
 													}}
 													slotProps={{
@@ -651,14 +652,14 @@ export default function Profile({ }) {
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>
 													Activated :
 													<Checkbox
-														disabled={!editable}
+														disabled={!editableAdmin}
 														value={userData?.isActive}
 														name='isActive'
 														onChange={(e) => setUserData({ ...userData, isActive: e.target.checked })}
 														checked={userData?.isActive}
 														sx={{
 															'&.Mui-checked': {
-																color: editable ? "#7FC7FF" : "grey",
+																color: editableAdmin ? "#7FC7FF" : "grey",
 															},
 															'&:not(.Mui-checked)': {
 																color: 'white',
@@ -738,6 +739,16 @@ export default function Profile({ }) {
 										<Button variant='contained' onClick={() => setOpenConfirmDelete(true)} sx={{ display: 'flex', justifyContent: 'space-evenly', backgroundColor: '#8b2000', '&:hover': { backgroundColor: '#c62828' }, transform: 'none !important' }}>
 											Delete account
 										</Button>
+
+                                        <Box // editstate component only shown if the user is an admin
+                                            sx={{
+                                                width: '100%',
+                                                display: 'flex',
+                                                justifyContent: 'flex-end',
+                                            }}>
+                                            < EditState setEditable={(x) => { setEditable(x) ; if (self.level === 'expert') {setEditableAdmin(x)} }} onConfirm={() => { updateProfile() }} />
+                                        </Box>
+
 										<Dialog open={openConfirmDelete} onClose={() => setOpenConfirmDelete(false)}>
 											<DialogTitle>Confirm deletion</DialogTitle>
 											<DialogContent>
