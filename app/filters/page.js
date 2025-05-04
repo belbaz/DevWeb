@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo} from "react";
 import {
     Box,
     Typography,
@@ -12,26 +12,37 @@ import {
     Button
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-
 export default function FiltersPage() {
     const [selectedFloors, setSelectedFloors] = useState([]);
     const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
     const [filteredRooms, setFilteredRooms] = useState([]);
+    const [expoList, setExpoList] = useState([]);
     const router = useRouter();
 
-    const availableFloors = [0, 1];
-    const availableRoomTypes = [
-        "hall",
-        "réserve",
-        "exposition permanente",
-        "exposition temporaire"
-    ];
 
+    const availableFloors = [0, 1, 2, 3];
+    const baseRoomTypes = [
+        { value: "hall", label: "HALL" },
+        { value: "réserve", label: " Réserve" },
+    ];
     const toggleFloor = (floor) => {
         setSelectedFloors((prev) =>
             prev.includes(floor) ? prev.filter((f) => f !== floor) : [...prev, floor]
         );
     };
+
+    const expoMap = useMemo(() => {
+        if (!Array.isArray(expoList)) return {};
+        return Object.fromEntries(expoList.map(expo => [expo.id, expo.name]));
+    }, [expoList]);
+
+
+    useEffect(() => {
+        fetch("/api/expo/list")
+            .then(res => res.json())
+            .then(data => setExpoList(data.expos || []))
+            .catch(err => console.error("Expo list error:", err));
+    }, []);
 
     const toggleRoomType = (type) => {
         setSelectedRoomTypes((prev) =>
@@ -49,7 +60,10 @@ export default function FiltersPage() {
         const fetchRooms = async () => {
             const params = new URLSearchParams();
             if (selectedFloors.length > 0) params.append("floors", selectedFloors.join(","));
-            if (selectedRoomTypes.length > 0) params.append("types", selectedRoomTypes.join(","));
+            if (selectedRoomTypes.length > 0) {
+                // Encode "hall", "réserve", and each "exposition:{expo_id}"
+                params.append("types", selectedRoomTypes.join(","));
+            }
 
             try {
                 const res = await fetch(`/api/search?${params.toString()}`);
@@ -71,11 +85,8 @@ export default function FiltersPage() {
                 background: 'none',
                 minHeight: '100vh',
                 margin: 0,
-                // Add padding to account for header height
-                pt: '80px', // Adjust this value based on your header height
-                // Add padding at the bottom for the footer if needed
+                pt: '80px',
                 pb: '20px',
-                // Make sure content doesn't overflow
                 overflow: 'auto'
             }}
         >
@@ -95,7 +106,6 @@ export default function FiltersPage() {
                 py: 4,
                 maxWidth: 800,
                 mx: "auto",
-                // Add space between content and navigation elements
                 position: 'relative',
                 zIndex: 1
             }}>
@@ -126,18 +136,30 @@ export default function FiltersPage() {
                     </Box>
                 </Box>
 
+                <Box sx={{ borderBottom: '1px solid #444', my: 3, mx: 'auto', width: '60%' }} />
+
                 <Box textAlign="center" sx={{ mb: 4 }}>
                     <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
                         Room Type
                     </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
-                        {availableRoomTypes.map((type) => (
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                            gap: 2,
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {[...baseRoomTypes, ...expoList.map(expo => ({
+                            value: `exposition:${expo.id}`,
+                            label: expo.name
+                        }))].map((typeObj) => (
                             <FormControlLabel
-                                key={type}
+                                key={typeObj.value}
                                 control={
                                     <Checkbox
-                                        checked={selectedRoomTypes.includes(type)}
-                                        onChange={() => toggleRoomType(type)}
+                                        checked={selectedRoomTypes.includes(typeObj.value)}
+                                        onChange={() => toggleRoomType(typeObj.value)}
                                         sx={{
                                             color: 'white',
                                             '&.Mui-checked': {
@@ -146,7 +168,7 @@ export default function FiltersPage() {
                                         }}
                                     />
                                 }
-                                label={type}
+                                label={typeObj.label}
                                 sx={{ color: 'white', fontFamily: 'var(--font-roboto)' }}
                             />
                         ))}
@@ -189,9 +211,16 @@ export default function FiltersPage() {
                                         py: 1
                                     }}
                                 >
-                                    <Typography sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
-                                        {room.name}
-                                    </Typography>
+                                    <Box>
+                                        <Typography sx={{ fontFamily: 'var(--font-roboto)', color: 'white' }}>
+                                            {room.name}
+                                        </Typography>
+                                        {room.roomtype === "exposition" && room.expo_id && (
+                                            <Typography sx={{ fontFamily: 'var(--font-roboto)', fontSize: '0.8rem', color: '#aaaaaa', fontStyle: 'italic' }}>
+                                                Exposition : {expoMap[room.expo_id] || `Exposition ${room.expo_id}`}
+                                            </Typography>
+                                        )}
+                                    </Box>
                                     <Button
                                         variant="outlined"
                                         size="small"

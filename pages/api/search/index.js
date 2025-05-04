@@ -32,9 +32,12 @@ export default async function handler(req, res) {
     }
 
     // --- ROOM QUERY (réservée aux utilisateurs connectés) ---
-    if (user?.pseudo && q) {
-        let roomQuery = supabase.from("Room").select("id, name, floor, roomtype");
-        roomQuery = roomQuery.ilike("name", `%${q}%`);
+    if (user?.pseudo && (q || floors || types)) {
+        let roomQuery = supabase.from("Room").select("id, name, floor, roomtype, expo_id");
+
+        if (q) {
+            roomQuery = roomQuery.ilike("name", `%${q}%`);
+        }
 
         if (floors) {
             const parsedFloors = Array.isArray(floors) ? floors.map(Number) : floors.split(',').map(Number);
@@ -43,7 +46,23 @@ export default async function handler(req, res) {
 
         if (types) {
             const parsedTypes = Array.isArray(types) ? types : types.split(',');
-            roomQuery = roomQuery.in("roomtype", parsedTypes);
+
+            const normalTypes = parsedTypes.filter(t => !t.startsWith("exposition"));
+            const expoIds = parsedTypes
+                .filter(t => t.startsWith("exposition:"))
+                .map(t => parseInt(t.split(":")[1], 10));
+
+            if (normalTypes.length > 0 && expoIds.length > 0) {
+                roomQuery = roomQuery.or(
+                    `roomtype.in.(${normalTypes.join(",")}),and(roomtype.eq.exposition,expo_id.in.(${expoIds.join(",")}))`
+                );
+            } else if (normalTypes.length > 0) {
+                roomQuery = roomQuery.in("roomtype", normalTypes);
+            } else if (expoIds.length > 0) {
+                roomQuery = roomQuery
+                    .eq("roomtype", "exposition")
+                    .in("expo_id", expoIds);
+            }
         }
 
         const { data: roomData, error: roomError } = await roomQuery;
@@ -55,7 +74,9 @@ export default async function handler(req, res) {
         const formattedRooms = roomData.map(room => ({
             type: "Pièce",
             name: room.name,
-            id: room.id
+            id: room.id,
+            roomtype: room.roomtype,
+            expo_id: room.expo_id ?? null
         }));
 
         results.push(...formattedRooms);
