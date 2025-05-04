@@ -17,13 +17,37 @@ import Rolling from '../../../components/rolling';
 
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
-	const [roomData, setRoomData] = useState(null); // to store the room data from the API call
+	const [roomData, setRoomData] = useState({
+		name: '',
+		floor: '',
+		levelAcces: 'debutant',
+		roomtype: '',
+		expo_id: null, // <-- ajout ici
+	});
+	// to store the room data from the API call
 	const [isLoading, setIsLoading] = useState(false);
+	const [expoList, setExpoList] = useState([]);
 
 	const router = useRouter();
 
 	useEffect(() => {
 	}, []);
+
+	useEffect(() => {
+		async function fetchExpos() {
+			try {
+				const response = await fetch("/api/expo/list");
+				const data = await response.json();
+				setExpoList(data.expos);
+			} catch (err) {
+				console.error("Erreur lors du chargement des expositions :", err);
+			}
+		}
+
+		if (roomData.roomtype === 'exposition') {
+			fetchExpos();
+		}
+	}, [roomData.roomtype]);
 
 	async function insertRoom() {
 		setIsLoading(true);
@@ -38,9 +62,11 @@ export default function Room({ }) {
 					name: roomData.name,
 					floor: parseInt(roomData.floor, 10),
 					levelAcces: roomData.levelAcces,
-					roomtype: roomData.roomtype
+					roomtype: roomData.roomtype,
+					expo_id: roomData.roomtype === 'exposition' ? roomData.expo_id : null,
 				}),
 			});
+
 
 			if (response.ok) {
 				const data = await response.json();
@@ -124,34 +150,6 @@ export default function Room({ }) {
 							/>
 							<TextField
 								size="small"
-								label="Access level"
-								value={roomData?.levelAcces}
-								select
-								name='levelAcces'
-								onChange={(e) => setRoomData({ ...roomData, levelAcces: e.target.value })}
-								sx={{
-									cursor: 'text',
-									backgroundColor: "#3a3a3a",
-									borderRadius: 1,
-									'&& .MuiSelect-icon': {
-										color: 'white',
-									},
-									'&& .MuiInputBase-input': {
-										color: 'white',
-										WebkitTextFillColor: 'white',
-									},
-									'&& .MuiInputLabel-root': {
-										color: '#9e9e9e',
-									},
-								}}
-							>
-								<MenuItem value={"debutant"}>débutant</MenuItem>
-								<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-								<MenuItem value={"avance"}>avancé</MenuItem>
-								<MenuItem value={"expert"}>expert</MenuItem>
-							</TextField>
-							<TextField
-								size="small"
 								label="Room type"
 								value={roomData?.roomtype}
 								select
@@ -174,9 +172,30 @@ export default function Room({ }) {
 								}}
 							>
 								<MenuItem value={"hall"}>Hall</MenuItem>
-								<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
+								<MenuItem value={"exposition"}>Exposition</MenuItem>
 								<MenuItem value={"réserve"}>réserve</MenuItem>
 							</TextField>
+							{roomData.roomtype === 'exposition' && (
+								<TextField
+									size="small"
+									label="Exposition"
+									value={roomData?.expo_id || ''}
+									select
+									onChange={(e) => setRoomData({ ...roomData, expo_id: parseInt(e.target.value) })}
+									sx={{
+										backgroundColor: "#3a3a3a",
+										'&& .MuiSelect-icon': { color: 'white' },
+										'&& .MuiInputBase-input': { color: 'white', WebkitTextFillColor: 'white' },
+										'&& .MuiInputLabel-root': { color: '#9e9e9e' },
+									}}
+								>
+									{expoList.map((expo) => (
+										<MenuItem key={expo.id} value={expo.id}>
+											{expo.name}
+										</MenuItem>
+									))}
+								</TextField>
+							)}
 							<>
 								{isLoading ? (
 									Rolling(40, 40, "#fff")

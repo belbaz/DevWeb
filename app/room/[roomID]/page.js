@@ -29,6 +29,7 @@ export default function Room({ }) {
 	const [objects, setObjects] = useState(null);
 	const [currentObject, setCurrentObject] = useState(null);
 	const [globalIndexMap, setGlobalIndexMap] = useState({});
+	const [expoList, setExpoList] = useState([]);
 
 	const params = useParams();
 	const router = useRouter();
@@ -38,6 +39,24 @@ export default function Room({ }) {
 		router.push('/');
 		return null;
 	}
+
+	useEffect(() => {
+		async function fetchExpos() {
+			try {
+				const response = await fetch("/api/expo/list");
+				const data = await response.json();
+				setExpoList(data.expos);
+			} catch (err) {
+				console.error("Error when charging expos :", err);
+			}
+		}
+
+		if (roomData?.roomtype === "exposition") {
+			fetchExpos();
+		}
+	}, [roomData?.roomtype]);
+
+
 
 	useEffect(() => {
 		getRoom();
@@ -138,6 +157,7 @@ export default function Room({ }) {
 					levelAcces: roomData.levelAcces,
 					roomtype: roomData.roomtype,
 					name: roomData.name,
+					expo_id: roomData.roomtype === "exposition" ? roomData.expo_id : null
 				}),
 				credentials: "include"
 			});
@@ -207,7 +227,7 @@ export default function Room({ }) {
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
 									{self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? ( // edit room info
-										<>{category('Room information')}
+										<>{category('Room informations')}
 											<TextField
 												size="small"
 												disabled={!editable}
@@ -251,57 +271,7 @@ export default function Room({ }) {
 													}
 												}}
 											/>
-											<TextField
-												size="small"
-												disabled={!editable}
-												label="Access level"
-												value={roomData?.levelAcces}
-												select
-												name='levelAcces'
-												onChange={(e) => setRoomData({ ...roomData, levelAcces: e.target.value })}
-												sx={{
-													cursor: editable ? 'text' : 'not-allowed',
-													backgroundColor: "#3a3a3a",
-													borderRadius: 1,
-													'&& .MuiSelect-icon': {
-														color: editable ? 'white' : '#9e9e9e !important',
-													},
-													'&& .MuiInputBase-input': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .MuiInputLabel-root': {
-														color: editable ? 'white' : '#9e9e9e',
-													},
-													'&& .Mui-disabled': {
-														color: editable ? 'white' : '#9e9e9e',
-														WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
-													}
-												}}
-												slotProps={{
-													input: {
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e',
-																WebkitTextFillColor: '#9e9e9e',
-															}
-														}
-													},
-													inputLabel: {
-														shrink: true,
-														sx: {
-															'&&.Mui-disabled': {
-																color: '#9e9e9e !important',
-															}
-														}
-													}
-												}}
-											>
-												<MenuItem value={"debutant"}>débutant</MenuItem>
-												<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-												<MenuItem value={"avance"}>avancé</MenuItem>
-												<MenuItem value={"expert"}>expert</MenuItem>
-											</TextField>
+
 											<TextField
 												size="small"
 												disabled={!editable}
@@ -349,9 +319,41 @@ export default function Room({ }) {
 												}}
 											>
 												<MenuItem value={"hall"}>Hall</MenuItem>
-												<MenuItem value={"exposition permanente"}>Exposition permanente</MenuItem>
+												<MenuItem value={"exposition"}>Exposition</MenuItem>
 												<MenuItem value={"réserve"}>réserve</MenuItem>
 											</TextField>
+
+											{roomData?.roomtype === "exposition" && (
+												<TextField
+													size="small"
+													disabled={!editable}
+													label="Exposition"
+													value={roomData?.expo_id || ''}
+													select
+													name='expo_id'
+													onChange={(e) => setRoomData({ ...roomData, expo_id: parseInt(e.target.value) })}
+													sx={{
+														cursor: editable ? 'text' : 'not-allowed',
+														backgroundColor: "#3a3a3a",
+														borderRadius: 1,
+														'&& .MuiSelect-icon': { color: editable ? 'white' : '#9e9e9e !important' },
+														'&& .MuiInputBase-input': { color: editable ? 'white' : '#9e9e9e' },
+														'&& .MuiInputLabel-root': { color: editable ? 'white' : '#9e9e9e' },
+														'&& .Mui-disabled': {
+															color: editable ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+														}
+													}}
+												>
+													{expoList.map((expo) => (
+														<MenuItem key={expo.id} value={expo.id}>
+															{expo.name}
+														</MenuItem>
+													))}
+
+												</TextField>
+											)}
+
 											<TextField
 												size="small"
 												disabled={!editable}
@@ -421,7 +423,7 @@ export default function Room({ }) {
 										</>
 									) : ( // if the user is not an admin, display only the information
 										<>
-											{category('Room information')}
+											{category('Room informations')}
 											<Box>
 												{fieldName('Floor', String(roomData?.floor))}
 											</Box>
@@ -431,6 +433,12 @@ export default function Room({ }) {
 											<Box>
 												{fieldName('Room type', roomData?.roomtype)}
 											</Box>
+											{roomData?.roomtype === "exposition" && roomData?.expo_id && (
+												<Box>
+													{fieldName('Exposition', expoList.find(e => e.id === roomData.expo_id)?.name || `Exposition ${roomData.expo_id}`)}
+												</Box>
+											)}
+
 										</>
 									)}
 								</Box>
@@ -492,7 +500,7 @@ export default function Room({ }) {
 
 							{currentObject ? (
 								<>
-									{category('Object information')}
+									{category('Object informations')}
 									<Box>{fieldName('Type', currentObject?.type_Object)}</Box>
 									{Object.entries(typeof currentObject.data === 'string' ?
 										JSON.parse(currentObject.data)
