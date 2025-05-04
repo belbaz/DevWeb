@@ -2,6 +2,7 @@
 
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
@@ -24,6 +25,9 @@ export default function Room({ }) {
 
 	const [roomData, setRoomData] = useState(null); // to store the room data from the API call
 	const [self, setSelf] = useState(null); // logged in user data
+	const [objectID, setObjectID] = useState(null);
+	const [objects, setObjects] = useState(null);
+	const [currentObject, setCurrentObject] = useState(null);
 
 
 	const params = useParams();
@@ -38,7 +42,15 @@ export default function Room({ }) {
 	useEffect(() => {
 		getRoom();
 		getSelf();
+		if (roomID) getObjectsByRoom();
 	}, [roomID]);
+
+	useEffect(() => {
+		if (objectID) {
+			const selectedObject = objects.find((object) => object.id === objectID);
+			setCurrentObject(selectedObject);
+		}
+	}, [objectID]);
 
 	async function getRoom() {
 		try {
@@ -59,6 +71,24 @@ export default function Room({ }) {
 			toast.error("Error while fetching room data : " + error.message);
 		} finally {
 			setLoading(false);
+		}
+	}
+
+	async function getObjectsByRoom() {
+		try {
+			const response = await fetch(`/api/objects/getObjectsByRoom?id=${encodeURIComponent(roomID)}`, {
+				method: "GET"
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Unknown error");
+			}
+
+			const data = await response.json();
+			setObjects(data.objects);
+		} catch (error) {
+			toast.error("Error while fetching object instance data : " + error.message);
 		}
 	}
 
@@ -425,6 +455,83 @@ export default function Room({ }) {
 					) : null}
 				</Box>
 			)}
+
+			{self?.level == 'debutant' || self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? (
+				<Box
+					component="main"
+					sx={{
+						width: { xs: '100vw', sm: '80vw' },
+						maxWidth: '1000px',
+						bgcolor: 'black',
+						borderRadius: 0,
+						boxShadow: 6,
+						p: 5,
+						display: 'flex',
+						flexDirection: 'column',
+						gap: 3,
+					}}
+				>
+					<TextField
+						size="small"
+						label="Object"
+						value={objectID}
+						select
+						onChange={(e) => setObjectID(e.target.value)}
+						sx={{
+							cursor: editable ? 'text' : 'not-allowed',
+							backgroundColor: "#3a3a3a",
+							borderRadius: 1,
+							'&& .MuiSelect-icon': {
+								color: 'white',
+							},
+							'&& .MuiInputBase-input': {
+								color: 'white',
+							},
+							'&& .MuiInputLabel-root': {
+								color: '#9e9e9e',
+							},
+						}}
+						slotProps={{
+							input: {
+								sx: {
+									'&&.Mui-disabled': {
+										color: '#9e9e9e',
+										WebkitTextFillColor: '#9e9e9e',
+									}
+								}
+							},
+							inputLabel: {
+								shrink: true,
+								sx: {
+									'&&.Mui-disabled': {
+										color: '#9e9e9e !important',
+									}
+								}
+							}
+						}}
+					>
+						{Array.isArray(objects) && objects.map((object) => (
+							<MenuItem key={object.id} value={object.id}>
+								{object.type}
+							</MenuItem>
+						))}
+					</TextField>
+
+					{category('Object information')}
+					<Box>
+						{fieldName('Brand', String(currentObject?.brand))}
+					</Box>
+					<Box>
+						{fieldName('Access level', currentObject?.accessLevel)}
+					</Box>
+					<Link onClick={() => { router.push("/room/" + currentObject?.room_id) }} sx={{ cursor: 'pointer', textDecoration: 'none', fontWeight: 'bold' }}>
+						{fieldName('Room', roomData?.name)}
+					</Link>
+					<Box>
+						{fieldName('Description', currentObject?.description)}
+					</Box>
+				</Box>
+			) : null}
 		</Box>
 	);
 }

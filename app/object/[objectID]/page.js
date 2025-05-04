@@ -18,8 +18,7 @@ import { category, fieldName } from '../../../components/entityDisplay'; // disp
 import { desc } from 'framer-motion/client';
 
 
-
-export default function ObjectData({ }) {
+export default function Object({ }) {
 	const [isObjectValid, setisObjectValid] = useState(false); // true by default to avoid flickering when loading the page, turned off as soon as the api call is done
 	const [loading, setLoading] = useState(true);
 	const [openConfirm, setOpenConfirm] = useState(false);
