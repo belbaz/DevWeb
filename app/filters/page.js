@@ -142,6 +142,9 @@ export default function FiltersPage() {
                     <Typography variant="h6" sx={{ fontFamily: 'var(--font-roboto)', fontWeight: 'bold', color: 'white', mb: 1 }}>
                         Room Type
                     </Typography>
+
+                    <Box sx={{ height: 12 }} />
+
                     <Box
                         sx={{
                             display: 'grid',
