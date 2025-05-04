@@ -13,9 +13,9 @@ import '../../styles/dashboard.css';
 
 // Définition du dictionnaire de traduction des niveaux
 const levelMap = {
-  debutant: 'Beginner',
-  intermediaire: 'Intermediate',
-  avance: 'Advanced',
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
   expert: 'Expert'
 };
 
@@ -25,7 +25,7 @@ const UserProfileDetails = ({ user, permissions }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInput = useRef(null);
-  
+
   // Debug: Afficher les points utilisateur de manière plus détaillée
   useEffect(() => {
     if (user) {
@@ -36,11 +36,11 @@ const UserProfileDetails = ({ user, permissions }) => {
       });
     }
   }, [user]);
-  
+
   // Utiliser le niveau de la base de données
-  const userLevel = user.level || 'debutant'; // Fallback sur débutant si level n'existe pas
+  const userLevel = user.level || 'beginner'; // Fallback sur beginner si level n'existe pas
   const userPoints = user.points || 0; // Utilisez directement les points stockés dans user
-  
+
   useEffect(() => {
     const fetchAvatar = async () => {
       try {
@@ -48,18 +48,18 @@ const UserProfileDetails = ({ user, permissions }) => {
           method: "GET",
           headers: { pseudo: user.pseudo }
         });
-        
+
         const json = await res.json();
-        
+
         if (json.url) {
           const img = new Image();
           img.src = json.url;
-          
+
           img.onload = () => {
             setAvatarUrl(json.url);
             setIsAvatarLoaded(true);
           };
-          
+
           img.onerror = () => {
             setAvatarUrl("/images/avatar.svg");
             setIsAvatarLoaded(true);
@@ -92,22 +92,22 @@ const UserProfileDetails = ({ user, permissions }) => {
 
   const handleUpload = async (fileToUpload) => {
     if (!fileToUpload) return;
-    
+
     setIsUploading(true);
     const reader = new FileReader();
-    
+
     reader.onloadend = async () => {
       try {
         const base64 = reader.result.split(",")[1];
         const response = await fetch("/api/auth/uploadAvatar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             pseudo: user.pseudo,
-            imageBase64: base64 
+            imageBase64: base64
           }),
         });
-        
+
         if (response.ok) {
           toast.success("Avatar updated successfully");
         } else {
@@ -125,7 +125,7 @@ const UserProfileDetails = ({ user, permissions }) => {
         setIsUploading(false);
       }
     };
-    
+
     reader.readAsDataURL(fileToUpload);
   };
 
@@ -135,9 +135,9 @@ const UserProfileDetails = ({ user, permissions }) => {
         method: "GET",
         headers: { pseudo: user.pseudo }
       });
-      
+
       const json = await res.json();
-      
+
       if (json.url) {
         setAvatarUrl(json.url);
       } else {
@@ -152,7 +152,7 @@ const UserProfileDetails = ({ user, permissions }) => {
   return (
     <div>
       <h2 className="card-title">User Profile</h2>
-      
+
       <div className="user-profile-grid">
         {/* Informations de base */}
         <div className="user-profile-col">
@@ -160,47 +160,47 @@ const UserProfileDetails = ({ user, permissions }) => {
             <div className="user-profile">
               {isAvatarLoaded ? (
                 <div className="avatar-container" style={{ position: 'relative' }}>
-                  <img 
-                    src={avatarUrl} 
+                  <img
+                    src={avatarUrl}
                     alt={user.pseudo}
                     className="user-avatar"
                     style={{ cursor: 'pointer' }}
                     onClick={() => fileInput.current.click()}
                   />
                   {isUploading && (
-                    <div style={{ 
-                      position: 'absolute', 
-                      top: 0, 
-                      left: 0, 
-                      right: 0, 
-                      bottom: 0, 
-                      display: 'flex', 
-                      justifyContent: 'center', 
-                      alignItems: 'center', 
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                       backgroundColor: 'rgba(0,0,0,0.5)',
                       borderRadius: '50%'
                     }}>
                       <div className="spinner"></div>
                     </div>
                   )}
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     ref={fileInput}
-                    accept="image/*" 
-                    onChange={handleFileChange} 
+                    accept="image/*"
+                    onChange={handleFileChange}
                     style={{ display: 'none' }}
                   />
                 </div>
               ) : (
-                <Skeleton 
-                  variant="circular" 
-                  width={120} 
-                  height={120} 
-                  sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.1)' }} 
+                <Skeleton
+                  variant="circular"
+                  width={120}
+                  height={120}
+                  sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.1)' }}
                 />
               )}
-              
-              <Button 
+
+              <Button
                 variant="outlined"
                 onClick={() => fileInput.current.click()}
                 sx={{
@@ -209,16 +209,16 @@ const UserProfileDetails = ({ user, permissions }) => {
                   color: 'white',
                   borderColor: 'rgba(255,255,255,0.3)',
                   bgcolor: 'rgba(255,255,255,0.08)',
-                  '&:hover': {bgcolor: 'rgba(255,255,255,0.18)'},
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.18)' },
                   mb: 2,
                   mt: 1
                 }}
               >
                 {isUploading ? 'Uploading...' : 'Change Avatar'}
               </Button>
-              
+
               <h3 className="user-name">{user.pseudo}</h3>
-              
+
               <div className="user-roles">
                 <span className="user-role">
                   <PersonIcon className="user-role-icon" />
@@ -229,41 +229,41 @@ const UserProfileDetails = ({ user, permissions }) => {
                   {user.role}
                 </span>
               </div>
-              
+
               <div className="divider"></div>
-              
+
               <div className="user-info">
                 <div className="user-info-label">Name:</div>
                 <div className="user-info-value">{user.name || '-'} {user.lastName || ''}</div>
-                
+
                 <div className="user-info-label">Email:</div>
                 <div className="user-info-value">{user.email || '-'}</div>
-                
+
                 <div className="user-info-label">Points:</div>
                 <div className="user-info-value">{userPoints}</div>
-                
+
                 <div className="user-info-label">Level:</div>
                 <div className="user-info-value">{levelMap[userLevel] || userLevel}</div>
-                
+
                 <div className="user-info-label">Role:</div>
                 <div className="user-info-value">{user.role || '-'}</div>
-                
+
                 <div className="user-info-label">Account active:</div>
                 <div className="user-info-value">
-                  {user.isActive ? 
-                    <CheckCircleIcon fontSize="small" sx={{ color: '#4caf50', verticalAlign: 'middle', mr: 0.5 }} /> : 
+                  {user.isActive ?
+                    <CheckCircleIcon fontSize="small" sx={{ color: '#4caf50', verticalAlign: 'middle', mr: 0.5 }} /> :
                     <CancelIcon fontSize="small" sx={{ color: '#f44336', verticalAlign: 'middle', mr: 0.5 }} />
                   }
                   {user.isActive ? 'Yes' : 'No'}
                 </div>
-                
+
                 <div className="user-info-label">Last login:</div>
                 <div className="user-info-value">{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '-'}</div>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Tableau des permissions */}
         <div className="permissions-col">
           <div className="card permissions-card">
@@ -271,7 +271,7 @@ const UserProfileDetails = ({ user, permissions }) => {
             <p className="permissions-level-info">
               Based on your current level: {levelMap[userLevel] || userLevel}
             </p>
-            
+
             <div className="table-container">
               <table className="table permissions-table">
                 <thead>
@@ -289,11 +289,11 @@ const UserProfileDetails = ({ user, permissions }) => {
                           .replace(/([a-z])([A-Z])/g, '$1 $2')}
                       </td>
                       <td>
-                        {value ? 
+                        {value ?
                           <span className="user-role status-allowed">
                             <CheckCircleIcon fontSize="small" />
                             Allowed
-                          </span> : 
+                          </span> :
                           <span className="user-role status-not-allowed">
                             <CancelIcon fontSize="small" />
                             Not allowed
@@ -305,7 +305,7 @@ const UserProfileDetails = ({ user, permissions }) => {
                 </tbody>
               </table>
             </div>
-            
+
             <div className="permissions-footer">
               <p className="permissions-info-text">
                 To gain more permissions, continue earning points by interacting with the platform.

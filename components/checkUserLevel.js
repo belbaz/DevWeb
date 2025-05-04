@@ -8,13 +8,13 @@ import Box from '@mui/material/Box';
 
 // restricts access to its children based on inputted user level
 // reads the cookie
-export default function CheckUserLevel({ requiredLevel = "debutant", children }) {
+export default function CheckUserLevel({ requiredLevel = "beginner", children }) {
 	const [hasAccess, setHasAccess] = useState(null);
 	const router = useRouter();
 	const accessLevels = {
-		"debutant": 1,
-		"intermediaire": 2,
-		"avance": 3,
+		"beginner": 1,
+		"intermediate": 2,
+		"advanced": 3,
 		"expert": 4
 	};
 

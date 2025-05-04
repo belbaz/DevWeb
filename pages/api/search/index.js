@@ -104,7 +104,7 @@ export default async function handler(req, res) {
     }
 
     // --- OBJECTDATA QUERY (si connecté ET niveau suffisant) ---
-    if (user?.level && ["intermediaire", "avance", "expert"].includes(user.level) && q) {
+    if (user?.level && ["intermediate", "advanced", "expert"].includes(user.level) && q) {
         const { data: objectData, error: objectError } = await supabase
             .from("ObjectData")
             .select("id, type_Object");

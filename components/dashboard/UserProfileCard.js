@@ -17,9 +17,9 @@ import LinearProgress from '@mui/material/LinearProgress';
 
 // Définition du dictionnaire de traduction des niveaux
 const levelMap = {
-  debutant: 'Beginner',
-  intermediaire: 'Intermediate',
-  avance: 'Advanced',
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
   expert: 'Expert'
 };
 
@@ -32,30 +32,30 @@ const getUserPoints = (user) => {
 const getUserLevel = (user) => {
   const points = getUserPoints(user);
   if (points >= 2000) return "expert";
-  if (points >= 1000) return "avance";
-  if (points >= 250) return "intermediaire";
-  return "debutant";
+  if (points >= 1000) return "advanced";
+  if (points >= 250) return "intermediate";
+  return "beginner";
 };
 
 // Fonction pour calculer la progression de l'utilisateur
 const calculateProgress = (user) => {
   const points = getUserPoints(user);
   const currentLevel = user?.level || getUserLevel(user);
-  
+
   let nextLevel = null;
   let pointsNeeded = 0;
   let progress = 100;
-  
+
   // Calculer le niveau suivant et les points nécessaires
-  if (currentLevel === 'debutant') {
-    nextLevel = 'intermediaire';
+  if (currentLevel === 'beginner') {
+    nextLevel = 'intermediate';
     pointsNeeded = 250 - points;
     progress = (points / 250) * 100;
-  } else if (currentLevel === 'intermediaire') {
-    nextLevel = 'avance';
+  } else if (currentLevel === 'intermediate') {
+    nextLevel = 'advanced';
     pointsNeeded = 1000 - points;
     progress = ((points - 250) / 750) * 100;
-  } else if (currentLevel === 'avance') {
+  } else if (currentLevel === 'advanced') {
     nextLevel = 'expert';
     pointsNeeded = 2000 - points;
     progress = ((points - 1000) / 1000) * 100;
@@ -65,7 +65,7 @@ const calculateProgress = (user) => {
     pointsNeeded = 0;
     progress = 100;
   }
-  
+
   return {
     level: currentLevel,
     nextLevel,
@@ -79,7 +79,7 @@ const UserProfileCard = ({ user }) => {
   const { setIsAuthenticated } = useAuth();
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
-  
+
   // Récupération des points avec console.log pour debugging
   const userPoints = getUserPoints(user);
   useEffect(() => {
@@ -91,7 +91,7 @@ const UserProfileCard = ({ user }) => {
       });
     }
   }, [user, userPoints]);
-  
+
   useEffect(() => {
     const fetchAvatar = async () => {
       try {
@@ -99,18 +99,18 @@ const UserProfileCard = ({ user }) => {
           method: "GET",
           headers: { pseudo: user.pseudo }
         });
-        
+
         const json = await res.json();
-        
+
         if (json.url) {
           const img = new Image();
           img.src = json.url;
-          
+
           img.onload = () => {
             setAvatarUrl(json.url);
             setIsAvatarLoaded(true);
           };
-          
+
           img.onerror = () => {
             setAvatarUrl("/images/avatar.svg");
             setIsAvatarLoaded(true);
@@ -137,7 +137,7 @@ const UserProfileCard = ({ user }) => {
         method: "POST",
         credentials: "include"
       });
-      
+
       if (response.ok) {
         setIsAuthenticated(false);
         router.push("/login");
@@ -150,51 +150,51 @@ const UserProfileCard = ({ user }) => {
   const progressInfo = calculateProgress(user);
 
   return (
-    <Paper sx={{ 
-      p: 3, 
+    <Paper sx={{
+      p: 3,
       height: '100%',
-      bgcolor: 'rgba(0, 0, 0, 0.8)', 
+      bgcolor: 'rgba(0, 0, 0, 0.8)',
       color: 'white',
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         mb: 3
       }}>
         {isAvatarLoaded ? (
-          <Avatar 
-            src={avatarUrl} 
+          <Avatar
+            src={avatarUrl}
             alt={user.pseudo}
             sx={{ width: 96, height: 96, mb: 2 }}
           />
         ) : (
-          <Skeleton 
-            variant="circular" 
-            width={96} 
-            height={96} 
-            sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.1)' }} 
+          <Skeleton
+            variant="circular"
+            width={96}
+            height={96}
+            sx={{ mb: 2, bgcolor: 'rgba(255, 255, 255, 0.1)' }}
           />
         )}
-        
+
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
           {user.pseudo}
         </Typography>
-        
+
         <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-          <Chip 
-            icon={<PersonIcon fontSize="small" />} 
-            label={levelMap[progressInfo.level] || progressInfo.level} 
-            color="primary" 
+          <Chip
+            icon={<PersonIcon fontSize="small" />}
+            label={levelMap[progressInfo.level] || progressInfo.level}
+            color="primary"
             size="small"
             sx={{ textTransform: 'capitalize' }}
           />
-          <Chip 
-            icon={<LockIcon fontSize="small" />} 
-            label={user.role} 
-            color="secondary" 
+          <Chip
+            icon={<LockIcon fontSize="small" />}
+            label={user.role}
+            color="secondary"
             size="small"
             sx={{ textTransform: 'capitalize' }}
           />
@@ -205,12 +205,12 @@ const UserProfileCard = ({ user }) => {
         <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 0.5 }}>
           Points: {userPoints}
         </Typography>
-        
+
         {progressInfo.nextLevel && (
           <>
-            <LinearProgress 
-              variant="determinate" 
-              value={progressInfo.progress} 
+            <LinearProgress
+              variant="determinate"
+              value={progressInfo.progress}
               sx={{ height: 8, borderRadius: 1, mb: 1 }}
             />
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
@@ -221,21 +221,21 @@ const UserProfileCard = ({ user }) => {
 
         <Box sx={{ mt: 3 }}>
           <Typography variant="subtitle2" gutterBottom>Account Details</Typography>
-          <Box sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'auto 1fr', 
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
             gap: '8px 16px',
-            '& > :nth-of-type(odd)': { 
+            '& > :nth-of-type(odd)': {
               color: 'rgba(255, 255, 255, 0.6)',
               fontWeight: 'bold'
             }
           }}>
             <Typography variant="body2">Name:</Typography>
             <Typography variant="body2">{user.name || '-'} {user.lastName || ''}</Typography>
-            
+
             <Typography variant="body2">Email:</Typography>
             <Typography variant="body2">{user.email || '-'}</Typography>
-            
+
             <Typography variant="body2">Role:</Typography>
             <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>{user.role || '-'}</Typography>
           </Box>
@@ -243,18 +243,18 @@ const UserProfileCard = ({ user }) => {
       </Box>
 
       <Box sx={{ mt: 'auto' }}>
-        <Button 
-          fullWidth 
-          variant="outlined" 
+        <Button
+          fullWidth
+          variant="outlined"
           onClick={() => router.push('/settings')}
           sx={{ mb: 1 }}
         >
           Settings
         </Button>
-        <Button 
-          fullWidth 
-          variant="contained" 
-          color="error" 
+        <Button
+          fullWidth
+          variant="contained"
+          color="error"
           onClick={handleLogout}
         >
           Logout

@@ -226,7 +226,7 @@ export default function Room({ }) {
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-									{self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? ( // edit room info
+									{self?.level == 'intermediate' || self?.level == 'advanced' || self?.level == 'expert' ? ( // edit room info
 										<>{category('Room informations')}
 											<TextField
 												size="small"
@@ -320,7 +320,7 @@ export default function Room({ }) {
 											>
 												<MenuItem value={"hall"}>Hall</MenuItem>
 												<MenuItem value={"exposition"}>Exposition</MenuItem>
-												<MenuItem value={"réserve"}>réserve</MenuItem>
+												<MenuItem value={"storage"}>storage</MenuItem>
 											</TextField>
 
 											{roomData?.roomtype === "exposition" && (
@@ -459,7 +459,7 @@ export default function Room({ }) {
 				</Box>
 			)}
 
-			{self?.level == 'debutant' || self?.level == 'intermediaire' || self?.level == 'avance' || self?.level == 'expert' ? (
+			{self?.level == 'beginner' || self?.level == 'intermediate' || self?.level == 'advanced' || self?.level == 'expert' ? (
 				<Box sx={{ background: 'none', height: '100vh', margin: 0 }}>
 					{self?.level && (
 						<Box
@@ -512,7 +512,7 @@ export default function Room({ }) {
 										))
 									}
 
-									{['avance', 'expert'].includes(self?.level) && currentObject?.id && (
+									{['advanced', 'expert'].includes(self?.level) && currentObject?.id && (
 										<Button
 											variant="contained"
 											sx={{ mt: 2, width: 'fit-content' }}

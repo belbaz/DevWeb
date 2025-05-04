@@ -174,7 +174,7 @@ export default function Object({ }) {
 
 							<Box sx={{ display: 'flex', gap: 10, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 								<Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-									{self?.level == 'avance' || self?.level == 'expert' ? ( // edit object info
+									{self?.level == 'advanced' || self?.level == 'expert' ? ( // edit object info
 										<>{category('Object information')}
 											<TextField
 												size="small"

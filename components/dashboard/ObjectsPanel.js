@@ -35,7 +35,7 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
     description: '',
     brand: '',
     room_id: '',
-    accessLevel: 'debutant'
+    accessLevel: 'beginner'
   });
 
   // État pour le filtrage
@@ -47,11 +47,11 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
         const response = await fetch('/api/objects/getObjects', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch objects');
         }
-        
+
         const data = await response.json();
         setObjects(data.objects || []);
         setFilteredObjects(data.objects || []);
@@ -66,11 +66,11 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
         const response = await fetch('/api/rooms/getRooms', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch rooms');
         }
-        
+
         const data = await response.json();
         setRooms(data.rooms || []);
       } catch (error) {
@@ -93,8 +93,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
 
     // Filtre basé sur la requête de recherche
     const query = searchQuery.toLowerCase();
-    const filtered = objects.filter(obj => 
-      obj.type.toLowerCase().includes(query) || 
+    const filtered = objects.filter(obj =>
+      obj.type.toLowerCase().includes(query) ||
       (obj.description && obj.description.toLowerCase().includes(query)) ||
       (obj.brand && obj.brand.toLowerCase().includes(query))
     );
@@ -111,7 +111,7 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
       .map(result => result.name);
 
     if (objectTypes.length) {
-      const filtered = objects.filter(obj => 
+      const filtered = objects.filter(obj =>
         objectTypes.includes(obj.type)
       );
       setFilteredObjects(filtered);
@@ -126,7 +126,7 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
         description: object.description || '',
         brand: object.brand || '',
         room_id: object.room_id?.toString() || '',
-        accessLevel: object.accessLevel || 'debutant'
+        accessLevel: object.accessLevel || 'beginner'
       });
     } else {
       setCurrentObject(null);
@@ -135,7 +135,7 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
         description: '',
         brand: '',
         room_id: '',
-        accessLevel: 'debutant'
+        accessLevel: 'beginner'
       });
     }
     setOpenDialog(true);
@@ -155,12 +155,12 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
 
   const handleSubmit = async () => {
     try {
-      const url = currentObject 
-        ? `/api/objects/updateObject?id=${currentObject.id}` 
+      const url = currentObject
+        ? `/api/objects/updateObject?id=${currentObject.id}`
         : '/api/objects/addObject';
-      
+
       const method = currentObject ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -169,24 +169,24 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
         body: JSON.stringify(formData),
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to ${currentObject ? 'update' : 'add'} object`);
       }
-      
+
       toast.success(`Object ${currentObject ? 'updated' : 'added'} successfully`);
-      
+
       // Recharger les objets
       const refreshResponse = await fetch('/api/objects/getObjects', {
         credentials: 'include'
       });
-      
+
       if (refreshResponse.ok) {
         const data = await refreshResponse.json();
         setObjects(data.objects || []);
         setFilteredObjects(data.objects || []);
       }
-      
+
       handleCloseDialog();
     } catch (error) {
       console.error(`Error ${currentObject ? 'updating' : 'adding'} object:`, error);
@@ -198,19 +198,19 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
     if (!window.confirm('Are you sure you want to delete this object?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/objects/deleteObject?id=${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete object');
       }
-      
+
       toast.success('Object deleted successfully');
-      
+
       // Mettre à jour la liste des objets
       setObjects(objects.filter(obj => obj.id !== id));
       setFilteredObjects(filteredObjects.filter(obj => obj.id !== id));
@@ -233,8 +233,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">Objects</Typography>
         {permissions.addObject && (
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
           >
@@ -271,8 +271,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
                   {(permissions.updateObject || permissions.deleteObject) && (
                     <TableCell>
                       {permissions.updateObject && (
-                        <IconButton 
-                          size="small" 
+                        <IconButton
+                          size="small"
                           onClick={() => handleOpenDialog(object)}
                           sx={{ color: 'primary.main', mr: 1 }}
                         >
@@ -280,8 +280,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
                         </IconButton>
                       )}
                       {permissions.deleteObject && (
-                        <IconButton 
-                          size="small" 
+                        <IconButton
+                          size="small"
                           onClick={() => handleDeleteObject(object.id)}
                           sx={{ color: 'error.main' }}
                         >
@@ -302,11 +302,11 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
       )}
 
       {/* Dialog for Add/Edit Object */}
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={handleCloseDialog}
         PaperProps={{
-          sx: { 
+          sx: {
             bgcolor: 'rgba(30, 30, 30, 0.95)',
             color: 'white',
             minWidth: '400px'
@@ -324,7 +324,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
             value={formData.type}
             onChange={handleInputChange}
             required
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               input: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -342,7 +343,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
             onChange={handleInputChange}
             multiline
             rows={3}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               textarea: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -358,7 +360,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.brand}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               input: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -375,7 +378,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.room_id}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               select: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -401,7 +405,8 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.accessLevel}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               select: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -409,9 +414,9 @@ const ObjectsPanel = ({ permissions, searchQuery, searchResults }) => {
               sx: { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}
           >
-            <MenuItem value="debutant">Débutant</MenuItem>
-            <MenuItem value="intermediaire">Intermédiaire</MenuItem>
-            <MenuItem value="avance">Avancé</MenuItem>
+            <MenuItem value="beginner">beginner</MenuItem>
+            <MenuItem value="intermediate">intermediate</MenuItem>
+            <MenuItem value="advanced">advanced</MenuItem>
             <MenuItem value="expert">Expert</MenuItem>
           </TextField>
         </DialogContent>

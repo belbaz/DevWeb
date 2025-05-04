@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         // Priorité au niveau de la DB s'il est fourni
         const userLevel = req.query.level;
         let level, permissions;
-        
+
         if (userLevel) {
             // Si le niveau est fourni directement, l'utiliser au lieu de le calculer
             // et récupérer directement les permissions associées
@@ -21,11 +21,11 @@ export default async function handler(req, res) {
             const points = parseInt(req.query.points) || 0;
             ({ level, permissions } = getUserPermissions(points));
         }
-        
+
         // Retourne les données
-        return res.status(200).json({ 
+        return res.status(200).json({
             level,
-            permissions 
+            permissions
         });
     } catch (err) {
         console.error('Server error:', err);
@@ -51,18 +51,18 @@ function getUserPermissionsByLevel(level) {
     };
 
     switch (level) {
-        case 'debutant':
+        case 'beginner':
             permissions.readObject = true;
             permissions.readRoom = true;
             break;
-        case 'intermediaire':
+        case 'intermediate':
             permissions.readObject = true;
             permissions.readData = true;
             permissions.readRoom = true;
             permissions.updateRoom = true;
             permissions.addData = true;
             break;
-        case 'avance':
+        case 'advanced':
             permissions.readObject = true;
             permissions.readData = true;
             permissions.readRoom = true;

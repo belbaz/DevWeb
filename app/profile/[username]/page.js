@@ -604,9 +604,9 @@ export default function Profile({ }) {
 														}
 													}}
 												>
-													<MenuItem value={"debutant"}>débutant</MenuItem>
-													<MenuItem value={"intermediaire"}>intermédiaire</MenuItem>
-													<MenuItem value={"avance"}>avancé</MenuItem>
+													<MenuItem value={"beginner"}>beginner</MenuItem>
+													<MenuItem value={"intermediate"}>intermediate</MenuItem>
+													<MenuItem value={"advanced"}>advanced</MenuItem>
 													<MenuItem value={"expert"}>expert</MenuItem>
 												</TextField>
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>

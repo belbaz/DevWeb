@@ -20,7 +20,7 @@ export default function Room({ }) {
 	const [roomData, setRoomData] = useState({
 		name: '',
 		floor: '',
-		levelAcces: 'debutant',
+		levelAcces: 'beginner',
 		roomtype: '',
 		expo_id: null, // <-- ajout ici
 	});

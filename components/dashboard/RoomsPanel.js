@@ -32,7 +32,7 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
   const [formData, setFormData] = useState({
     name: '',
     floor: 0,
-    levelAcces: 'debutant',
+    levelAcces: 'beginner',
     roomtype: ''
   });
 
@@ -45,11 +45,11 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
         const response = await fetch('/api/rooms/getRooms', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch rooms');
         }
-        
+
         const data = await response.json();
         setRooms(data.rooms || []);
         setFilteredRooms(data.rooms || []);
@@ -73,8 +73,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
 
     // Filtre basé sur la requête de recherche
     const query = searchQuery.toLowerCase();
-    const filtered = rooms.filter(room => 
-      room.name.toLowerCase().includes(query) || 
+    const filtered = rooms.filter(room =>
+      room.name.toLowerCase().includes(query) ||
       (room.roomtype && room.roomtype.toLowerCase().includes(query)) ||
       (room.floor && room.floor.toString().includes(query))
     );
@@ -91,7 +91,7 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
       .map(result => result.name);
 
     if (roomNames.length) {
-      const filtered = rooms.filter(room => 
+      const filtered = rooms.filter(room =>
         roomNames.includes(room.name)
       );
       setFilteredRooms(filtered);
@@ -104,7 +104,7 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
       setFormData({
         name: room.name || '',
         floor: room.floor || 0,
-        levelAcces: room.levelAcces || 'debutant',
+        levelAcces: room.levelAcces || 'beginner',
         roomtype: room.roomtype || ''
       });
     } else {
@@ -112,7 +112,7 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
       setFormData({
         name: '',
         floor: 0,
-        levelAcces: 'debutant',
+        levelAcces: 'beginner',
         roomtype: ''
       });
     }
@@ -133,12 +133,12 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
 
   const handleSubmit = async () => {
     try {
-      const url = currentRoom 
-        ? `/api/rooms/updateRoom?id=${currentRoom.id}` 
+      const url = currentRoom
+        ? `/api/rooms/updateRoom?id=${currentRoom.id}`
         : '/api/rooms/addRoom';
-      
+
       const method = currentRoom ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -147,24 +147,24 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
         body: JSON.stringify(formData),
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to ${currentRoom ? 'update' : 'add'} room`);
       }
-      
+
       toast.success(`Room ${currentRoom ? 'updated' : 'added'} successfully`);
-      
+
       // Recharger les salles
       const refreshResponse = await fetch('/api/rooms/getRooms', {
         credentials: 'include'
       });
-      
+
       if (refreshResponse.ok) {
         const data = await refreshResponse.json();
         setRooms(data.rooms || []);
         setFilteredRooms(data.rooms || []);
       }
-      
+
       handleCloseDialog();
     } catch (error) {
       console.error(`Error ${currentRoom ? 'updating' : 'adding'} room:`, error);
@@ -176,19 +176,19 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
     if (!window.confirm('Are you sure you want to delete this room?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/rooms/deleteRoom?id=${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete room');
       }
-      
+
       toast.success('Room deleted successfully');
-      
+
       // Mettre à jour la liste des salles
       setRooms(rooms.filter(room => room.id !== id));
       setFilteredRooms(filteredRooms.filter(room => room.id !== id));
@@ -211,8 +211,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">Rooms</Typography>
         {permissions.addRoom && (
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={() => handleOpenDialog()}
           >
@@ -242,8 +242,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
                   <TableCell sx={{ color: 'white', textTransform: 'capitalize' }}>{room.levelAcces}</TableCell>
                   <TableCell>
                     {permissions.updateRoom && (
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={() => handleOpenDialog(room)}
                         sx={{ color: 'primary.main', mr: 1 }}
                       >
@@ -251,8 +251,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
                       </IconButton>
                     )}
                     {permissions.deleteRoom && (
-                      <IconButton 
-                        size="small" 
+                      <IconButton
+                        size="small"
                         onClick={() => handleDeleteRoom(room.id)}
                         sx={{ color: 'error.main' }}
                       >
@@ -272,11 +272,11 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
       )}
 
       {/* Dialog for Add/Edit Room */}
-      <Dialog 
-        open={openDialog} 
+      <Dialog
+        open={openDialog}
         onClose={handleCloseDialog}
         PaperProps={{
-          sx: { 
+          sx: {
             bgcolor: 'rgba(30, 30, 30, 0.95)',
             color: 'white',
             minWidth: '400px'
@@ -294,7 +294,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
             value={formData.name}
             onChange={handleInputChange}
             required
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               input: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -311,7 +312,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.floor}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               input: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -327,7 +329,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.roomtype}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               input: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -344,7 +347,8 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
             variant="filled"
             value={formData.levelAcces}
             onChange={handleInputChange}
-            sx={{ mb: 2, 
+            sx={{
+              mb: 2,
               select: { color: 'white' },
               label: { color: 'rgba(255, 255, 255, 0.7)' }
             }}
@@ -352,9 +356,9 @@ const RoomsPanel = ({ permissions, searchQuery, searchResults }) => {
               sx: { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}
           >
-            <MenuItem value="debutant">Débutant</MenuItem>
-            <MenuItem value="intermediaire">Intermédiaire</MenuItem>
-            <MenuItem value="avance">Avancé</MenuItem>
+            <MenuItem value="beginner">beginner</MenuItem>
+            <MenuItem value="intermediate">intermediate</MenuItem>
+            <MenuItem value="advanced">advanced</MenuItem>
             <MenuItem value="expert">Expert</MenuItem>
           </TextField>
         </DialogContent>

@@ -6,9 +6,9 @@ import { BarChart } from '@mui/x-charts/BarChart';
 
 // Définition du dictionnaire de traduction des niveaux
 const levelMap = {
-  debutant: 'Beginner',
-  intermediaire: 'Intermediate',
-  avance: 'Advanced',
+  beginner: 'Beginner',
+  intermediate: 'Intermediate',
+  advanced: 'Advanced',
   expert: 'Expert'
 };
 
@@ -21,30 +21,30 @@ const getUserPoints = (user) => {
 const getUserLevel = (user) => {
   const points = getUserPoints(user);
   if (points >= 2000) return "expert";
-  if (points >= 1000) return "avance";
-  if (points >= 250) return "intermediaire";
-  return "debutant";
+  if (points >= 1000) return "advanced";
+  if (points >= 250) return "intermediate";
+  return "beginner";
 };
 
 // Fonction pour calculer la progression de l'utilisateur
 const calculateProgress = (user) => {
   const points = getUserPoints(user);
   const currentLevel = user?.level || getUserLevel(user);
-  
+
   let nextLevel = null;
   let pointsNeeded = 0;
   let progress = 100;
-  
+
   // Calculer le niveau suivant et les points nécessaires
-  if (currentLevel === 'debutant') {
-    nextLevel = 'intermediaire';
+  if (currentLevel === 'beginner') {
+    nextLevel = 'intermediate';
     pointsNeeded = 250 - points;
     progress = (points / 250) * 100;
-  } else if (currentLevel === 'intermediaire') {
-    nextLevel = 'avance';
+  } else if (currentLevel === 'intermediate') {
+    nextLevel = 'advanced';
     pointsNeeded = 1000 - points;
     progress = ((points - 250) / 750) * 100;
-  } else if (currentLevel === 'avance') {
+  } else if (currentLevel === 'advanced') {
     nextLevel = 'expert';
     pointsNeeded = 2000 - points;
     progress = ((points - 1000) / 1000) * 100;
@@ -54,7 +54,7 @@ const calculateProgress = (user) => {
     pointsNeeded = 0;
     progress = 100;
   }
-  
+
   return {
     level: currentLevel,
     nextLevel,
@@ -66,13 +66,13 @@ const calculateProgress = (user) => {
 const UserAccessLevel = ({ userData }) => {
   const [accessLevelStats, setAccessLevelStats] = useState({
     byAccessLevel: {
-      debutant: 0,
-      intermediaire: 0,
-      avance: 0,
+      beginner: 0,
+      intermediate: 0,
+      advanced: 0,
       expert: 0
     }
   });
-  
+
   // Debug: Affichons les données utilisateur
   useEffect(() => {
     if (userData) {
@@ -84,7 +84,7 @@ const UserAccessLevel = ({ userData }) => {
       });
     }
   }, [userData]);
-  
+
   // Récupération des points avec la fonction améliorée
   const userPoints = getUserPoints(userData);
 
@@ -94,18 +94,18 @@ const UserAccessLevel = ({ userData }) => {
       const userLevel = userData.level || getUserLevel(userData);
       const stats = {
         byAccessLevel: {
-          debutant: 0,
-          intermediaire: 0,
-          avance: 0,
+          beginner: 0,
+          intermediate: 0,
+          advanced: 0,
           expert: 0
         }
       };
-      
+
       // Mark current level with 1
       if (stats.byAccessLevel[userLevel] !== undefined) {
         stats.byAccessLevel[userLevel] = 1;
       }
-      
+
       setAccessLevelStats(stats);
     }
   }, [userData]);
@@ -116,14 +116,14 @@ const UserAccessLevel = ({ userData }) => {
       if (!accessLevelStats || !accessLevelStats.byAccessLevel) {
         return { data: [], labels: [] };
       }
-      
+
       const accessLevels = Object.keys(accessLevelStats.byAccessLevel);
       const counts = Object.values(accessLevelStats.byAccessLevel);
-      
+
       if (accessLevels.length === 0 || counts.some(isNaN)) {
         return { data: [], labels: [] };
       }
-      
+
       return {
         data: counts,
         labels: accessLevels.map(level => levelMap[level] || level.charAt(0).toUpperCase() + level.slice(1))
@@ -135,22 +135,22 @@ const UserAccessLevel = ({ userData }) => {
   };
 
   const canRenderBarChart = (data, labels) => {
-    return Array.isArray(data) && data.length > 0 && 
-           Array.isArray(labels) && labels.length > 0 &&
-           data.length === labels.length &&
-           data.every(value => typeof value === 'number');
+    return Array.isArray(data) && data.length > 0 &&
+      Array.isArray(labels) && labels.length > 0 &&
+      data.length === labels.length &&
+      data.every(value => typeof value === 'number');
   };
 
   const { data: accessLevelData, labels: accessLevelLabels } = prepareAccessLevelChartData();
   const progressInfo = calculateProgress(userData);
-  
+
   // Obtenir le niveau utilisateur directement de la base de données
   const userLevel = userData?.level || (progressInfo ? progressInfo.level : null);
 
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h6" sx={{ mb: 3 }}>User Access Level</Typography>
-      
+
       {/* User Level Summary */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={6} md={4}>
@@ -213,9 +213,9 @@ const UserAccessLevel = ({ userData }) => {
             </Typography>
             {progressInfo.nextLevel && (
               <Typography variant="caption">
-                {progressInfo.nextLevel === 'intermediaire' ? '250 points' : 
-                 progressInfo.nextLevel === 'avance' ? '1000 points' : 
-                 '2000 points'}
+                {progressInfo.nextLevel === 'intermediate' ? '250 points' :
+                  progressInfo.nextLevel === 'advanced' ? '1000 points' :
+                    '2000 points'}
               </Typography>
             )}
           </Box>
@@ -244,12 +244,12 @@ const UserAccessLevel = ({ userData }) => {
                 <Typography variant="caption">250 points</Typography>
                 <Typography variant="caption">2500 points</Typography>
               </Box>
-              
-              {/* Points intermédiaires pour référence */}
+
+              {/* Points intermediates pour référence */}
               <Box sx={{ position: 'relative', mt: 1, height: 16 }}>
-                <Box sx={{ 
-                  position: 'absolute', 
-                  left: '10%', 
+                <Box sx={{
+                  position: 'absolute',
+                  left: '10%',
                   transform: 'translateX(-50%)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -258,9 +258,9 @@ const UserAccessLevel = ({ userData }) => {
                   <Box sx={{ width: 1, height: 6, bgcolor: 'rgba(255, 255, 255, 0.5)' }} />
                   <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem' }}>250</Typography>
                 </Box>
-                <Box sx={{ 
-                  position: 'absolute', 
-                  left: '40%', 
+                <Box sx={{
+                  position: 'absolute',
+                  left: '40%',
                   transform: 'translateX(-50%)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -269,9 +269,9 @@ const UserAccessLevel = ({ userData }) => {
                   <Box sx={{ width: 1, height: 6, bgcolor: 'rgba(255, 255, 255, 0.5)' }} />
                   <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem' }}>1000</Typography>
                 </Box>
-                <Box sx={{ 
-                  position: 'absolute', 
-                  left: '80%', 
+                <Box sx={{
+                  position: 'absolute',
+                  left: '80%',
                   transform: 'translateX(-50%)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -281,7 +281,7 @@ const UserAccessLevel = ({ userData }) => {
                   <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.65rem' }}>2000</Typography>
                 </Box>
               </Box>
-              
+
               <Box sx={{ mt: 2, textAlign: 'center' }}>
                 <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   {userPoints} / 2500 points ({Math.round((userPoints / 2500) * 100)}%)
@@ -353,9 +353,9 @@ const UserAccessLevel = ({ userData }) => {
         <Typography variant="subtitle1" sx={{ mb: 2 }}>How to Earn Points</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{ 
-              p: 1, 
-              borderLeft: '3px solid', 
+            <Box sx={{
+              p: 1,
+              borderLeft: '3px solid',
               borderColor: 'primary.main',
               '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}>
@@ -364,9 +364,9 @@ const UserAccessLevel = ({ userData }) => {
             </Box>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{ 
-              p: 1, 
-              borderLeft: '3px solid', 
+            <Box sx={{
+              p: 1,
+              borderLeft: '3px solid',
               borderColor: 'secondary.main',
               '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}>
@@ -375,9 +375,9 @@ const UserAccessLevel = ({ userData }) => {
             </Box>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{ 
-              p: 1, 
-              borderLeft: '3px solid', 
+            <Box sx={{
+              p: 1,
+              borderLeft: '3px solid',
               borderColor: 'success.main',
               '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}>
@@ -386,9 +386,9 @@ const UserAccessLevel = ({ userData }) => {
             </Box>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <Box sx={{ 
-              p: 1, 
-              borderLeft: '3px solid', 
+            <Box sx={{
+              p: 1,
+              borderLeft: '3px solid',
               borderColor: 'warning.main',
               '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' }
             }}>

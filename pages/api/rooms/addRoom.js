@@ -20,7 +20,7 @@ import { logAction } from "lib/logAction";
  * @bodyParam {string} name - Name of the room (required)
  * @bodyParam {number} floor - Floor number (required)
  * @bodyParam {string} roomtype - Room type (required)
- * @bodyParam {string} [levelAcces="debutant"] - Access level (optional)
+ * @bodyParam {string} [levelAcces="beginner"] - Access level (optional)
  * @returns {Object} - JSON containing the created room or an error message
  */
 export default async function handler(req, res) {
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         }
 
         // 4. Parse and validate input
-        const { name, floor, levelAcces = 'debutant', roomtype } = JSON.parse(req.body);
+        const { name, floor, levelAcces = 'beginner', roomtype } = JSON.parse(req.body);
 
         if (!name || isNaN(floor) || !roomtype) {
             return res.status(400).json({ error: 'Champs obligatoires manquants ou invalides ' + name + " " + floor + " " + roomtype });

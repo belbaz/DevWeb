@@ -91,7 +91,7 @@ export default function Settings() {
 
                 // Récupérer les permissions en utilisant le niveau stocké en base de données
                 // et non plus en utilisant un calcul basé sur les points
-                const userLevel = userData.level || 'debutant'; // Fallback sur 'debutant' si pas de niveau
+                const userLevel = userData.level || 'beginner'; // Fallback sur 'beginner' si pas de niveau
 
                 const permissionsResponse = await fetch(`/api/user/getUserPermissions?level=${userLevel}`, {
                     method: "GET",
