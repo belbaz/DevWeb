@@ -10,6 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import PersonIcon from '@mui/icons-material/Person';
+import ActivityIcon from '@mui/icons-material/TrackChanges';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -75,6 +76,9 @@ export default function UserIconMenu({ user }) {
       case 'profile':
         router.push(`/profile/${user?.pseudo || ''}`);
         break;
+      case 'activity':
+        router.push(`/activity`);
+        break;
       case 'settings':
         router.push('/settings');
         break;
@@ -135,6 +139,12 @@ export default function UserIconMenu({ user }) {
             <PersonIcon fontSize="small" />
           </ListItemIcon>
           Profile
+        </MenuItem>,
+        <MenuItem key="activity" onClick={() => handleMenuItemClick('activity')}>
+          <ListItemIcon>
+            <ActivityIcon fontSize="small" />
+          </ListItemIcon>
+          Activity
         </MenuItem>,
         <MenuItem key="settings" onClick={() => handleMenuItemClick('settings')}>
           <ListItemIcon>

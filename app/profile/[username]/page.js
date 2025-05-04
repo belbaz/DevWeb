@@ -202,7 +202,7 @@ export default function Profile({ }) {
 			{loading ? (
 				<Box>
 					<p style={{ fontSize: "30px", marginBottom: "5px" }}>Loading...</p>
-					<div>{Rolling(50, 50, "#000000")}</div>
+					<div>{Rolling(50, 50, "#fff")}</div>
 				</Box>
 			) : (
 				<Box
@@ -468,26 +468,26 @@ export default function Profile({ }) {
 										</Box>
 										<TextField
 											size="small"
-											disabled={!editable}
+											disabled={false}
 											label="Address"
 											type="text"
 											value={userData?.address}
 											name='address'
 											onChange={(e) => setUserData({ ...userData, address: e.target.value })}
 											sx={{
-												cursor: editable ? 'text' : 'not-allowed',
+												cursor: 'not-allowed',
 												backgroundColor: "#3a3a3a",
 												borderRadius: 1,
 												'&& .MuiInputBase-input': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+													color: '#9e9e9e',
+													WebkitTextFillColor: '#9e9e9e',
 												},
 												'&& .MuiInputLabel-root': {
-													color: editable ? 'white' : '#9e9e9e',
+													color: '#9e9e9e',
 												},
 												'&& .Mui-disabled': {
-													color: editable ? 'white' : '#9e9e9e',
-													WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
+													color: '#9e9e9e',
+													WebkitTextFillColor: '#9e9e9e',
 												}
 											}}
 											slotProps={{
