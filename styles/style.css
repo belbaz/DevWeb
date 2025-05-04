@@ -69,6 +69,17 @@ body::before {
   gap: var(--spacing-xxl);
 }
 
+/* Special container styles for dashboard and settings */
+.dashboard-page .content-container {
+  max-width: 95%;
+  padding: var(--header-height) var(--spacing-sm) calc(var(--footer-height) + var(--spacing-xl));
+}
+
+.settings-page .content-container {
+  max-width: 1400px;
+  padding: var(--header-height) var(--spacing-md) calc(var(--footer-height) + var(--spacing-xl));
+}
+
 /* welcome section */
 .welcomDiv {
   background: rgba(0, 0, 0, 0.4);
@@ -176,6 +187,11 @@ body::before {
 
   .h1 {
     font-size: 2.8rem;
+  }
+
+  .dashboard-page .content-container,
+  .settings-page .content-container {
+    padding: var(--header-height) var(--spacing-md) calc(var(--footer-height) + var(--spacing-xl));
   }
 }
 

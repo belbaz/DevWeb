@@ -227,185 +227,153 @@ export default function Settings() {
     }
 
     return (
-        <div className="settings-container">
-            <h1 className="settings-title">Account Settings</h1>
+        <div className="settings-page">
+            <div className="settings-container">
+                <h1 className="settings-title">Account Settings</h1>
 
-            <div className="grid-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '24px' }}>
-                <div style={{ gridColumn: 'span 12' }}>
-                    <div className="settings-panel settings-profile-panel">
-                        {userData && permissions && (
-                            <UserProfileDetails user={userData} permissions={permissions} />
-                        )}
+                <div className="grid-container" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(12, 1fr)', 
+                    gap: '24px', 
+                    width: '100%', 
+                    maxWidth: '100%' 
+                }}>
+                    <div style={{ gridColumn: 'span 12' }}>
+                        <div className="settings-panel settings-profile-panel">
+                            {userData && permissions && (
+                                <UserProfileDetails user={userData} permissions={permissions} />
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <div style={{ gridColumn: 'span 12' }}>
-                    <div className="settings-panel">
-                        {userData && (
-                            <UserAccessLevel userData={userData} />
-                        )}
+                    <div style={{ gridColumn: 'span 12' }}>
+                        <div className="settings-panel">
+                            {userData && (
+                                <UserAccessLevel userData={userData} />
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <div style={{ gridColumn: 'span 12' }}>
-                    <div className="card settings-actions-card">
-                        <h2 className="card-title">Account Actions</h2>
+                    <div style={{ gridColumn: 'span 12' }}>
+                        <div className="card settings-actions-card">
+                            <h2 className="card-title">Account Actions</h2>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {userData?.level === "expert" && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 <button
                                     className="btn btn-primary"
-                                    onClick={() => setOpenBackupDialog(true)}
+                                    onClick={() => setOpenPasswordDialog(true)}
                                 >
-                                    <BackupIcon style={{ fontSize: '1.2rem' }} />
-
-                                    Backup Database
+                                    <VpnKeyIcon style={{ fontSize: '1.2rem' }} />
+                                    Change Password
                                 </button>
 
-                            )}
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={handleLogout}
+                                >
+                                    <LogoutIcon style={{ fontSize: '1.2rem' }} />
+                                    Logout
+                                </button>
 
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => setOpenPasswordDialog(true)}
-                            >
-                                <VpnKeyIcon style={{ fontSize: '1.2rem' }} />
-                                Change Password
-                            </button>
+                                <div className="divider"></div>
 
-                            <button
-                                className="btn btn-secondary"
-                                onClick={handleLogout}
-                            >
-                                <LogoutIcon style={{ fontSize: '1.2rem' }} />
-                                Logout
-                            </button>
-
-                            <div className="divider"></div>
-
-                            <button
-                                className="btn btn-danger"
-                                onClick={() => setOpenDeleteDialog(true)}
-                            >
-                                <DeleteIcon style={{ fontSize: '1.2rem' }} />
-                                Delete Account
-                            </button>
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={() => setOpenDeleteDialog(true)}
+                                >
+                                    <DeleteIcon style={{ fontSize: '1.2rem' }} />
+                                    Delete Account
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Password Change Dialog */}
+                <Dialog
+                    open={openPasswordDialog}
+                    onClose={() => setOpenPasswordDialog(false)}
+                    PaperProps={{
+                        className: 'modal',
+                        style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                    }}
+                >
+                    <DialogTitle className="modal-title">Change Password</DialogTitle>
+                    <DialogContent className="modal-content">
+                        <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
+                            Please enter your new password twice to confirm.
+                        </DialogContentText>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="New Password"
+                            type="password"
+                            fullWidth
+                            variant="filled"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            sx={{
+                                mt: 2,
+                                input: { color: 'white' },
+                                label: { color: 'rgba(255, 255, 255, 0.7)' },
+                                '& .MuiFilledInput-root': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        />
+                        <TextField
+                            margin="dense"
+                            label="Confirm Password"
+                            type="password"
+                            fullWidth
+                            variant="filled"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            sx={{
+                                mt: 2,
+                                input: { color: 'white' },
+                                label: { color: 'rgba(255, 255, 255, 0.7)' },
+                                '& .MuiFilledInput-root': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        />
+                    </DialogContent>
+                    <DialogActions className="modal-actions">
+                        <Button onClick={() => setOpenPasswordDialog(false)} sx={{ color: 'white' }}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handlePasswordChange} variant="contained" color="primary">
+                            Change
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Delete Account Dialog */}
+                <Dialog
+                    open={openDeleteDialog}
+                    onClose={() => setOpenDeleteDialog(false)}
+                    PaperProps={{
+                        className: 'modal',
+                        style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                    }}
+                >
+                    <DialogTitle className="modal-title">Delete Account</DialogTitle>
+                    <DialogContent className="modal-content">
+                        <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                            Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions className="modal-actions">
+                        <Button onClick={() => setOpenDeleteDialog(false)} sx={{ color: 'white' }}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDeleteAccount} variant="contained" color="error">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
-
-            {/*backup DB file .sql or .csv*/}
-            <Dialog
-                open={openBackupDialog}
-                onClose={()=>setOpenBackupDialog(false)}
-                PaperProps={{
-                    className: 'modal',
-                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
-                }}
-            >
-                <DialogTitle className="modal-title" style={{ color: 'rgba(255, 255, 255, 0.7)'}}>Database Backup</DialogTitle>
-                <DialogContent className="modal-content">
-                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
-                        Choose the format you want to export your database:
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions className="modal-actions">
-                    <Button onClick={()=>setOpenBackupDialog(false)} sx={{ color: 'white' }}>
-                        Cancel
-                    </Button>
-                    <Button onClick={() => handleDownload('csv')} variant="outlined" color="info">
-                        Export CSV
-                    </Button>
-                    <Button onClick={() => handleDownload('sql')} variant="contained" color="primary">
-                        Export SQL
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Password Change Dialog */}
-            <Dialog
-                open={openPasswordDialog}
-                onClose={() => setOpenPasswordDialog(false)}
-                PaperProps={{
-                    className: 'modal',
-                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
-                }}
-            >
-                <DialogTitle className="modal-title">Change Password</DialogTitle>
-                <DialogContent className="modal-content">
-                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
-                        Please enter your new password twice to confirm.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="New Password"
-                        type="password"
-                        fullWidth
-                        variant="filled"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        sx={{
-                            mt: 2,
-                            input: { color: 'white' },
-                            label: { color: 'rgba(255, 255, 255, 0.7)' },
-                            '& .MuiFilledInput-root': {
-                                bgcolor: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Confirm Password"
-                        type="password"
-                        fullWidth
-                        variant="filled"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        sx={{
-                            mt: 2,
-                            input: { color: 'white' },
-                            label: { color: 'rgba(255, 255, 255, 0.7)' },
-                            '& .MuiFilledInput-root': {
-                                bgcolor: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }}
-                    />
-                </DialogContent>
-                <DialogActions className="modal-actions">
-                    <Button onClick={() => setOpenPasswordDialog(false)} sx={{ color: 'white' }}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handlePasswordChange} variant="contained" color="primary">
-                        Change
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Delete Account Dialog */}
-            <Dialog
-                open={openDeleteDialog}
-                onClose={() => setOpenDeleteDialog(false)}
-                PaperProps={{
-                    className: 'modal',
-                    style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
-                }}
-            >
-                <DialogTitle className="modal-title">Delete Account</DialogTitle>
-                <DialogContent className="modal-content">
-                    <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                        Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions className="modal-actions">
-                    <Button onClick={() => setOpenDeleteDialog(false)} sx={{ color: 'white' }}>
-                        Cancel
-                    </Button>
-                    <Button onClick={handleDeleteAccount} variant="contained" color="error">
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div>
     );
 } 

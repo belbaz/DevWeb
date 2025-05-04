@@ -3,9 +3,9 @@
 .dashboard-container,
 .settings-container {
   width: 100%;
-  max-width: 1800px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-md);
   position: relative;
   z-index: 1;
 }
@@ -27,8 +27,9 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
+  margin: 0 0 var(--spacing-xl) 0;
   width: 100%;
+  max-width: 100%;
   position: relative;
 }
 
@@ -36,21 +37,25 @@
 .dashboard-stats-panel,
 .dashboard-content-panel {
   overflow: hidden;
+  max-width: 100%;
+  margin: 0 auto var(--spacing-xl) auto;
 }
 
 /* Settings panels */
 .settings-profile-panel {
   overflow: hidden;
+  max-width: 100%;
+  margin: 0 auto var(--spacing-xl) auto;
 }
 
 .settings-actions-card {
-  max-width: 1800px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
 @media (min-width: 992px) {
   .settings-actions-card {
-    max-width: 800px;
+    max-width: 100%;
   }
 }
 
@@ -127,8 +132,7 @@
 @media (max-width: 768px) {
   .dashboard-container,
   .settings-container {
-    padding-left: var(--spacing-xs);
-    padding-right: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-xs);
   }
   
   .user-profile-col,
@@ -142,7 +146,7 @@
   
   .dashboard-title,
   .settings-title {
-    font-size: 2.2rem;
+    margin-bottom: var(--spacing-md);
   }
   
   .card-stats-value {
@@ -151,7 +155,8 @@
   
   .dashboard-panel,
   .settings-panel {
-    padding: var(--spacing-md) var(--spacing-xs);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
   }
   
   .user-avatar {
@@ -615,17 +620,35 @@
 /* Adaptation pour très grands écrans */
 @media (min-width: 1800px) {
   .dashboard-stats-panel,
-  .dashboard-content-panel {
-    padding: var(--spacing-lg) var(--spacing-xl);
+  .dashboard-content-panel,
+  .settings-profile-panel {
+    max-width: 100%;
+    margin: 0 auto var(--spacing-xl) auto;
   }
   
   .dashboard-container {
-    padding-left: var(--spacing-lg);
-    padding-right: var(--spacing-lg);
+    max-width: 100%;
+    padding: var(--spacing-md);
   }
   
   .settings-container {
-    padding-left: var(--spacing-lg);
-    padding-right: var(--spacing-lg);
+    max-width: 100%;
+    padding: var(--spacing-md);
   }
+}
+
+/* Ensuring dashboard components use full width in any container */
+.dashboard-page .dashboard-container,
+.settings-page .settings-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-page .dashboard-panel,
+.settings-page .settings-panel {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 var(--spacing-xl) 0;
 } 

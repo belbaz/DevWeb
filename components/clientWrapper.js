@@ -9,6 +9,8 @@ import { ToastContainer } from "react-toastify";
 export default function ClientWrapper({ children }) {
 	const pathname = usePathname();
 	const isActivationPage = pathname === "/activation";
+	const isDashboardPage = pathname === "/dashboard";
+	const isSettingsPage = pathname.includes("/settings");
 
 	// Enregistrement du Service Worker
 	useEffect(() => {
@@ -26,13 +28,20 @@ export default function ClientWrapper({ children }) {
 		}
 	}, []);
 
+	// Determine the class name for the wrapper based on the current path
+	const getWrapperClassName = () => {
+		if (isDashboardPage) return "main-wrapper dashboard-page";
+		if (isSettingsPage) return "main-wrapper settings-page";
+		return "main-wrapper";
+	};
+
 	return (
 		<>
 			{!isActivationPage && <Header />}
 			{isActivationPage ? (
 				children
 			) : (
-				<div className="main-wrapper">
+				<div className={getWrapperClassName()}>
 					<div className="content-container">
 						{children}
 					</div>

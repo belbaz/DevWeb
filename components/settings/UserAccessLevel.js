@@ -192,14 +192,13 @@ const UserAccessLevel = ({ userData }) => {
               {levelMap[userLevel] || userLevel}
             </Typography>
             {progressInfo.nextLevel && (
-              <Typography variant="body2">
-                {levelMap[progressInfo.nextLevel] || progressInfo.nextLevel}
-              </Typography>
+            <span>{levelMap[progressInfo.nextLevel] || progressInfo.nextLevel}</span>
             )}
-          </Box>
-          <Box sx={{ width: '100%', bgcolor: 'rgba(255, 255, 255, 0.1)', borderRadius: 1, height: 10, overflow: 'hidden' }}>
-            <Box
-              sx={{
+        </div>
+        <div className="progress-bar">
+          <div 
+            className="progress-bar-fill" 
+            style={{ 
                 width: `${progressInfo.progress}%`,
                 bgcolor: 'primary.main',
                 height: '100%',

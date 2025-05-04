@@ -325,7 +325,7 @@ const ObjectsStats = ({ permissions }) => {
                     arcLabel: isMobile ? null : (item) => `${item.value}`
                   }]}
                   height={isMobile ? 240 : 300}
-                  width={windowSize.width > 0 ? Math.min(windowSize.width - 40, 900) : undefined}
+                  width={windowSize.width > 0 ? Math.min(windowSize.width * 0.80, 1200) : undefined}
                   margin={{ 
                     top: 10, 
                     bottom: 10, 
@@ -410,7 +410,7 @@ const ObjectsStats = ({ permissions }) => {
                         arcLabel: isMobile ? null : (item) => `${item.value}`
                       }]}
                       height={isMobile ? 200 : 250}
-                      width={windowSize.width > 0 ? Math.min(windowSize.width / (isMobile ? 1.3 : 2.2), 500) : undefined}
+                      width={windowSize.width > 0 ? Math.min(windowSize.width * 0.40, 600) : undefined}
                       margin={{ 
                         top: 10, 
                         bottom: 10, 

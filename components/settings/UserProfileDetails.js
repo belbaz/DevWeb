@@ -150,7 +150,7 @@ const UserProfileDetails = ({ user, permissions }) => {
   };
 
   return (
-    <div>
+    <div style={{ width: '100%', maxWidth: '100%' }}>
       <h2 className="card-title">User Profile</h2>
 
       <div className="user-profile-grid">
