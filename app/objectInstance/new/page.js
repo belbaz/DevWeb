@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
@@ -17,17 +17,50 @@ import ObjectDataJsonEditor from '../../../components/ObjectDataJsonEditor';
 
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
-	const [objectInstance, setObjectInstance] = useState(null);
+	const [objectInstance, setObjectInstance] = useState({
+		type_Object: '',
+		room_id: '',
+		data: {}
+	});
 	const [rooms, setRooms] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [objectTypes, setObjectTypes] = useState(null);
+	const [objectTypes, setObjectTypes] = useState([]);
+	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	useEffect(() => {
 		getObjects();
 		getRooms();
 	}, []);
 
-	const router = useRouter();
+	// Pre-select fields based on query parameters
+	useEffect(() => {
+		// Check for type in query parameters and set it in the form
+		const typeParam = searchParams.get('type');
+		if (typeParam && objectTypes && Array.isArray(objectTypes)) {
+			// Verify the type exists in our available types
+			const typeExists = objectTypes.some(obj => obj.type === typeParam);
+			if (typeExists) {
+				setObjectInstance(prev => ({
+					...prev,
+					type_Object: typeParam
+				}));
+			}
+		}
+
+		// Check for room in query parameters and set it in the form
+		const roomParam = searchParams.get('room');
+		if (roomParam && rooms && Array.isArray(rooms)) {
+			// Verify the room exists in our available rooms
+			const roomExists = rooms.some(room => room.id.toString() === roomParam);
+			if (roomExists) {
+				setObjectInstance(prev => ({
+					...prev,
+					room_id: roomParam
+				}));
+			}
+		}
+	}, [searchParams, objectTypes, rooms]);
 
 	async function getRooms() {
 		try {
@@ -118,7 +151,7 @@ export default function Room({ }) {
 							<TextField
 								size="small"
 								label="Object Type"
-								value={objectInstance?.type_Object}
+								value={objectInstance?.type_Object || ''}
 								select
 								name='type_Object'
 								onChange={(e) => setObjectInstance({ ...objectInstance, type_Object: e.target.value })}
@@ -152,11 +185,15 @@ export default function Room({ }) {
 									}
 								}}
 							>
-								{Array.isArray(objectTypes) && objectTypes.map((objectType) => (
-									<MenuItem key={objectType.type} value={objectType.type}>
-										{objectType.type}
-									</MenuItem>
-								))}
+								{Array.isArray(objectTypes) && objectTypes.length > 0 ? (
+									objectTypes.map((objectType) => (
+										<MenuItem key={objectType.type} value={objectType.type}>
+											{objectType.type}
+										</MenuItem>
+									))
+								) : (
+									<MenuItem value="" disabled>No object types available</MenuItem>
+								)}
 							</TextField>
 
 							<TextField
@@ -178,18 +215,22 @@ export default function Room({ }) {
 									},
 								}}
 							>
-								{rooms.map((room) => (
-									<MenuItem key={room.id} value={room.id}>
-										{room.name} (Floor {room.floor})
-									</MenuItem>
-								))}
+								{Array.isArray(rooms) && rooms.length > 0 ? (
+									rooms.map((room) => (
+										<MenuItem key={room.id} value={room.id}>
+											{room.name} (Floor {room.floor})
+										</MenuItem>
+									))
+								) : (
+									<MenuItem value="" disabled>No rooms available</MenuItem>
+								)}
 							</TextField>
 
 
 							{category('Datas')}
 							<ObjectDataJsonEditor
-								object={objectInstance?.data}
-								setObject={(param) => setObjectInstance({ ...objectInstance, data: param })}
+								object={objectInstance?.data || {}}
+								setObject={(param) => setObjectInstance(prev => ({ ...prev, data: param }))}
 								objectType={objectInstance?.type_Object}
 								editable={true}
 							/>

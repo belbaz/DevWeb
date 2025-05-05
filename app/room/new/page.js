@@ -32,7 +32,16 @@ export default function Room({ }) {
 	const searchParams = useSearchParams();
 
 	useEffect(() => {
-	}, []);
+		// Check for floor parameter in URL and pre-select it
+		const floorParam = searchParams.get('floor');
+		if (floorParam) {
+			// Set the floor in the form
+			setRoomData(prev => ({
+				...prev,
+				floor: floorParam
+			}));
+		}
+	}, [searchParams]);
 
 	useEffect(() => {
 		async function fetchExpos() {

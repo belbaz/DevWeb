@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 
 import { useRouter } from 'next/navigation';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { category } from '../../../components/entityDisplay'; // display the user data
 import Rolling from '../../../components/rolling';
@@ -16,8 +16,13 @@ import { get } from 'js-cookie';
 
 export default function Room({ }) {
 	const [openConfirm, setOpenConfirm] = useState(false);
-	const [object, setObject] = useState(null);
+	const [object, setObject] = useState({
+		type: '',
+		brand: '',
+		description: ''
+	});
 	const [isLoading, setIsLoading] = useState(false);
+	const [rooms, setRooms] = useState([]);
 
 	const router = useRouter();
 
@@ -38,16 +43,8 @@ export default function Room({ }) {
 
 			const data = await response.json();
 			setRooms(data.rooms);
-			
-			// Si des rooms sont disponibles, sélectionner la première par défaut
-			if (data.rooms && data.rooms.length > 0) {
-				setObject(prev => ({
-					...prev,
-					room_id: data.rooms[0].id
-				}));
-			}
 		} catch (error) {
-			toast.error("Error while fetching object instance data : " + error.message);
+			toast.error("Error while fetching rooms: " + error.message);
 		}
 	}
 
@@ -106,7 +103,7 @@ export default function Room({ }) {
 							<TextField
 								size="small"
 								label="Type"
-								value={object?.type}
+								value={object.type}
 								type="text"
 								name='type'
 								onChange={(e) => setObject({ ...object, type: e.target.value })}
@@ -128,7 +125,7 @@ export default function Room({ }) {
 							<TextField
 								size="small"
 								label="Brand"
-								value={object?.brand}
+								value={object.brand}
 								type="text"
 								name='brand'
 								onChange={(e) => setObject({ ...object, brand: e.target.value })}
@@ -149,7 +146,7 @@ export default function Room({ }) {
 							/>
 							{category('Description')}
 							<TextareaAutosize
-								value={object?.description}
+								value={object.description}
 								onChange={(e) => { setObject({ ...object, description: e.target.value }); }}
 								style={{ resize: 'none', backgroundColor: "#3a3a3a", color: 'white', }}
 							/>

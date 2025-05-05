@@ -406,7 +406,17 @@ export default function Dashboard() {
                         transform: 'translateY(1px)'
                       }
                     }}
-                    onClick={() => router.push('/room')}
+                    onClick={() => {
+                      // Add selectedFloor as query parameter if exists
+                      if (selectedFloor) {
+                        router.push(`/room?floor=${selectedFloor}`);
+                      } else if (selectedRoom) {
+                        // If a room is selected, go directly to that room
+                        router.push(`/room/${selectedRoom}`);
+                      } else {
+                        router.push('/room');
+                      }
+                    }}
                   >
                     Rooms
                   </Button>
@@ -434,7 +444,25 @@ export default function Dashboard() {
                         transform: 'translateY(1px)'
                       }
                     }}
-                    onClick={() => router.push('/objectInstance')}
+                    onClick={() => {
+                      const queryParams = new URLSearchParams();
+                      
+                      // Add query parameters based on what's selected
+                      if (selectedType) {
+                        queryParams.append('type', selectedType);
+                      }
+                      
+                      if (selectedRoom) {
+                        queryParams.append('room', selectedRoom);
+                      }
+                      
+                      // Create the URL with query parameters if any exist
+                      const url = queryParams.toString() 
+                        ? `/objectInstance?${queryParams.toString()}` 
+                        : '/objectInstance';
+                        
+                      router.push(url);
+                    }}
                   >
                     Objects
                   </Button>

@@ -23,7 +23,10 @@ export default function ObjectDataJsonEditor({ object = null, setObject = () => 
 	return (
 		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
 			{Array.isArray(objectDataFields(objectType)) && objectDataFields(objectType).map((item, index) => (
-				<Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+				<Box 
+					key={`field-${item}-${index}`} 
+					sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
+				>
 					{editable ? (
 						<>
 							<TextField
@@ -85,8 +88,7 @@ export default function ObjectDataJsonEditor({ object = null, setObject = () => 
 						</Box>
 					)}
 				</Box>
-			))
-			}
+			))}
 		</Box >
 	);
 }

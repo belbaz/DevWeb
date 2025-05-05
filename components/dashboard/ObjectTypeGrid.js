@@ -493,8 +493,25 @@ const ObjectTypeGrid = ({ objects, objectData, selectedRoom, selectedFloor, onTy
   };
   
   const handleAddObjectInstance = () => {
-    // Plus de préselection du type, redirection simple
-    router.push('/objectInstance/new');
+    // Prepare query parameters for preselection
+    const queryParams = new URLSearchParams();
+    
+    // If a type is selected, add it as a query parameter
+    if (selectedType) {
+      queryParams.append('type', selectedType);
+    }
+    
+    // If a room is selected, add it as a query parameter
+    if (selectedRoom) {
+      queryParams.append('room', selectedRoom);
+    }
+    
+    // Create the URL with query parameters if any exist
+    const url = queryParams.toString() 
+      ? `/objectInstance/new?${queryParams.toString()}` 
+      : '/objectInstance/new';
+      
+    router.push(url);
   };
   
   // Déterminer si le bouton add type sera seul sur une nouvelle ligne
