@@ -518,13 +518,13 @@ export default function Room({ }) {
 									))
 									}
 
-									{['advanced', 'expert'].includes(self?.level) && currentObject?.id && (
+									{['advanced', 'expert', 'intermediate'].includes(self?.level) && currentObject?.id && (
 										<Button
 											variant="contained"
 											sx={{ mt: 2, width: 'fit-content' }}
 											onClick={() => router.push(`/objectInstance/${currentObject.id}`)}
 										>
-											Edit object
+											See object
 										</Button>
 									)}
 								</>
