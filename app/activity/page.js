@@ -24,7 +24,6 @@ import {toast} from "react-toastify";
 // Register all necessary elements for different chart types
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Legend, Title, Filler);
 
-
 export default function UserActivityDashboard() {
     // États existants
     const [activityData, setActivityData] = useState(null);
@@ -77,7 +76,6 @@ export default function UserActivityDashboard() {
 
         checkAuthAndFetch();
     }, []);
-
 
     useEffect(() => {
         setIsLoading(true);
@@ -199,14 +197,13 @@ export default function UserActivityDashboard() {
 
                 // Mettre à jour l'état
                 setActivityData({
-                    lineData, areaData, doughnutData, colors,        // Stockez également les couleurs
-                    hoverColors    // et les couleurs au survol
+                    lineData, areaData, doughnutData, colors,
+                    hoverColors
                 });
                 setTotalActions(totalCount);
                 setActionsByType(summary);
                 setMostActiveDay(maxDay);
                 setIsLoading(false);
-
 
                 // Ajouter des données spécifiques pour la vue admin
                 if (isAdminView) {
@@ -251,7 +248,6 @@ export default function UserActivityDashboard() {
         </div>);
     }
 
-
     const exportToExcel = async (data) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('User Activity');
@@ -282,7 +278,6 @@ export default function UserActivityDashboard() {
         });
         saveAs(blob, 'user-activity.xlsx');
     };
-
 
     return (<div style={{
         width: "100%",
@@ -353,7 +348,6 @@ export default function UserActivityDashboard() {
             </div>
         </div>
 
-
         {/* Section spécifique pour les administrateurs */}
         {isAdmin && activityData && (<div style={{
             backgroundColor: "rgba(22, 27, 34, 0.8)",
@@ -367,7 +361,7 @@ export default function UserActivityDashboard() {
                 <IoAnalyticsOutline style={{marginRight: "10px"}}/>
                 Activity by User
             </h3>
-            <div style={{height: "300px"}}>
+            <div style={{height: "300px", maxWidth: "100%", overflow: "hidden"}}>
                 <Bar
                     data={activityData.userChartData}
                     options={{
@@ -458,9 +452,12 @@ export default function UserActivityDashboard() {
             {/* Two-column layout for charts */}
             <div className="chart-container" style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
                 gap: "20px",
-                marginBottom: "2rem"
+                marginBottom: "2rem",
+                width: "100%",
+                maxWidth: "100%",
+                boxSizing: "border-box"
             }}>
                 {/* Doughnut Chart */}
                 <div style={{
@@ -468,7 +465,10 @@ export default function UserActivityDashboard() {
                     borderRadius: "12px",
                     padding: "1.5rem",
                     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)"
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    width: "100%",
+                    maxWidth: "100%",
+                    boxSizing: "border-box"
                 }}>
                     <h3 style={{
                         fontSize: "1.2rem", marginBottom: "1rem", display: "flex", alignItems: "center"
@@ -476,7 +476,14 @@ export default function UserActivityDashboard() {
                         <IoStatsChartOutline style={{marginRight: "10px"}}/>
                         Action Type Distribution
                     </h3>
-                    <div style={{height: "300px", display: "flex", justifyContent: "center"}}>
+                    <div style={{
+                        width: "100%",
+                        maxWidth: "100%",
+                        height: "clamp(200px, 40vw, 300px)",
+                        display: "flex",
+                        justifyContent: "center",
+                        overflow: "hidden"
+                    }}>
                         {activityData && (<Doughnut
                             data={activityData.doughnutData}
                             options={{
@@ -515,7 +522,10 @@ export default function UserActivityDashboard() {
                     borderRadius: "12px",
                     padding: "1.5rem",
                     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)"
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    width: "100%",
+                    maxWidth: "100%",
+                    boxSizing: "border-box"
                 }}>
                     <h3 style={{
                         fontSize: "1.2rem", marginBottom: "1rem", display: "flex", alignItems: "center"
@@ -523,7 +533,12 @@ export default function UserActivityDashboard() {
                         <IoAnalyticsOutline style={{marginRight: "10px"}}/>
                         Action Type Details
                     </h3>
-                    <div style={{height: "300px"}}>
+                    <div style={{
+                        width: "100%",
+                        maxWidth: "100%",
+                        height: "clamp(200px, 40vw, 300px)",
+                        overflow: "hidden"
+                    }}>
                         {activityData && (<Bar
                             data={activityData.areaData}
                             options={{
@@ -567,41 +582,51 @@ export default function UserActivityDashboard() {
                 padding: "1.5rem",
                 marginBottom: "2rem",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.1)"
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                width: "100%",
+                maxWidth: "100%",
+                boxSizing: "border-box"
             }}>
                 <h3 style={{fontSize: "1.2rem", marginBottom: "1rem", display: "flex", alignItems: "center"}}>
                     <IoCalendarOutline style={{marginRight: "10px"}}/>
                     Daily Activity Trend
                 </h3>
-                {activityData && (<Line
-                    data={activityData.lineData}
-                    options={{
-                        responsive: true, maintainAspectRatio: true, plugins: {
-                            legend: {
-                                display: true, labels: {color: "white", font: {size: 12}}
-                            }, tooltip: {
-                                backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                titleFont: {size: 14},
-                                bodyFont: {size: 13},
-                                padding: 10,
-                                cornerRadius: 6,
-                            },
-                        }, scales: {
-                            x: {
-                                grid: {color: "rgba(255, 255, 255, 0.05)"}, ticks: {
-                                    color: "rgba(255, 255, 255, 0.7)",
-                                    maxRotation: 45,
-                                    minRotation: 45,
-                                    font: {size: 10}
+                <div style={{
+                    width: "100%",
+                    maxWidth: "100%",
+                    height: "clamp(200px, 40vw, 400px)",
+                    overflow: "hidden"
+                }}>
+                    {activityData && (<Line
+                        data={activityData.lineData}
+                        options={{
+                            responsive: true, maintainAspectRatio: false, plugins: {
+                                legend: {
+                                    display: true, labels: {color: "white", font: {size: 12}}
+                                }, tooltip: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    titleFont: {size: 14},
+                                    bodyFont: {size: 13},
+                                    padding: 10,
+                                    cornerRadius: 6,
+                                },
+                            }, scales: {
+                                x: {
+                                    grid: {color: "rgba(255, 255, 255, 0.05)"}, ticks: {
+                                        color: "rgba(255, 255, 255, 0.7)",
+                                        maxRotation: 45,
+                                        minRotation: 45,
+                                        font: {size: 10}
+                                    }
+                                }, y: {
+                                    grid: {color: "rgba(255, 255, 255, 0.05)"},
+                                    ticks: {color: "rgba(255, 255, 255, 0.7)"},
+                                    beginAtZero: true
                                 }
-                            }, y: {
-                                grid: {color: "rgba(255, 255, 255, 0.05)"},
-                                ticks: {color: "rgba(255, 255, 255, 0.7)"},
-                                beginAtZero: true
                             }
-                        }
-                    }}
-                />)}
+                        }}
+                    />)}
+                </div>
             </div>
 
             {/* Action Type Breakdown */}
@@ -610,7 +635,10 @@ export default function UserActivityDashboard() {
                 borderRadius: "12px",
                 padding: "1.5rem",
                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.1)"
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                width: "100%",
+                maxWidth: "100%",
+                boxSizing: "border-box"
             }}>
                 <h3 style={{fontSize: "1.2rem", marginBottom: "1rem"}}>Action Type Breakdown</h3>
                 <div style={{

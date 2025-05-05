@@ -112,8 +112,10 @@ const Signup = () => {
 	return (
 		<Box sx={{
 			background: 'none',
-			height: '100vh',
+			height: 'auto',
 			margin: 0,
+			paddingBottom: '40px',
+			minHeight: '100vh',
 		}}>
 			<Box
 				component="main"
