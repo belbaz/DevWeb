@@ -241,7 +241,7 @@ export default function ObjectInstance({ }) {
 
 
 									{category('Datas')}
-									{['avance', 'expert'].includes(self?.level) ? (
+									{self?.level == 'advanced' || self?.level == 'expert' ? (
 										<ObjectDataJsonEditor
 											object={objectInstanceData?.data}
 											setObject={(param) => setObjectInstanceData({ ...objectInstanceData, data: param })}
@@ -259,7 +259,7 @@ export default function ObjectInstance({ }) {
 							</Box>
 						</Box>
 					)}
-					{['avance', 'expert'].includes(self?.level) && (
+					{self?.level == 'advanced' || self?.level == 'expert' && (
 						<Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 							<EditState setEditable={setEditable} onCancel={getObjectData} onConfirm={updateObjectData} />
 						</Box>
