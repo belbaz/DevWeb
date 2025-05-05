@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo} from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
     Box,
     Typography,
@@ -22,8 +22,8 @@ export default function FiltersPage() {
 
     const availableFloors = [0, 1, 2, 3];
     const baseRoomTypes = [
-        { value: "hall", label: "Lobby" },
-        { value: "réserve", label: " Reserve" },
+        { value: "hall", label: "Hall" },
+        { value: "storage", label: "Storage" },
     ];
     const toggleFloor = (floor) => {
         setSelectedFloors((prev) =>
