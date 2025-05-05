@@ -259,6 +259,17 @@ export default function Settings() {
                             <h2 className="card-title">Account Actions</h2>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                {userData?.level === "expert" && (
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => setOpenBackupDialog(true)}
+                                    >
+                                        <BackupIcon style={{ fontSize: '1.2rem' }} />
+
+                                        Backup Database
+                                    </button>
+
+                                )}
                                 <button
                                     className="btn btn-primary"
                                     onClick={() => setOpenPasswordDialog(true)}
@@ -430,6 +441,121 @@ export default function Settings() {
                         </Button>
                     </DialogActions>
                 </Dialog>
+
+                {/* Backup Database Dialog */}
+                <Dialog
+                    open={openBackupDialog}
+                    onClose={() => setOpenBackupDialog(false)}
+                    PaperProps={{
+                        style: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            borderRadius: 0,
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            maxWidth: '500px',
+                            width: '100%',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)'
+                        }
+                    }}
+                    sx={{
+                        '& .MuiBackdrop-root': {
+                            backdropFilter: 'blur(6px)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                        }
+                    }}
+                >
+                    <DialogTitle
+                        sx={{
+                            fontFamily: 'var(--font-cinzel)',
+                            color: 'white',
+                            fontSize: '1.8rem',
+                            borderBottom: 'none',
+                            padding: '1.5rem 2rem 0.5rem 2rem',
+                            letterSpacing: '2px',
+                            fontWeight: 300
+                        }}
+                    >
+                        Database Backup
+                    </DialogTitle>
+                    <DialogContent sx={{ padding: '2rem' }}>
+                        <DialogContentText
+                            sx={{
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                marginBottom: '1.5rem',
+                                fontFamily: 'var(--font-roboto)',
+                                letterSpacing: '0.5px'
+                            }}
+                        >
+                            Choose the format you want to export your database:
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions
+                        sx={{
+                            padding: '1.5rem 2rem',
+                            borderTop: 'none'
+                        }}
+                    >
+                        <Button
+                            onClick={() => setOpenBackupDialog(false)}
+                            sx={{
+                                color: 'white',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => handleDownload('csv')}
+                            variant="outlined"
+                            sx={{
+                                color: 'white',
+                                borderColor: 'white',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                '&:hover': {
+                                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        >
+                            Export CSV
+                        </Button>
+                        <Button
+                            onClick={() => handleDownload('sql')}
+                            variant="contained"
+                            sx={{
+                                backgroundColor: 'white',
+                                color: 'black',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                                }
+                            }}
+                        >
+                            Export SQL
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
 
                 {/* Delete Account Dialog */}
                 <Dialog

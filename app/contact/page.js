@@ -52,7 +52,7 @@ export default function Contact() {
                     lastName: lastName,
                     firstName: firstName,
                     messageBy: user || null,
-                    message: "hello world!",
+                    message: message,
                     email: email,
                 }),
             });

@@ -36,21 +36,48 @@ export default async function backupDBAdmin(req, res) {
             }
 
             if (format === 'csv') {
-                const table = Object.entries(results)[0]; // only the first table
-                if (!table) return res.status(400).json({error: 'No data found'});
+                let csvContent = '';
 
-                const [tableName, rows] = table;
+                // Pour chaque table dans les résultats
+                const tables = Object.entries(results);
+                tables.forEach(([tableName, rows], tableIndex) => {
+                    if (!Array.isArray(rows) || rows.length === 0) return;
 
-                const csv = [
-                    Object.keys(rows[0]).join(","), // header
-                    ...rows.map(row => Object.values(row).map(v =>
-                        typeof v === 'string' ? `"${v.replace(/"/g, '""')}"` : v
-                    ).join(","))
-                ].join("\n");
+                    // Ajouter le nom de la table avec une distinction claire
+                    csvContent += `"TABLE: ${tableName}"\n`;
+
+                    // Ajouter les en-têtes des colonnes
+                    const headers = Object.keys(rows[0]);
+                    csvContent += headers.map(h => `"${h}"`).join(',') + '\n';
+
+                    // Ajouter toutes les lignes de données
+                    rows.forEach(row => {
+                        csvContent += Object.entries(row).map(([key, value]) => {
+                            // Vérification si la valeur est un objet ou un tableau (potentiellement JSONB)
+                            if (value !== null && (typeof value === 'object')) {
+                                // Stringify proprement le contenu JSONB
+                                try {
+                                    return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
+                                } catch (e) {
+                                    return `"[Complex Data]"`;
+                                }
+                            } else if (typeof value === 'string') {
+                                return `"${value.replace(/"/g, '""')}"`;
+                            } else {
+                                return value === null ? '""' : String(value);
+                            }
+                        }).join(',') + '\n';
+                    });
+
+                    // Ajouter une ligne vide entre les tables (sauf après la dernière)
+                    if (tableIndex < tables.length - 1) {
+                        csvContent += '\n';
+                    }
+                });
 
                 res.setHeader('Content-Type', 'text/csv');
-                res.setHeader('Content-Disposition', `attachment; filename="${tableName}.csv"`);
-                return res.status(200).send(csv);
+                res.setHeader('Content-Disposition', 'attachment; filename="backup.csv"');
+                return res.status(200).send(csvContent);
             }
 
             // Default: SQL format

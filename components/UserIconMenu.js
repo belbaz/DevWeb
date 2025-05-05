@@ -238,7 +238,14 @@ export default function UserIconMenu({user}) {
                     })
                 }}
             >
-                {renderUserIcon()}
+                <Badge
+                    badgeContent={unreadCount}
+                    color="error"
+                    overlap="circular"
+                    invisible={!isAuthenticated || user?.level !== "expert" || unreadCount === 0}
+                >
+                    {renderUserIcon()}
+                </Badge>
             </IconButton>
             <Menu
                 id="user-menu"
