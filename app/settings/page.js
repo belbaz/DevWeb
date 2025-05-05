@@ -294,13 +294,46 @@ export default function Settings() {
                     open={openPasswordDialog}
                     onClose={() => setOpenPasswordDialog(false)}
                     PaperProps={{
-                        className: 'modal',
-                        style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                        style: { 
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            borderRadius: 0,
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            maxWidth: '500px',
+                            width: '100%',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)'
+                        }
+                    }}
+                    sx={{
+                        '& .MuiBackdrop-root': {
+                            backdropFilter: 'blur(6px)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                        }
                     }}
                 >
-                    <DialogTitle className="modal-title">Change Password</DialogTitle>
-                    <DialogContent className="modal-content">
-                        <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)', marginBottom: '16px' }}>
+                    <DialogTitle 
+                        sx={{ 
+                            fontFamily: 'var(--font-cinzel)', 
+                            color: 'white', 
+                            fontSize: '1.8rem', 
+                            borderBottom: 'none',
+                            padding: '1.5rem 2rem 0.5rem 2rem',
+                            letterSpacing: '2px',
+                            fontWeight: 300
+                        }}
+                    >
+                        Change Password
+                    </DialogTitle>
+                    <DialogContent sx={{ padding: '2rem' }}>
+                        <DialogContentText 
+                            sx={{ 
+                                color: 'rgba(255, 255, 255, 0.7)', 
+                                marginBottom: '1.5rem',
+                                fontFamily: 'var(--font-roboto)',
+                                letterSpacing: '0.5px'
+                            }}
+                        >
                             Please enter your new password twice to confirm.
                         </DialogContentText>
                         <TextField
@@ -309,15 +342,22 @@ export default function Settings() {
                             label="New Password"
                             type="password"
                             fullWidth
-                            variant="filled"
+                            variant="standard"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             sx={{
                                 mt: 2,
+                                mb: 3,
                                 input: { color: 'white' },
                                 label: { color: 'rgba(255, 255, 255, 0.7)' },
-                                '& .MuiFilledInput-root': {
-                                    bgcolor: 'rgba(255, 255, 255, 0.1)'
+                                '& .MuiInput-underline:before': { 
+                                    borderBottomColor: 'rgba(255, 255, 255, 0.3)' 
+                                },
+                                '& .MuiInput-underline:hover:not(.Mui-disabled):before': { 
+                                    borderBottomColor: 'rgba(255, 255, 255, 0.5)' 
+                                },
+                                '& .MuiInput-underline:after': { 
+                                    borderBottomColor: 'white' 
                                 }
                             }}
                         />
@@ -326,24 +366,66 @@ export default function Settings() {
                             label="Confirm Password"
                             type="password"
                             fullWidth
-                            variant="filled"
+                            variant="standard"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             sx={{
-                                mt: 2,
+                                mb: 2,
                                 input: { color: 'white' },
                                 label: { color: 'rgba(255, 255, 255, 0.7)' },
-                                '& .MuiFilledInput-root': {
-                                    bgcolor: 'rgba(255, 255, 255, 0.1)'
+                                '& .MuiInput-underline:before': { 
+                                    borderBottomColor: 'rgba(255, 255, 255, 0.3)' 
+                                },
+                                '& .MuiInput-underline:hover:not(.Mui-disabled):before': { 
+                                    borderBottomColor: 'rgba(255, 255, 255, 0.5)' 
+                                },
+                                '& .MuiInput-underline:after': { 
+                                    borderBottomColor: 'white' 
                                 }
                             }}
                         />
                     </DialogContent>
-                    <DialogActions className="modal-actions">
-                        <Button onClick={() => setOpenPasswordDialog(false)} sx={{ color: 'white' }}>
+                    <DialogActions 
+                        sx={{ 
+                            padding: '1.5rem 2rem',
+                            borderTop: 'none'
+                        }}
+                    >
+                        <Button 
+                            onClick={() => setOpenPasswordDialog(false)} 
+                            sx={{ 
+                                color: 'white',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        >
                             Cancel
                         </Button>
-                        <Button onClick={handlePasswordChange} variant="contained" color="primary">
+                        <Button 
+                            onClick={handlePasswordChange} 
+                            variant="contained" 
+                            sx={{
+                                backgroundColor: 'white',
+                                color: 'black',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                                }
+                            }}
+                        >
                             Change
                         </Button>
                     </DialogActions>
@@ -354,21 +436,89 @@ export default function Settings() {
                     open={openDeleteDialog}
                     onClose={() => setOpenDeleteDialog(false)}
                     PaperProps={{
-                        className: 'modal',
-                        style: { backgroundColor: 'rgba(30, 30, 30, 0.95)' }
+                        style: { 
+                            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                            borderRadius: 0,
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            maxWidth: '500px',
+                            width: '100%',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            boxShadow: '0 4px 30px rgba(0, 0, 0, 0.5)'
+                        }
+                    }}
+                    sx={{
+                        '& .MuiBackdrop-root': {
+                            backdropFilter: 'blur(6px)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)'
+                        }
                     }}
                 >
-                    <DialogTitle className="modal-title">Delete Account</DialogTitle>
-                    <DialogContent className="modal-content">
-                        <DialogContentText style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <DialogTitle 
+                        sx={{ 
+                            fontFamily: 'var(--font-cinzel)', 
+                            color: 'white', 
+                            fontSize: '1.8rem', 
+                            borderBottom: 'none',
+                            padding: '1.5rem 2rem 0.5rem 2rem',
+                            letterSpacing: '2px',
+                            fontWeight: 300
+                        }}
+                    >
+                        Delete Account
+                    </DialogTitle>
+                    <DialogContent sx={{ padding: '2rem' }}>
+                        <DialogContentText 
+                            sx={{ 
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                fontFamily: 'var(--font-roboto)',
+                                letterSpacing: '0.5px'
+                            }}
+                        >
                             Are you sure you want to permanently delete your account? This action cannot be undone and all your data will be lost.
                         </DialogContentText>
                     </DialogContent>
-                    <DialogActions className="modal-actions">
-                        <Button onClick={() => setOpenDeleteDialog(false)} sx={{ color: 'white' }}>
+                    <DialogActions 
+                        sx={{ 
+                            padding: '1.5rem 2rem',
+                            borderTop: 'none'
+                        }}
+                    >
+                        <Button 
+                            onClick={() => setOpenDeleteDialog(false)} 
+                            sx={{ 
+                                color: 'white',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }}
+                        >
                             Cancel
                         </Button>
-                        <Button onClick={handleDeleteAccount} variant="contained" color="error">
+                        <Button 
+                            onClick={handleDeleteAccount} 
+                            variant="contained" 
+                            sx={{
+                                backgroundColor: '#8b2000',
+                                color: 'white',
+                                padding: '0.5rem 1.5rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                fontSize: '0.85rem',
+                                borderRadius: 0,
+                                fontFamily: 'var(--font-roboto)',
+                                '&:hover': {
+                                    backgroundColor: '#c62828'
+                                }
+                            }}
+                        >
                             Delete
                         </Button>
                     </DialogActions>

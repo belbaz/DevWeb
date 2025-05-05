@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 
 export default function ClientWrapper({ children }) {
 	const pathname = usePathname();
-	const isActivationPage = pathname === "/activation";
+	const isActivationPage = pathname === "/activation" || pathname.startsWith("/activation?");
 	const isDashboardPage = pathname === "/dashboard";
 	const isSettingsPage = pathname.includes("/settings");
 
@@ -39,7 +39,9 @@ export default function ClientWrapper({ children }) {
 		<>
 			{!isActivationPage && <Header />}
 			{isActivationPage ? (
-				children
+				<>
+					{children}
+				</>
 			) : (
 				<div className={getWrapperClassName()}>
 					<div className="content-container">
@@ -48,7 +50,31 @@ export default function ClientWrapper({ children }) {
 				</div>
 			)}
 			{!isActivationPage && <Footer />}
-			<ToastContainer />
+			
+			{/* ToastContainer placé à la fin pour s'assurer qu'il est au-dessus de tous les autres éléments */}
+			<ToastContainer 
+				position="top-right"
+				autoClose={5000}
+				hideProgressBar={false}
+				newestOnTop
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				style={{ 
+					zIndex: 9999, 
+					top: '1rem',
+					right: '1rem'
+				}}
+				toastStyle={{
+					backgroundColor: 'rgba(0, 0, 0, 0.65)',
+					backdropFilter: 'blur(10px)',
+					color: 'white',
+					border: '1px solid rgba(255, 255, 255, 0.2)',
+					borderRadius: 0
+				}}
+			/>
 		</>
 	);
 }
