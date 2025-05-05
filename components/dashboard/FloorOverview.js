@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Typography, 
@@ -11,7 +11,9 @@ import {
   Badge,
   CircularProgress,
   Button,
-  useMediaQuery
+  useMediaQuery,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import StairsIcon from '@mui/icons-material/Stairs';
@@ -20,6 +22,7 @@ import DevicesIcon from '@mui/icons-material/Devices';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import AddIcon from '@mui/icons-material/Add';
+import LaunchIcon from '@mui/icons-material/Launch';
 import { useRouter } from 'next/navigation';
 
 // Styled components
@@ -160,6 +163,12 @@ const FloorOverview = ({ rooms, objects, objectData, onRoomSelect, selectedRoom,
   const [error, setError] = useState(null);
   const [showRooms, setShowRooms] = useState(false);
   const router = useRouter();
+  
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedContextRoom, setSelectedContextRoom] = useState(null);
+  const longPressTimerRef = useRef(null);
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   // Using fixed breakpoint values directly instead of theme-dependent queries
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -291,6 +300,72 @@ const FloorOverview = ({ rooms, objects, objectData, onRoomSelect, selectedRoom,
     } else {
       router.push('/room/new');
     }
+  };
+
+  // Handle context menu open for rooms
+  const handleRoomContextMenu = (event, roomId) => {
+    event.preventDefault();
+    setContextMenu({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+    });
+    setSelectedContextRoom(roomId);
+  };
+  
+  // Handle touch start for long press on mobile
+  const handleRoomTouchStart = (event, roomId) => {
+    touchStartRef.current = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
+    
+    // Set a timer for long press
+    longPressTimerRef.current = setTimeout(() => {
+      setContextMenu({
+        mouseX: touchStartRef.current.x,
+        mouseY: touchStartRef.current.y,
+      });
+      setSelectedContextRoom(roomId);
+    }, 500); // 500ms for long press
+  };
+  
+  // Handle touch move to cancel long press if the user is scrolling
+  const handleRoomTouchMove = (event) => {
+    const moveThreshold = 10; // pixels
+    const currentX = event.touches[0].clientX;
+    const currentY = event.touches[0].clientY;
+    const startX = touchStartRef.current.x;
+    const startY = touchStartRef.current.y;
+    
+    // Calculate distance moved
+    const distance = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+    
+    // If moved more than threshold, cancel long press
+    if (distance > moveThreshold && longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+  
+  // Handle touch end to clear the timer
+  const handleRoomTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+  
+  // Handle context menu close
+  const handleContextMenuClose = () => {
+    setContextMenu(null);
+  };
+  
+  // Navigate to room page
+  const navigateToRoom = () => {
+    if (selectedContextRoom) {
+      router.push(`/room/${selectedContextRoom}`);
+    }
+    handleContextMenuClose();
   };
 
   if (loading) {
@@ -552,27 +627,17 @@ const FloorOverview = ({ rooms, objects, objectData, onRoomSelect, selectedRoom,
                   <RoomCard 
                     isactive={(selectedRoom === room.id).toString()}
                     onClick={() => handleRoomSelect(room.id)}
-                    sx={{
-                      // Sur mobile
-                      ...(isMobile && {
-                        minHeight: '130px',
-                        display: 'flex',
-                        flexDirection: 'column'
-                      })
-                    }}
+                    onContextMenu={(e) => handleRoomContextMenu(e, room.id)}
+                    onTouchStart={(e) => handleRoomTouchStart(e, room.id)}
+                    onTouchMove={handleRoomTouchMove}
+                    onTouchEnd={handleRoomTouchEnd}
+                    onTouchCancel={handleRoomTouchEnd}
                   >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      flexDirection: 'column',
-                      height: '100%',
-                      position: 'relative', 
-                      pb: 1 
-                    }}>
+                    <Box sx={{ position: 'relative', width: '100%' }}>
                       <Box sx={{ 
                         display: 'flex', 
-                        alignItems: 'flex-start', 
-                        width: '100%',
-                        mb: 1
+                        alignItems: 'flex-start',
+                        width: '100%', 
                       }}>
                         <MeetingRoomIcon sx={{ fontSize: '1.2rem', mr: 1, opacity: 0.7, flexShrink: 0, mt: '2px' }} />
                         <Typography 
@@ -769,6 +834,46 @@ const FloorOverview = ({ rooms, objects, objectData, onRoomSelect, selectedRoom,
           ))}
         </Grid>
       )}
+      
+      {/* Context Menu */}
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleContextMenuClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+        PaperProps={{
+          sx: {
+            minWidth: '100px', // Petit menu
+            padding: 0, // Pas de padding
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)', // Ombre légère
+            backgroundColor: 'rgba(30, 30, 40, 0.95)', // Thème sombre de l'app
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)', // Bordure fine
+          }
+        }}
+      >
+        <MenuItem 
+          onClick={navigateToRoom}
+          sx={{ 
+            fontSize: '0.8rem', // Texte plus petit
+            py: 0.5, // Moins de padding vertical
+            px: 1, // Moins de padding horizontal
+            minHeight: '28px', // Hauteur totale plus petite
+            borderRadius: 0, // Pas de coins arrondis
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'rgba(33, 150, 243, 0.2)', // Effet hover du thème
+            }
+          }}
+        >
+          <LaunchIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.8rem' }} />
+          Go to
+        </MenuItem>
+      </Menu>
     </>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Typography, 
@@ -10,10 +10,13 @@ import {
   useMediaQuery,
   CircularProgress,
   Collapse,
-  Tooltip
+  Tooltip,
+  Menu,
+  MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useRouter } from 'next/navigation';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 // Import des icônes pour les types d'objets
 import SensorsIcon from '@mui/icons-material/Sensors';
@@ -326,6 +329,13 @@ const ObjectTypeGrid = ({ objects, objectData, selectedRoom, selectedFloor, onTy
   const [debugInfo, setDebugInfo] = useState(null);
   const [expandedType, setExpandedType] = useState(null);
   const router = useRouter();
+  
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState(null);
+  const [selectedContextType, setSelectedContextType] = useState(null);
+  const [selectedTypeId, setSelectedTypeId] = useState(null); // Store the ID separately
+  const longPressTimerRef = useRef(null);
+  const touchStartRef = useRef({ x: 0, y: 0 });
 
   // Using fixed breakpoint values
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -488,6 +498,85 @@ const ObjectTypeGrid = ({ objects, objectData, selectedRoom, selectedFloor, onTy
     }
   };
   
+  // Handle context menu for object types
+  const handleTypeContextMenu = (event, type) => {
+    event.preventDefault();
+    setContextMenu({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+    });
+    setSelectedContextType(type);
+    
+    // Find the object ID based on the type name
+    const objectWithThisType = objects.find(obj => obj.type === type);
+    setSelectedTypeId(objectWithThisType?.id || null);
+  };
+  
+  // Handle touch start for long press on mobile
+  const handleTypeTouchStart = (event, type) => {
+    touchStartRef.current = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
+    
+    // Set a timer for long press
+    longPressTimerRef.current = setTimeout(() => {
+      setContextMenu({
+        mouseX: touchStartRef.current.x,
+        mouseY: touchStartRef.current.y,
+      });
+      setSelectedContextType(type);
+      
+      // Find the object ID based on the type name
+      const objectWithThisType = objects.find(obj => obj.type === type);
+      setSelectedTypeId(objectWithThisType?.id || null);
+    }, 500); // 500ms for long press
+  };
+  
+  // Handle touch move to cancel long press if the user is scrolling
+  const handleTypeTouchMove = (event) => {
+    const moveThreshold = 10; // pixels
+    const currentX = event.touches[0].clientX;
+    const currentY = event.touches[0].clientY;
+    const startX = touchStartRef.current.x;
+    const startY = touchStartRef.current.y;
+    
+    // Calculate distance moved
+    const distance = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+    
+    // If moved more than threshold, cancel long press
+    if (distance > moveThreshold && longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+  
+  // Handle touch end to clear the timer
+  const handleTypeTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+  
+  // Handle context menu close
+  const handleContextMenuClose = () => {
+    setContextMenu(null);
+    setSelectedTypeId(null);
+  };
+  
+  // Navigate to object type page using ID instead of type name
+  const navigateToObjectType = () => {
+    if (selectedTypeId) {
+      router.push(`/object/${selectedTypeId}`);
+    } else if (selectedContextType) {
+      // Fallback to using the type name directly
+      console.warn(`No ID found for object type: ${selectedContextType}`);
+      router.push(`/object/${selectedContextType}`);
+    }
+    handleContextMenuClose();
+  };
+  
   const handleAddObjectType = () => {
     router.push('/object/new');
   };
@@ -642,8 +731,13 @@ const ObjectTypeGrid = ({ objects, objectData, selectedRoom, selectedFloor, onTy
               }}
             >
               <TypeCard 
-                color={stats.color}
+                color={selectedType === type ? stats.color.replace('0.8', '0.3') : stats.color}
                 onClick={() => handleTypeClick(type)}
+                onContextMenu={(e) => handleTypeContextMenu(e, type)}
+                onTouchStart={(e) => handleTypeTouchStart(e, type)}
+                onTouchMove={handleTypeTouchMove}
+                onTouchEnd={handleTypeTouchEnd}
+                onTouchCancel={handleTypeTouchEnd}
                 sx={{
                   border: selectedType === type ? '2px solid white' : '1px solid rgba(255, 255, 255, 0.1)',
                   boxShadow: selectedType === type ? '0 0 15px rgba(255,255,255,0.3)' : 'none',
@@ -1028,6 +1122,46 @@ const ObjectTypeGrid = ({ objects, objectData, selectedRoom, selectedFloor, onTy
           </AddInstanceCard>
         </Grid>
       </Grid>
+      
+      {/* Context Menu with more minimal design */}
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleContextMenuClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+        PaperProps={{
+          sx: {
+            minWidth: '100px', // Encore plus petit
+            padding: 0, // Pas de padding
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)', // Ombre plus légère
+            backgroundColor: 'rgba(30, 30, 40, 0.95)', // Garder le thème sombre de l'app
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.1)', // Bordure fine
+          }
+        }}
+      >
+        <MenuItem 
+          onClick={navigateToObjectType}
+          sx={{ 
+            fontSize: '0.8rem', // Texte plus petit
+            py: 0.5, // Moins de padding vertical
+            px: 1, // Moins de padding horizontal
+            minHeight: '28px', // Hauteur totale plus petite
+            borderRadius: 0, // Pas de coins arrondis
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'rgba(33, 150, 243, 0.2)', // Garder l'effet hover du thème
+            }
+          }}
+        >
+          <LaunchIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.8rem' }} />
+          Go to
+        </MenuItem>
+      </Menu>
     </>
   );
 };
