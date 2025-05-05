@@ -131,7 +131,7 @@ export default function ObjectInstance({ }) {
 			const response = await fetch("/api/user/checkUser", { method: "POST" });
 			const data = await response.json();
 			if (response.ok) {
-				setSelf({ ...data, level: 'expert' });
+				setSelf(data);
 			} else {
 				console.log(data.invalidToken ? "invalid token" : data.noToken ? "No token provided" : "Unknown error");
 				throw new Error("API error : " + data.error);
@@ -142,7 +142,6 @@ export default function ObjectInstance({ }) {
 	}
 
 	async function getRoomData(roomId) {
-		console.log("Fetching room with ID:", roomId); // DEBUG
 		if (!roomId || isNaN(Number(roomId))) {
 			console.warn("Invalid roomId:", roomId);
 			return;
@@ -165,7 +164,6 @@ export default function ObjectInstance({ }) {
 		try {
 			const res = await fetch(`/api/objectDataHistory/getHistoryByInstanceId?id=${id}`);
 			const result = await res.json();
-			console.log("Fetched history response:", result); // ⬅️ ICI
 			if (res.ok) {
 				setHistoryData(result.history || []);
 			} else {
@@ -259,11 +257,11 @@ export default function ObjectInstance({ }) {
 							</Box>
 						</Box>
 					)}
-					{self?.level == 'advanced' || self?.level == 'expert' && (
+					{self?.level == 'advanced' || self?.level == 'expert' ? (
 						<Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
 							<EditState setEditable={setEditable} onCancel={getObjectData} onConfirm={updateObjectData} />
 						</Box>
-					)}
+					) : null}
 				</Box>
 
 			)}
