@@ -1,10 +1,200 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Grid, Card, CardContent, CircularProgress, Tooltip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useMediaQuery, useTheme } from '@mui/material';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { BarChart } from '@mui/x-charts/BarChart';
+import { 
+  Box, 
+  Typography, 
+  Grid, 
+  Paper,
+  Card, 
+  CardContent, 
+  CircularProgress, 
+  useMediaQuery,
+  useTheme 
+} from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { toast } from 'react-toastify';
+
+// Styled components
+const StatsCard = styled(Paper)(({ theme, color }) => ({
+  padding: '16px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  borderRadius: 0,
+  height: '100%',
+  backdropFilter: 'blur(5px)',
+  WebkitBackdropFilter: 'blur(5px)',
+  backgroundColor: color || 'rgba(50, 50, 70, 0.4)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  transition: 'all 0.2s ease',
+  position: 'relative',
+  minHeight: '120px',
+}));
+
+const ChartContainer = styled(Box)(({ theme }) => ({
+  height: '100%',
+  padding: theme.spacing(1),
+  borderRadius: 0,
+  backdropFilter: 'blur(5px)',
+  WebkitBackdropFilter: 'blur(5px)',
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  backgroundColor: 'rgba(50, 50, 70, 0.4)',
+  marginBottom: theme.spacing(2),
+  minHeight: '300px',
+}));
+
+const PieChartWrapper = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '250px',
+  position: 'relative',
+  [theme.breakpoints.down('sm')]: {
+    height: '200px',
+  },
+}));
+
+// Custom donut chart component
+const DonutChart = ({ data, size = 180, thickness = 30, title = '' }) => {
+  const theme = useTheme();
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let startAngle = 0;
+  
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = size / 2 - 10;
+  const innerRadius = radius - thickness;
+
+  return (
+    <Box sx={{ textAlign: 'center', position: 'relative', width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <g transform={`translate(${centerX}, ${centerY})`}>
+          {data.map((item, index) => {
+            // Calculs pour l'arc de cercle
+            const angle = (item.value / total) * 360;
+            const endAngle = startAngle + angle;
+            
+            // Convertir les angles en radians
+            const startRad = (startAngle - 90) * Math.PI / 180;
+            const endRad = (endAngle - 90) * Math.PI / 180;
+            
+            // Coordonnées des points
+            const outerStartX = radius * Math.cos(startRad);
+            const outerStartY = radius * Math.sin(startRad);
+            const outerEndX = radius * Math.cos(endRad);
+            const outerEndY = radius * Math.sin(endRad);
+            
+            const innerStartX = innerRadius * Math.cos(startRad);
+            const innerStartY = innerRadius * Math.sin(startRad);
+            const innerEndX = innerRadius * Math.cos(endRad);
+            const innerEndY = innerRadius * Math.sin(endRad);
+            
+            // Flag pour l'arc (1 si angle > 180 degrés)
+            const largeArcFlag = angle > 180 ? 1 : 0;
+            
+            // Path pour l'arc
+            const path = [
+              `M ${outerStartX} ${outerStartY}`, // Point de départ extérieur
+              `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY}`, // Arc extérieur
+              `L ${innerEndX} ${innerEndY}`, // Ligne vers le point de fin intérieur
+              `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerStartX} ${innerStartY}`, // Arc intérieur (dans l'autre sens)
+              'Z' // Fermer le chemin
+            ].join(' ');
+            
+            // Mettre à jour l'angle de départ pour le prochain segment
+            startAngle = endAngle;
+            
+            return (
+              <path
+                key={index}
+                d={path}
+                fill={item.color}
+                stroke="rgba(0,0,0,0.2)"
+                strokeWidth="1"
+              />
+            );
+          })}
+          <circle cx="0" cy="0" r={innerRadius - 2} fill="rgba(20, 20, 30, 0.8)" />
+        </g>
+      </svg>
+      {title && (
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)',
+            color: 'white',
+            fontSize: '0.85rem',
+            textAlign: 'center',
+            maxWidth: innerRadius * 1.5,
+            lineHeight: 1.2
+          }}
+        >
+          {title}
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+// Custom legend component
+const ChartLegend = ({ data }) => {
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      justifyContent: 'center', 
+      gap: 1, 
+      mt: 2,
+      maxWidth: '100%',
+    }}>
+      {data.map((item, index) => (
+        <Box 
+          key={index} 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 0.5,
+            px: 1,
+            py: 0.5,
+            bgcolor: 'rgba(0,0,0,0.25)',
+            borderRadius: 1,
+            maxWidth: 'calc(50% - 8px)',
+            flexGrow: 1,
+            flexBasis: '120px',
+          }}
+        >
+          <Box sx={{ 
+            width: 10, 
+            height: 10, 
+            borderRadius: '50%', 
+            bgcolor: item.color,
+            flexShrink: 0
+          }} />
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'white',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              fontSize: '0.7rem',
+            }}
+          >
+            {item.label} ({item.value})
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
 
 const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
   const [objects, setObjects] = useState([]);
@@ -17,33 +207,12 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
     byRoom: {}
   });
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  });
-
-  // Fonction pour gérer le redimensionnement de la fenêtre
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Charger les objets
+        // Load objects
         const objectsResponse = await fetch('/api/objects/getObjects', {
           credentials: 'include'
         });
@@ -56,7 +225,7 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
         const fetchedObjects = objectsData.objects || [];
         setObjects(fetchedObjects);
         
-        // Charger les données d'objets réels
+        // Load object data instances
         try {
           const objectDataResponse = await fetch('/api/objectData/listAllDatas', {
             credentials: 'include'
@@ -74,7 +243,7 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
           setObjectData([]);
         }
         
-        // Charger les salles
+        // Load rooms
         const roomsResponse = await fetch('/api/rooms/getRooms', {
           credentials: 'include'
         });
@@ -163,7 +332,7 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
         }))
         .filter(item => item.value > 0)
         .sort((a, b) => b.value - a.value)
-        .slice(0, 8); // Limiter à 8 types pour la lisibilité
+        .slice(0, 10); // Limiter à 10 types pour la lisibilité
       
       return data.length > 0 ? data : [];
     } catch (error) {
@@ -178,49 +347,6 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
     
     const room = rooms.find(r => r && r.id && r.id.toString() === roomId);
     return room && room.name ? room.name : `Room #${roomId}`;
-  };
-
-  // Format data properties for display
-  const formatObjectData = (obj) => {
-    if (!obj || !obj.data) return 'No data';
-    
-    try {
-      let data;
-      
-      if (typeof obj.data === 'string') {
-        try {
-          data = JSON.parse(obj.data);
-        } catch (e) {
-          // If can't parse as JSON, return as is
-          return obj.data.substring(0, 100);
-        }
-      } else {
-        data = obj.data;
-      }
-      
-      if (!data || typeof data !== 'object') {
-        return 'Invalid data format';
-      }
-      
-      // Return a formatted string of key-value pairs
-      return Object.entries(data)
-        .map(([key, value]) => {
-          // Safely convert value to string
-          let stringValue = '';
-          try {
-            stringValue = typeof value === 'object' 
-              ? JSON.stringify(value).substring(0, 50) 
-              : String(value).substring(0, 50);
-          } catch (e) {
-            stringValue = '[Complex Value]';
-          }
-          return `${key}: ${stringValue}`;
-        })
-        .join(' | ');
-    } catch (e) {
-      console.error('Error formatting object data:', e);
-      return 'Error displaying data';
-    }
   };
 
   // Count active/inactive objects and prepare data for pie chart
@@ -357,7 +483,7 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
   };
 
   // Safe rendering helper functions
-  const canRenderPieChart = (data) => {
+  const hasData = (data) => {
     return Array.isArray(data) && data.length > 0 && 
            data.every(item => item && typeof item.value === 'number' && item.value > 0);
   };
@@ -370,230 +496,317 @@ const ObjectsStats = ({ permissions, selectedRoom, selectedType }) => {
     );
   }
 
-  return (
-    <Box 
-      sx={{ 
-        p: 2, 
-        width: '100%', // Make sure it takes full width
-        maxWidth: '100%',
-        boxSizing: 'border-box', // Ensure padding is included in width calculation
-      }}
-    >
-      {/* Show simple stat cards in the first responsive row */}
-      <Grid container spacing={2} mb={isMobile ? 2 : 3}>
-        <Grid item xs={6} md={3}>
-          <Card sx={{ 
-            height: '100%', 
-            bgcolor: 'rgba(33, 150, 243, 0.15)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
-          }}>
-            <CardContent>
-              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
-                Total Objects
-              </Typography>
-              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
-                {stats.totalObjects}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
-                {selectedRoom || selectedType ? 'Filtered view' : 'All objects'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Card sx={{ 
-            height: '100%', 
-            bgcolor: 'rgba(76, 175, 80, 0.15)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
-          }}>
-            <CardContent>
-              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
-                Active Objects
-              </Typography>
-              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
-                {getActiveObjectsCount()}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
-                {stats.totalObjects > 0 ? 
-                  `${((getActiveObjectsCount() / stats.totalObjects) * 100).toFixed(0)}% of total` : 
-                  'No data available'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Card sx={{ 
-            height: '100%', 
-            bgcolor: 'rgba(255, 152, 0, 0.15)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
-          }}>
-            <CardContent>
-              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
-                Object Types
-              </Typography>
-              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
-                {Object.keys(stats.byType).length}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
-                Unique types 
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <Card sx={{ 
-            height: '100%', 
-            bgcolor: 'rgba(156, 39, 176, 0.15)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
-          }}>
-            <CardContent>
-              <Typography variant="body2" sx={{ color: 'white', opacity: 0.9 }}>
-                Rooms with Objects
-              </Typography>
-              <Typography variant="h4" sx={{ my: 1, fontWeight: 'bold', color: 'white' }}>
-                {Object.keys(stats.byRoom).length}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'white', opacity: 0.7, display: 'flex', alignItems: 'center' }}>
-                With at least 1 object
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+  const roomData = prepareObjectDataChartData();
+  const statusData = countObjectDataByType();
 
-      {/* Chart section */}
-      <Grid container spacing={2} sx={{ height: isMobile ? 'auto' : 'calc(100% - 115px)', mt: 0 }}>
-        <Grid item xs={12} md={6} sx={{ height: isMobile ? '300px' : '100%' }}>
+  return (
+    <Box sx={{ width: '100%' }}>
+      {/* Section des statistiques */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 1,
+        mt: 2
+      }}>
+        <Typography variant="subtitle1" sx={{ 
+          color: 'white', 
+          fontWeight: 'medium',
+          fontSize: { xs: '0.9rem', sm: '1rem' },
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <Box 
+            component="span" 
+            sx={{ 
+              width: 18, 
+              height: 18, 
+              borderRadius: '4px',
+              mr: 1,
+              background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.5), rgba(33, 150, 243, 0.8))',
+              display: 'inline-flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontSize: '0.6rem',
+              fontWeight: 'bold'
+            }}
+          >
+            S
+          </Box>
+          Objects Statistics
+        </Typography>
+      </Box>
+
+      {/* Layout principal - responsive avec flexbox */}
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', md: 'row' },
+        width: '100%',
+        gap: { xs: 1.5, sm: 2 },
+        mb: { xs: 1.5, sm: 2 }
+      }}>
+        {/* Partie gauche - 4 cartes (2x2) */}
+        <Box sx={{ 
+          width: { xs: '100%', md: '50%' },
+          display: 'flex',
+          flexDirection: 'column',
+          gap: { xs: 1.5, sm: 2 }
+        }}>
+          {/* Ligne 1 */}
           <Box sx={{ 
-            height: '100%', 
-            p: { xs: 0, sm: 1 }, 
-            bgcolor: 'rgba(50, 50, 70, 0.4)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
+            display: 'flex',
+            width: '100%', 
+            gap: { xs: 1.5, sm: 2 }
+          }}>
+            {/* Total Objects */}
+            <Box sx={{ width: '50%' }}>
+              <StatsCard color="rgba(33, 150, 243, 0.15)" sx={{ 
+                height: '100%',
+                minHeight: { xs: '100px', sm: '120px' }
+              }}>
+                <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="body2" sx={{ 
+                    color: 'white', 
+                    opacity: 0.9, 
+                    fontSize: { xs: '0.75rem', sm: '0.85rem' }
+                  }}>
+                    Total Objects
+                  </Typography>
+                  <Typography variant="h4" sx={{ 
+                    my: { xs: 0.5, sm: 1 }, 
+                    fontWeight: 'bold', 
+                    color: 'white',
+                    fontSize: { xs: '1.5rem', sm: '2rem' }
+                  }}>
+                    {stats.totalObjects}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    color: 'white', 
+                    opacity: 0.7,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' }
+                  }}>
+                    All objects
+                  </Typography>
+                </Box>
+              </StatsCard>
+            </Box>
+            
+            {/* Active Objects */}
+            <Box sx={{ width: '50%' }}>
+              <StatsCard color="rgba(76, 175, 80, 0.15)" sx={{ 
+                height: '100%',
+                minHeight: { xs: '100px', sm: '120px' }
+              }}>
+                <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="body2" sx={{ 
+                    color: 'white', 
+                    opacity: 0.9, 
+                    fontSize: { xs: '0.75rem', sm: '0.85rem' }
+                  }}>
+                    Active Objects
+                  </Typography>
+                  <Typography variant="h4" sx={{ 
+                    my: { xs: 0.5, sm: 1 }, 
+                    fontWeight: 'bold', 
+                    color: 'white',
+                    fontSize: { xs: '1.5rem', sm: '2rem' }
+                  }}>
+                    {getActiveObjectsCount()}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    color: 'white', 
+                    opacity: 0.7,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' }
+                  }}>
+                    {stats.totalObjects > 0 ? 
+                      `${((getActiveObjectsCount() / stats.totalObjects) * 100).toFixed(0)}% of total` : 
+                      'No data available'}
+                  </Typography>
+                </Box>
+              </StatsCard>
+            </Box>
+          </Box>
+          
+          {/* Ligne 2 */}
+          <Box sx={{ 
+            display: 'flex',
+            width: '100%', 
+            gap: { xs: 1.5, sm: 2 }
+          }}>
+            {/* Object Types */}
+            <Box sx={{ width: '50%' }}>
+              <StatsCard color="rgba(255, 152, 0, 0.15)" sx={{ 
+                height: '100%',
+                minHeight: { xs: '100px', sm: '120px' }
+              }}>
+                <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="body2" sx={{ 
+                    color: 'white', 
+                    opacity: 0.9, 
+                    fontSize: { xs: '0.75rem', sm: '0.85rem' }
+                  }}>
+                    Object Types
+                  </Typography>
+                  <Typography variant="h4" sx={{ 
+                    my: { xs: 0.5, sm: 1 }, 
+                    fontWeight: 'bold', 
+                    color: 'white',
+                    fontSize: { xs: '1.5rem', sm: '2rem' }
+                  }}>
+                    {Object.keys(stats.byType).length}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    color: 'white', 
+                    opacity: 0.7,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' }
+                  }}>
+                    Unique types
+                  </Typography>
+                </Box>
+              </StatsCard>
+            </Box>
+            
+            {/* Rooms with Objects */}
+            <Box sx={{ width: '50%' }}>
+              <StatsCard color="rgba(156, 39, 176, 0.15)" sx={{ 
+                height: '100%',
+                minHeight: { xs: '100px', sm: '120px' }
+              }}>
+                <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="body2" sx={{ 
+                    color: 'white', 
+                    opacity: 0.9, 
+                    fontSize: { xs: '0.75rem', sm: '0.85rem' }
+                  }}>
+                    Rooms with Objects
+                  </Typography>
+                  <Typography variant="h4" sx={{ 
+                    my: { xs: 0.5, sm: 1 }, 
+                    fontWeight: 'bold', 
+                    color: 'white',
+                    fontSize: { xs: '1.5rem', sm: '2rem' }
+                  }}>
+                    {Object.keys(stats.byRoom).length}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    color: 'white', 
+                    opacity: 0.7,
+                    fontSize: { xs: '0.65rem', sm: '0.7rem' }
+                  }}>
+                    With at least 1 object
+                  </Typography>
+                </Box>
+              </StatsCard>
+            </Box>
+          </Box>
+        </Box>
+        
+        {/* Partie droite - Graphique Object Status */}
+        <Box sx={{ 
+          width: { xs: '100%', md: '50%' },
+          mt: { xs: 1, md: 0 }
+        }}>
+          <ChartContainer sx={{ 
+            height: '100%',
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
-            width: '100%', // Ensure full width
+            minHeight: { xs: '250px', sm: '280px', md: '100%' }
           }}>
-            <Typography variant="body2" sx={{ mb: 0.5, px: 1, pt: 1, color: 'white' }}>
+            <Box sx={{ p: { xs: 1.5, sm: 2 }, pb: 0 }}>
+              <Typography variant="body2" sx={{ 
+                color: 'white', 
+                fontWeight: 500,
+                fontSize: { xs: '0.8rem', sm: '0.9rem' }
+              }}>
+                Object Status
+              </Typography>
+            </Box>
+            
+            <Box sx={{ 
+              p: { xs: 1, sm: 2 }, 
+              pt: { xs: 0.5, sm: 1 },
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexGrow: 1
+            }}>
+              {hasData(statusData) ? (
+                <>
+                  <Box sx={{ 
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexGrow: 1,
+                    pt: { xs: 1, sm: 2 }
+                  }}>
+                    <DonutChart 
+                      data={statusData} 
+                      size={isMobile ? 140 : 180} 
+                      thickness={isMobile ? 25 : 40}
+                    />
+                  </Box>
+                  <ChartLegend data={statusData} />
+                </>
+              ) : (
+                <Typography sx={{ color: 'white', opacity: 0.7 }}>
+                  No data to display
+                </Typography>
+              )}
+            </Box>
+          </ChartContainer>
+        </Box>
+      </Box>
+
+      {/* Graphique Rooms en dessous, seul */}
+      <Box sx={{ width: '100%' }}>
+        <ChartContainer sx={{ 
+          width: '100%',
+          minHeight: { xs: '250px', sm: '280px' }
+        }}>
+          <Box sx={{ p: { xs: 1.5, sm: 2 }, pb: 0 }}>
+            <Typography variant="body2" sx={{ 
+              color: 'white', 
+              fontWeight: 500,
+              fontSize: { xs: '0.8rem', sm: '0.9rem' }
+            }}>
               Objects by Room
             </Typography>
-            <Box sx={{ flexGrow: 1, width: '100%', height: 'calc(100% - 24px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {canRenderPieChart(prepareObjectDataChartData()) ? (
-                <PieChart
-                  series={[
-                    {
-                      data: prepareObjectDataChartData(),
-                      highlightScope: { faded: 'global', highlighted: 'item' },
-                      faded: { innerRadius: 30, color: 'gray' },
-                      innerRadius: 0,
-                      paddingAngle: 1,
-                      cornerRadius: 0,
-                      startAngle: -90,
-                      endAngle: 270
-                    },
-                  ]}
-                  height={isMobile ? 250 : windowSize.height * 0.28}
-                  width="100%" // Use full width
-                  margin={{ top: 10, bottom: 10, left: 0, right: isMobile ? 0 : 110 }}
-                  legend={{ 
-                    position: isMobile ? 'bottom' : 'right',
-                    itemMarkWidth: 10,
-                    itemMarkHeight: 10,
-                    markGap: 5,
-                    itemGap: 5,
-                    labelStyle: {
-                      fontSize: 11,
-                      fill: 'white',
-                    },
-                  }}
-                  colors={prepareObjectDataChartData().map(item => item.color)}
-                  slotProps={{
-                    legend: {
-                      labelStyle: {
-                        fill: 'white',
-                      },
-                    },
-                  }}
-                />
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  <Typography sx={{ color: 'white', opacity: 0.7 }}>No data to display</Typography>
-                </Box>
-              )}
-            </Box>
           </Box>
-        </Grid>
-        <Grid item xs={12} md={6} sx={{ height: isMobile ? '300px' : '100%' }}>
+          
           <Box sx={{ 
-            height: '100%', 
-            p: { xs: 0, sm: 1 }, 
-            bgcolor: 'rgba(50, 50, 70, 0.4)', 
-            borderRadius: 0,
-            backdropFilter: 'blur(5px)',
-            '-webkit-backdrop-filter': 'blur(5px)',
+            p: { xs: 1, sm: 2 }, 
+            pt: { xs: 0.5, sm: 1 },
             display: 'flex',
             flexDirection: 'column',
-            width: '100%', // Ensure full width
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <Typography variant="body2" sx={{ mb: 0.5, px: 1, pt: 1, color: 'white' }}>
-              Object Status
-            </Typography>
-            <Box sx={{ flexGrow: 1, width: '100%', height: 'calc(100% - 24px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {canRenderPieChart(countObjectDataByType()) ? (
-                <PieChart
-                  series={[
-                    {
-                      data: countObjectDataByType(),
-                      highlightScope: { faded: 'global', highlighted: 'item' },
-                      faded: { innerRadius: 30, color: 'gray' },
-                      innerRadius: 0,
-                      paddingAngle: 1,
-                      cornerRadius: 0,
-                      startAngle: -90,
-                      endAngle: 270,
-                    },
-                  ]}
-                  height={isMobile ? 250 : windowSize.height * 0.28}
-                  width="100%" // Use full width
-                  margin={{ top: 10, bottom: 10, left: 0, right: isMobile ? 0 : 110 }}
-                  legend={{ 
-                    position: isMobile ? 'bottom' : 'right',
-                    itemMarkWidth: 10,
-                    itemMarkHeight: 10,
-                    markGap: 5,
-                    itemGap: 5,
-                    labelStyle: {
-                      fontSize: 11,
-                      fill: 'white',
-                    },
-                  }}
-                  colors={countObjectDataByType().map(item => item.color)}
-                  slotProps={{
-                    legend: {
-                      labelStyle: {
-                        fill: 'white',
-                      },
-                    },
-                  }}
-                />
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  <Typography sx={{ color: 'white', opacity: 0.7 }}>No data to display</Typography>
+            {hasData(roomData) ? (
+              <>
+                <Box sx={{ 
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  pt: { xs: 1, sm: 2 }
+                }}>
+                  <DonutChart 
+                    data={roomData} 
+                    size={isMobile ? 140 : 180} 
+                    thickness={isMobile ? 25 : 40}
+                  />
                 </Box>
-              )}
-            </Box>
+                <ChartLegend data={roomData} />
+              </>
+            ) : (
+              <Typography sx={{ color: 'white', opacity: 0.7 }}>
+                No data to display
+              </Typography>
+            )}
           </Box>
-        </Grid>
-      </Grid>
+        </ChartContainer>
+      </Box>
     </Box>
   );
 };

@@ -10,6 +10,9 @@ import IconButton from '@mui/material/IconButton';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import { ThemeProvider } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import DevicesIcon from '@mui/icons-material/Devices';
 
 // Import MUI theme registry
 import ThemeRegistry from '../../components/ThemeRegistry';
@@ -262,82 +265,185 @@ export default function Dashboard() {
           ) : (
             // Legacy Dashboard - Original View
             <>
-      <div className="dashboard-panel dashboard-stats-panel">
-        <ObjectsStats permissions={permissions} />
-      </div>
+              <div className="dashboard-panel dashboard-stats-panel">
+                <ObjectsStats permissions={permissions} />
+              </div>
 
-      <div className="dashboard-panel dashboard-content-panel">
-        <div className="tabs">
-          {permissions.readObject &&
-            <div
-              className={`tab ${activeTab === 0 ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange(0)}
-            >
-              Objects
-            </div>
-          }
-          {permissions.readData &&
-            <div
-              className={`tab ${activeTab === 1 ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange(1)}
-            >
-              Data
-            </div>
-          }
-          {permissions.readRoom &&
-            <div
-              className={`tab ${activeTab === 2 ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange(2)}
-            >
-              Rooms
-            </div>
-          }
-          {permissions.readData &&
-            <div
-              className={`tab ${activeTab === 3 ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange(3)}
-            >
-              History
-            </div>
-          }
+              {/* On desktop, show the regular tabbed panel */}
+              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                <div className="dashboard-panel dashboard-content-panel">
+                  <div className="tabs">
+                    {permissions.readObject &&
+                      <div
+                        className={`tab ${activeTab === 0 ? 'tab-active' : ''}`}
+                        onClick={() => handleTabChange(0)}
+                      >
+                        Objects
+                      </div>
+                    }
+                    {permissions.readData &&
+                      <div
+                        className={`tab ${activeTab === 1 ? 'tab-active' : ''}`}
+                        onClick={() => handleTabChange(1)}
+                      >
+                        Data
+                      </div>
+                    }
+                    {permissions.readRoom &&
+                      <div
+                        className={`tab ${activeTab === 2 ? 'tab-active' : ''}`}
+                        onClick={() => handleTabChange(2)}
+                      >
+                        Rooms
+                      </div>
+                    }
+                    {permissions.readData &&
+                      <div
+                        className={`tab ${activeTab === 3 ? 'tab-active' : ''}`}
+                        onClick={() => handleTabChange(3)}
+                      >
+                        History
+                      </div>
+                    }
+                  </div>
+
+                  {/* Content based on selected tab */}
+                  <div style={{ width: '100%', maxWidth: '100%' }}>
+                    {activeTab === 0 && permissions.readObject &&
+                      <ObjectsPanel
+                        permissions={permissions}
+                        searchQuery={searchQuery}
+                        searchResults={searchResults}
+                      />
+                    }
+                    {activeTab === 1 && permissions.readData &&
+                      <DataPanel
+                        permissions={permissions}
+                        searchQuery={searchQuery}
+                        searchResults={searchResults}
+                      />
+                    }
+                    {activeTab === 2 && permissions.readRoom &&
+                      <RoomsPanel
+                        permissions={permissions}
+                        searchQuery={searchQuery}
+                        searchResults={searchResults}
+                      />
+                    }
+                    {activeTab === 3 && permissions.readData &&
+                      <HistoryPanel
+                        permissions={permissions}
+                        searchQuery={searchQuery}
+                        searchResults={searchResults}
+                      />
+                    }
+                  </div>
+                </div>
+              </Box>
+
+              {/* On mobile, show two buttons for Rooms and Objects */}
+              <Box sx={{ 
+                display: { xs: 'flex', md: 'none' },
+                flexDirection: 'column',
+                gap: 2,
+                p: 2,
+                bgcolor: 'rgba(30, 30, 40, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                mt: 2
+              }}>
+                <Typography variant="subtitle1" sx={{ 
+                  color: 'white', 
+                  mb: 1,
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  <Box 
+                    component="span" 
+                    sx={{ 
+                      width: 18, 
+                      height: 18, 
+                      borderRadius: '4px',
+                      mr: 1,
+                      background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.5), rgba(33, 150, 243, 0.8))',
+                      display: 'inline-flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: '0.6rem',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    N
+                  </Box>
+                  Quick Navigation
+                </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 2,
+                  justifyContent: 'space-between'
+                }}>
+                  <Button 
+                    variant="contained"
+                    startIcon={<MeetingRoomIcon />}
+                    sx={{ 
+                      flexGrow: 1,
+                      py: 1.5,
+                      bgcolor: 'rgba(33, 150, 243, 0.8)',
+                      backdropFilter: 'blur(5px)',
+                      WebkitBackdropFilter: 'blur(5px)',
+                      '&:hover': {
+                        bgcolor: 'rgba(33, 150, 243, 1)',
+                      },
+                      borderRadius: 0,
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      textTransform: 'none',
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      boxShadow: 'none',
+                      '&:active': {
+                        boxShadow: 'none',
+                        transform: 'translateY(1px)'
+                      }
+                    }}
+                    onClick={() => router.push('/room')}
+                  >
+                    Rooms
+                  </Button>
+                  
+                  <Button 
+                    variant="contained"
+                    startIcon={<DevicesIcon />}
+                    sx={{ 
+                      flexGrow: 1,
+                      py: 1.5,
+                      bgcolor: 'rgba(76, 175, 80, 0.8)',
+                      backdropFilter: 'blur(5px)',
+                      WebkitBackdropFilter: 'blur(5px)',
+                      '&:hover': {
+                        bgcolor: 'rgba(76, 175, 80, 1)',
+                      },
+                      borderRadius: 0,
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      textTransform: 'none',
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      boxShadow: 'none',
+                      '&:active': {
+                        boxShadow: 'none',
+                        transform: 'translateY(1px)'
+                      }
+                    }}
+                    onClick={() => router.push('/objectInstance')}
+                  >
+                    Objects
+                  </Button>
+                </Box>
+              </Box>
+            </>
+          )}
         </div>
-
-        {/* Content based on selected tab */}
-              <div style={{ width: '100%', maxWidth: '100%' }}>
-        {activeTab === 0 && permissions.readObject &&
-          <ObjectsPanel
-            permissions={permissions}
-            searchQuery={searchQuery}
-            searchResults={searchResults}
-          />
-        }
-        {activeTab === 1 && permissions.readData &&
-          <DataPanel
-            permissions={permissions}
-            searchQuery={searchQuery}
-            searchResults={searchResults}
-          />
-        }
-        {activeTab === 2 && permissions.readRoom &&
-          <RoomsPanel
-            permissions={permissions}
-            searchQuery={searchQuery}
-            searchResults={searchResults}
-          />
-        }
-        {activeTab === 3 && permissions.readData &&
-          <HistoryPanel
-            permissions={permissions}
-            searchQuery={searchQuery}
-            searchResults={searchResults}
-          />
-        }
       </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
     </ThemeRegistry>
   );
 }
