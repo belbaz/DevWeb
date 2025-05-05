@@ -32,7 +32,6 @@ export default function Profile({ }) {
 	const [loading, setLoading] = useState(true);
 	const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
 	const [editable, setEditable] = useState(false);
-	const [editableAdmin, setEditableAdmin] = useState(false);
 	const [showPasswordInput, setShowPasswordInput] = useState(false);
 	const [password, setPassword] = useState(false);
 
@@ -517,26 +516,26 @@ export default function Profile({ }) {
 											<>
 												<TextField
 													size="small"
-													disabled={!editableAdmin}
+													disabled={!editable}
 													label="Points"
 													value={userData?.points}
 													type="number"
 													name='points'
 													onChange={(e) => setUserData({ ...userData, points: e.target.value })}
 													sx={{
-														cursor: editableAdmin ? 'text' : 'not-allowed',
+														cursor: editable ? 'text' : 'not-allowed',
 														backgroundColor: "#3a3a3a",
 														borderRadius: 1,
 														'&& .MuiInputBase-input': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
 														},
 														'&& .MuiInputLabel-root': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
 														},
 														'&& .Mui-disabled': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
 														}
 													}}
 													slotProps={{
@@ -560,29 +559,29 @@ export default function Profile({ }) {
 												/>
 												<TextField
 													size="small"
-													disabled={!editableAdmin}
+													disabled={!editable}
 													label="Level"
 													select
 													value={userData?.level}
 													name='level'
 													onChange={(e) => setUserData({ ...userData, level: e.target.value })}
 													sx={{
-														cursor: editableAdmin ? 'text' : 'not-allowed',
+														cursor: editable ? 'text' : 'not-allowed',
 														backgroundColor: "#3a3a3a",
 														borderRadius: 1,
 														'&& .MuiSelect-icon': {
-															color: editableAdmin ? 'white' : '#9e9e9e !important',
+															color: editable ? 'white' : '#9e9e9e !important',
 														},
 														'&& .MuiInputBase-input': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
 														},
 														'&& .MuiInputLabel-root': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
 														},
 														'&& .Mui-disabled': {
-															color: editableAdmin ? 'white' : '#9e9e9e',
-															WebkitTextFillColor: editableAdmin ? 'white' : '#9e9e9e',
+															color: editable ? 'white' : '#9e9e9e',
+															WebkitTextFillColor: editable ? 'white' : '#9e9e9e',
 														}
 													}}
 													slotProps={{
@@ -612,14 +611,14 @@ export default function Profile({ }) {
 												<Typography component="span" sx={{ fontWeight: 'bold', color: '#595959', mr: -1.5, mt: -1 }}>
 													Activated :
 													<Checkbox
-														disabled={!editableAdmin}
+														disabled={!editable}
 														value={userData?.isActive}
 														name='isActive'
-														onChange={(e) => setUserData({ ...userData, isActive: e.target.checked })}
+														onChange={(e) => { console.log(e.target.checked); setUserData({ ...userData, isActive: e.target.checked }) }}
 														checked={userData?.isActive}
 														sx={{
 															'&.Mui-checked': {
-																color: editableAdmin ? "#7FC7FF" : "grey",
+																color: editable ? "#7FC7FF" : "grey",
 															},
 															'&:not(.Mui-checked)': {
 																color: 'white',
