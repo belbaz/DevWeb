@@ -27,6 +27,7 @@ export default function Room({ }) {
 	const [self, setSelf] = useState(null);
 	const [objectID, setObjectID] = useState(null);
 	const [objects, setObjects] = useState(null);
+	const [currentObjectType, setCurrentObjectType] = useState(null);
 	const [currentObject, setCurrentObject] = useState(null);
 	const [globalIndexMap, setGlobalIndexMap] = useState({});
 	const [expoList, setExpoList] = useState([]);
@@ -89,6 +90,30 @@ export default function Room({ }) {
 		}
 		if (objects?.length > 0) fetchGlobalIndexes();
 	}, [objects]);
+
+	useEffect(() => {
+		async function getCurrentObjectType() {
+			try {
+				const response = await fetch(`/api/objects/getObjects`, {
+					method: "GET"
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.error || "Unknown error");
+				}
+
+				const data = await response.json();
+				const matchedType = data.objects.find(obj => obj.type === currentObject?.type_Object);
+				setCurrentObjectType(matchedType);
+			} catch (error) {
+				toast.error("Error while fetching object instance data : " + error.message);
+			}
+		}
+
+		if (currentObject) getCurrentObjectType();
+	}, [currentObject]);
+
 
 	async function getRoom() {
 		try {
@@ -507,15 +532,20 @@ export default function Room({ }) {
 							{currentObject ? (
 								<>
 									{category('Object informations')}
-									<Box>{fieldName('Type', currentObject?.type_Object)}</Box>
+									<Link
+										onClick={() => router.push("/object/" + currentObjectType.id)}
+										sx={{ '&:hover': { textDecoration: 'none', cursor: 'pointer' } }}
+									>
+										{fieldName('Type', currentObject?.type_Object)}
+									</Link>
 									{Object.entries(typeof currentObject.data === 'string' ?
 										JSON.parse(currentObject.data)
 										:
 										currentObject.data).map(([key, value]) => (
-										<Box key={key}>
-											{fieldName(key, String(value))}
-										</Box>
-									))
+											<Box key={key}>
+												{fieldName(key, String(value))}
+											</Box>
+										))
 									}
 
 									{['advanced', 'expert', 'intermediate'].includes(self?.level) && currentObject?.id && (
