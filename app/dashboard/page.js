@@ -407,18 +407,43 @@ export default function Dashboard() {
                       }
                     }}
                     onClick={() => {
-                      // Add selectedFloor as query parameter if exists
-                      if (selectedFloor) {
-                        router.push(`/room?floor=${selectedFloor}`);
-                      } else if (selectedRoom) {
-                        // If a room is selected, go directly to that room
+                      // Si une room est sélectionnée, aller directement à cette room
+                      if (selectedRoom) {
                         router.push(`/room/${selectedRoom}`);
-                      } else {
+                      } 
+                      // Si un étage est sélectionné, chercher une room dans cet étage
+                      else if (selectedFloor && rooms.length > 0) {
+                        // Filtrer les rooms de cet étage
+                        const roomsOnFloor = rooms.filter(room => 
+                          room.floor !== undefined && String(room.floor) === String(selectedFloor)
+                        );
+                        
+                        // S'il y a des rooms sur cet étage, en prendre une au hasard
+                        if (roomsOnFloor.length > 0) {
+                          const randomRoom = roomsOnFloor[Math.floor(Math.random() * roomsOnFloor.length)];
+                          router.push(`/room/${randomRoom.id}`);
+                        } else {
+                          // Sinon prendre une room au hasard parmi toutes les rooms
+                          if (rooms.length > 0) {
+                            const randomRoom = rooms[Math.floor(Math.random() * rooms.length)];
+                            router.push(`/room/${randomRoom.id}`);
+                          } else {
+                            router.push('/room');
+                          }
+                        }
+                      }
+                      // Sinon, prendre une room au hasard
+                      else if (rooms.length > 0) {
+                        const randomRoom = rooms[Math.floor(Math.random() * rooms.length)];
+                        router.push(`/room/${randomRoom.id}`);
+                      } 
+                      // En dernier recours, aller à la page générale des rooms
+                      else {
                         router.push('/room');
                       }
                     }}
                   >
-                    Rooms
+                    Rooms (random example)
                   </Button>
                   
                   <Button 
@@ -445,26 +470,47 @@ export default function Dashboard() {
                       }
                     }}
                     onClick={() => {
-                      const queryParams = new URLSearchParams();
-                      
-                      // Add query parameters based on what's selected
-                      if (selectedType) {
-                        queryParams.append('type', selectedType);
-                      }
-                      
-                      if (selectedRoom) {
-                        queryParams.append('room', selectedRoom);
-                      }
-                      
-                      // Create the URL with query parameters if any exist
-                      const url = queryParams.toString() 
-                        ? `/objectInstance?${queryParams.toString()}` 
-                        : '/objectInstance';
+                      // Si un type d'objet est sélectionné et qu'on a des données
+                      if (selectedType && objectData.length > 0) {
+                        // Filtrer les instances par type
+                        const instancesOfType = objectData.filter(instance => 
+                          instance.type_Object === selectedType
+                        );
                         
-                      router.push(url);
+                        // S'il y a des instances de ce type, en prendre une au hasard
+                        if (instancesOfType.length > 0) {
+                          const randomInstance = instancesOfType[Math.floor(Math.random() * instancesOfType.length)];
+                          router.push(`/objectInstance/${randomInstance.id}`);
+                          return;
+                        }
+                      }
+                      
+                      // Si une room est sélectionnée et qu'on a des données
+                      if (selectedRoom && objectData.length > 0) {
+                        // Filtrer les instances par room
+                        const instancesInRoom = objectData.filter(instance => 
+                          instance.room_id === selectedRoom
+                        );
+                        
+                        // S'il y a des instances dans cette room, en prendre une au hasard
+                        if (instancesInRoom.length > 0) {
+                          const randomInstance = instancesInRoom[Math.floor(Math.random() * instancesInRoom.length)];
+                          router.push(`/objectInstance/${randomInstance.id}`);
+                          return;
+                        }
+                      }
+                      
+                      // Si on a des données d'instance, prendre une instance au hasard
+                      if (objectData.length > 0) {
+                        const randomInstance = objectData[Math.floor(Math.random() * objectData.length)];
+                        router.push(`/objectInstance/${randomInstance.id}`);
+                      } else {
+                        // En dernier recours, aller à la page générale des instances
+                        router.push('/objectInstance');
+                      }
                     }}
                   >
-                    Objects
+                    Objects (random example)
                   </Button>
                 </Box>
               </Box>

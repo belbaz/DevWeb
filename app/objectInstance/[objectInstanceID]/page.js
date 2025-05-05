@@ -251,7 +251,7 @@ export default function ObjectInstance({ }) {
 									) : (
 										<Box>
 											{Object.entries(objectInstanceData.data).map(([key, value]) => (
-												<Box key={key}>{fieldName(key, value)}</Box>
+												<Box key={`data-${key}`}>{fieldName(key, value)}</Box>
 											))}
 										</Box>
 									)}
@@ -276,7 +276,7 @@ export default function ObjectInstance({ }) {
 								Updated at: {new Date(entry.updated_at).toLocaleString()} by {entry.User?.pseudo || 'Unknown user'}
 							</Typography>
 							{(objectFieldMap[objectInstanceData?.type_Object] || []).map((field) => (
-								<Box key={field}>{fieldName(field, entry.old_data?.[field] ?? '')}</Box>
+								<Box key={`field-${field}-${entry.id}`}>{fieldName(field, entry.old_data?.[field] ?? '')}</Box>
 							))}
 						</Box>
 					))}

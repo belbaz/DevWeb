@@ -479,7 +479,7 @@ export default function Room({ }) {
 							<TextField
 								size="small"
 								label="Object"
-								value={objectID}
+								value={objectID || ''}
 								select
 								onChange={(e) => setObjectID(Number(e.target.value))}
 								sx={{
@@ -491,11 +491,17 @@ export default function Room({ }) {
 									'&& .MuiInputLabel-root': { color: '#9e9e9e' }
 								}}
 							>
-								{Array.isArray(objects) && objects.map((object) => (
-									<MenuItem key={object.id} value={object.id}>
-										{`${object.type_Object} n°${globalIndexMap[object.id] || '?'}`}
+								{Array.isArray(objects) && objects.length > 0 ? (
+									objects.map((object) => (
+										<MenuItem key={object.id} value={object.id}>
+											{`${object.type_Object} n°${globalIndexMap[object.id] || '?'}`}
+										</MenuItem>
+									))
+								) : (
+									<MenuItem value="" disabled>
+										No objects available in this room
 									</MenuItem>
-								))}
+								)}
 							</TextField>
 
 							{currentObject ? (
